@@ -1,0 +1,87 @@
+# ==============================================================================
+# Couriva - Apache / XAMPP Configuration (.htaccess)
+# ==============================================================================
+
+# Disable directory browsing and enable symlinks
+Options -Indexes +FollowSymLinks
+
+# Serve locally bundled icon fonts with the MIME types required by nosniff.
+<IfModule mod_mime.c>
+    AddType font/woff2 .woff2
+    AddType font/woff .woff
+</IfModule>
+
+# Set default index
+DirectoryIndex index.php public/index.php
+
+# Block access to hidden files and directories (dotfiles)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /Web_Mail_System/
+
+    # Enforce HTTPS for real hostnames, including TLS-terminating proxies.
+    # Loopback hosts remain available over plain HTTP for local LAMPP work.
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
+
+    # Block direct HTTP access to internal directories
+    RewriteRule ^(storage|config|app|database|includes|tests|bin)/.*$ - [F,L]
+    RewriteRule ^(storage|config|app|database|includes|tests|bin|node_modules|\.hermes)(/|$) - [F,L]
+
+    # Block access to sensitive file extensions
+    <FilesMatch "\.(sql|log|env|ini|bak|md|yml|yaml|sh|bat)$">
+        <IfModule mod_authz_core.c>
+            Require all denied
+        </IfModule>
+        <IfModule !mod_authz_core.c>
+            Deny from all
+        </IfModule>
+    </FilesMatch>
+    <FilesMatch "\.(bak[0-9]*|json|lock)$">
+        <IfModule mod_authz_core.c>
+            Require all denied
+        </IfModule>
+        <IfModule !mod_authz_core.c>
+            Deny from all
+        </IfModule>
+    </FilesMatch>
+
+    # Forward empty root request to public/index.php
+    RewriteRule ^$ public/index.php [L]
+
+    # Allow direct access to real files and directories inside public, admin, or assets
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route remaining non-existent paths to public front controller
+    RewriteRule ^(.*)$ public/index.php?route=$1 [QSA,L]
+</IfModule>
+
+# Fallback directory protection if mod_rewrite is disabled
+<IfModule !mod_rewrite.c>
+    <FilesMatch "^(web\.config|\.env|composer\.json|package\.json)$">
+        <IfModule mod_authz_core.c>
+            Require all denied
+        </IfModule>
+        <IfModule !mod_authz_core.c>
+            Deny from all
+        </IfModule>
+    </FilesMatch>
+</IfModule>
+
+# Security Headers (if mod_headers is enabled).
+# Static assets receive these headers here. Dynamic PHP responses emit their
+# own headers (including the per-request CSP nonce) in includes/functions.php.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|mjs|map|svg|png|jpe?g|gif|webp|ico|woff2?|ttf|eot)$">
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-Frame-Options "SAMEORIGIN"
+        Header always set Referrer-Policy "strict-origin-when-cross-origin"
+        Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self'; frame-src 'self';"
+    </FilesMatch>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+</IfModule>

@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment and sensitive files
+.env
+.env.*
+!.env.example
+
+# Temporary storage & test uploads
+storage/attachments/att_*_*
+storage/logs/*
+!storage/logs/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+
+# System & Editor
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+.idea/
+.vscode/
+
+# Agent & Scratch Files
+.hermes/
+.superpowers/
+patch_mailservice*.php
+exact_segment*.txt

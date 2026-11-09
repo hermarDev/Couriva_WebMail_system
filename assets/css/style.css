@@ -1,0 +1,2828 @@
+/**
+ * Couriva - Modern Design Token System & Global Stylesheet
+ *
+ * Implements design tokens from Sections 4, 5, 6, 28, and 53:
+ * - Refined Primary Blue/Indigo Palette
+ * - Semantic Surface Levels & 1px Subtle Borders
+ * - Modern Typography Stack (Inter / System)
+ * - Restrained Elevation & Cardless Visual Hierarchy
+ * - Independent Light and Dark Modes
+ * - Consistent Micro-Interactions
+ */
+
+/* Bootstrap's .collapse component shares a class name with Tailwind's
+   visibility utility. The generated utility sets `visibility: collapse`,
+   which leaves the sidebar/filter panels occupying space but invisible.
+   Restore Bootstrap's expected visibility; display is still controlled by
+   Bootstrap's .collapse rules. */
+.collapse {
+    visibility: visible;
+}
+
+/* ==========================================================================
+   Design Tokens - Light Theme (Default)
+   ========================================================================== */
+:root {
+    /* Backgrounds & Surfaces */
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface-elevated: #FFFFFF;
+    --surface-subtle: #F1F5F9;
+
+    /* Sidebar Geometry */
+    --sidebar-width: 256px;
+    --sidebar-mini-width: 72px;
+
+    /* Text Hierarchy */
+    --text: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+
+    /* Borders */
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+
+    /* Brand & Accent */
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-soft: #DBEAFE;
+    --accent: #4F46E5;
+
+    /* Feedback */
+    --success: #16A34A;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --info: #0284C7;
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+
+    /* Shadows & Elevations */
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+
+    /* Legacy Aliases for Full Backward Compatibility */
+    --webmail-primary: var(--primary);
+    --webmail-primary-hover: var(--primary-hover);
+    --webmail-primary-subtle: var(--primary-soft);
+    --webmail-sidebar-bg: var(--surface-subtle);
+    --webmail-border-color: var(--border);
+    --webmail-card-bg: var(--surface);
+    --webmail-text-main: var(--text);
+    --webmail-text-muted: var(--text-muted);
+    --webmail-row-hover: var(--surface-subtle);
+    --webmail-row-active: var(--primary-soft);
+    --webmail-unread-bg: var(--surface);
+    --webmail-read-bg: var(--surface-subtle);
+    --webmail-starred-color: #F59E0B;
+    --webmail-chip-bg: var(--primary-soft);
+    --webmail-chip-text: #1D4ED8;
+    --webmail-toolbar-bg: var(--surface);
+    --webmail-dropzone-border: var(--border-strong);
+    --webmail-shadow-sm: var(--shadow-sm);
+    --webmail-shadow-md: var(--shadow-md);
+}
+
+/* ==========================================================================
+   Design Tokens - Dark Theme (Section 6, 28)
+   ========================================================================== */
+[data-bs-theme="dark"] {
+    --bg: #0B1120;
+    --surface: #111827;
+    --surface-elevated: #172033;
+    --surface-subtle: #1E293B;
+
+    --text: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+
+    --border: #263244;
+    --border-strong: #334155;
+
+    --primary: #60A5FA;
+    --primary-hover: #93C5FD;
+    --primary-soft: #172554;
+
+    --success: #4ADE80;
+    --warning: #FBBF24;
+    --danger: #F87171;
+    --info: #38BDF8;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+
+    /* Legacy Aliases */
+    --webmail-primary: var(--primary);
+    --webmail-primary-hover: var(--primary-hover);
+    --webmail-primary-subtle: var(--primary-soft);
+    --webmail-sidebar-bg: var(--surface);
+    --webmail-border-color: var(--border);
+    --webmail-card-bg: var(--surface);
+    --webmail-text-main: var(--text);
+    --webmail-text-muted: var(--text-muted);
+    --webmail-row-hover: var(--surface-subtle);
+    --webmail-row-active: #172554;
+    --webmail-unread-bg: var(--surface-elevated);
+    --webmail-read-bg: var(--surface);
+    --webmail-starred-color: #FBBF24;
+    --webmail-chip-bg: var(--primary-soft);
+    --webmail-chip-text: #93C5FD;
+    --webmail-toolbar-bg: var(--surface);
+    --webmail-dropzone-border: var(--border-strong);
+    --webmail-shadow-sm: var(--shadow-sm);
+    --webmail-shadow-md: var(--shadow-md);
+}
+
+/* ==========================================================================
+   Base & Global Typography (Section 8)
+   ========================================================================== */
+body {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background-color: var(--bg);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset heavy card styles to 1px subtle borders without bloat */
+.card {
+    background-color: var(--surface);
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.card-header {
+    background-color: var(--surface) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-hover-bg: var(--surface-subtle);
+    --bs-table-border-color: var(--border);
+    color: var(--text);
+}
+
+/* ==========================================================================
+   Header & Search Bar (Section 11, 38)
+   ========================================================================== */
+.webmail-navbar {
+    height: 60px;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+/* Header Action Buttons (Themed correctly for Light & Dark) */
+.webmail-header-btn {
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    color: var(--text-secondary) !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.webmail-header-btn.rounded-circle,
+.user-avatar-btn,
+#userProfileBtn,
+#googleAppsLauncherBtn,
+#themeToggleBtn,
+#btnQuickSettings {
+    border-radius: 50% !important;
+}
+
+.webmail-header-btn:hover,
+.webmail-header-btn:focus,
+.webmail-header-btn.show {
+    background-color: var(--surface-subtle) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+#themeToggleLabel {
+    color: var(--text) !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* Header Brand Zone (Unified Branding with 256px Sidebar Alignment) */
+.header-brand-zone {
+    width: auto;
+    flex-shrink: 0;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), flex-basis 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+    .header-brand-zone {
+        width: 256px !important;
+        flex: 0 0 256px !important;
+        max-width: 256px !important;
+    }
+}
+
+.header-brand-link {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.header-brand-link:hover {
+    color: var(--primary);
+}
+
+.webmail-brand {
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--text);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.webmail-brand:hover {
+    color: var(--primary);
+}
+
+.webmail-brand-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    flex-shrink: 0;
+}
+
+/* Balanced Search Bar (Max 480px, Centered) */
+.header-search-bar {
+    max-width: 480px;
+    width: 100%;
+    position: relative;
+}
+
+.header-search-bar .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.header-search-input {
+    background-color: var(--surface-subtle);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-size: 0.88rem;
+    height: 38px;
+    padding-left: 2.25rem;
+    padding-right: 2rem;
+    transition: all 0.15s ease;
+}
+
+.header-search-input:focus {
+    background-color: var(--surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+    color: var(--text);
+    outline: none;
+}
+
+.header-search-bar .search-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    border: none;
+    background: transparent;
+    padding: 0.2rem;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.header-search-bar .search-clear-btn:hover {
+    color: var(--text);
+}
+
+/* Gmail-Style Centered Pill Search Bar */
+.gmail-search-bar {
+    background-color: var(--surface-subtle);
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    height: 46px;
+}
+
+.gmail-search-bar:focus-within {
+    background-color: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 1px 3px 0 rgba(60,64,67,.2), 0 4px 8px 3px rgba(60,64,67,.1);
+}
+
+.gmail-search-input {
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.gmail-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-filter-btn:hover {
+    background-color: var(--surface-subtle);
+}
+
+.advanced-search-popover {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    margin-top: 8px !important;
+}
+
+.google-profile-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+}
+
+/* User Avatar Initials Badge */
+.user-avatar-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--primary-soft);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.82rem;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Sidebar & Navigation (Section 13, 14, 39)
+   ========================================================================== */
+.webmail-sidebar {
+    background-color: var(--surface);
+    min-height: calc(100vh - 60px);
+    border-right: 1px solid var(--border);
+    padding: 0.75rem 0.65rem;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), flex-basis 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.webmail-sidebar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+@media (min-width: 768px) {
+    .webmail-sidebar {
+        width: 256px !important;
+        flex: 0 0 256px !important;
+        max-width: 256px !important;
+        position: sticky;
+        top: 60px;
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .webmail-sidebar::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+
+    #main-content {
+        flex: 1 1 calc(100% - 256px) !important;
+        max-width: calc(100% - 256px) !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Sidebar Navigation Header & Edge Toggle (Option 1) */
+.sidebar-edge-toggle-container {
+    min-height: 28px;
+}
+
+.sidebar-nav-heading {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.sidebar-edge-toggle {
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-edge-toggle:hover {
+    background-color: var(--surface-subtle) !important;
+    color: var(--text) !important;
+}
+
+.sidebar-edge-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
+.sidebar-edge-toggle .sidebar-icon-expanded {
+    display: inline-block;
+    font-size: 0.85rem;
+}
+
+.sidebar-edge-toggle .sidebar-icon-collapsed {
+    display: none;
+    font-size: 0.85rem;
+}
+
+/* Desktop Mini-Rail Sidebar Mode (Gmail Style) */
+@media (min-width: 768px) {
+    body.sidebar-mini .webmail-sidebar {
+        width: var(--sidebar-mini-width) !important;
+        flex: 0 0 var(--sidebar-mini-width) !important;
+        max-width: var(--sidebar-mini-width) !important;
+        padding: 0.75rem 0.25rem !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .sidebar-edge-toggle-container {
+        justify-content: center !important;
+        margin-bottom: 0.75rem !important;
+        padding: 0 !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .sidebar-nav-heading {
+        display: none !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .sidebar-edge-toggle {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .sidebar-edge-toggle .sidebar-icon-expanded {
+        display: none !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .sidebar-edge-toggle .sidebar-icon-collapsed {
+        display: inline-block !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .sidebar-brand-text,
+    body.sidebar-mini .webmail-sidebar .sidebar-dock-btn,
+    body.sidebar-mini .webmail-sidebar .sidebar-section-title,
+    body.sidebar-mini .webmail-sidebar .nav-text,
+    body.sidebar-mini .webmail-sidebar .sidebar-muted-note,
+    body.sidebar-mini .webmail-sidebar .sidebar-empty-action,
+    body.sidebar-mini .webmail-sidebar .sidebar-divider,
+    body.sidebar-mini .webmail-sidebar #moreFoldersToggle,
+    body.sidebar-mini .webmail-sidebar #moreFoldersCollapse,
+    body.sidebar-mini .webmail-sidebar .sidebar-labels-group,
+    body.sidebar-mini .webmail-sidebar .sidebar-folders-group,
+    body.sidebar-mini .webmail-sidebar .btn-compose .nav-text,
+    body.sidebar-mini .webmail-sidebar #storageUsageMeter,
+    body.sidebar-mini .webmail-sidebar .sidebar-labels-header {
+        display: none !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .webmail-nav-link {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 6px !important;
+        position: relative;
+        box-shadow: none !important;
+        transition: background-color 0.15s ease;
+    }
+
+    body.sidebar-mini .webmail-sidebar .webmail-nav-link.active {
+        background-color: var(--primary-soft) !important;
+        color: var(--primary) !important;
+        box-shadow: none !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .webmail-nav-link .nav-icon {
+        margin: 0 !important;
+        font-size: 1.25rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .webmail-nav-link .badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 0.6rem;
+        padding: 0.2em 0.45em;
+        line-height: 1;
+    }
+
+    body.sidebar-mini .webmail-sidebar .btn-compose {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 16px !important;
+        padding: 0 !important;
+        margin: 0 auto 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    body.sidebar-mini .webmail-sidebar .btn-compose .compose-icon {
+        margin: 0 !important;
+        font-size: 1.25rem !important;
+    }
+
+    body.sidebar-mini #main-content {
+        flex: 1 1 calc(100% - var(--sidebar-mini-width)) !important;
+        max-width: calc(100% - var(--sidebar-mini-width)) !important;
+    }
+}
+
+/* Proportionate Compose Button (Section 14) */
+.btn-compose {
+    background-color: var(--primary);
+    color: #FFFFFF !important;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border-radius: var(--radius-md);
+    padding: 0.55rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    text-decoration: none;
+}
+
+/* Mockup Parity Compose FAB Pill (Vibrant Indigo) */
+.btn-compose-fab {
+    background: #4F46E5 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border-radius: 9999px !important;
+    padding: 0.7rem 1.25rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none !important;
+    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.35);
+    transition: background-color 0.15s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    text-decoration: none;
+}
+
+.btn-compose-fab:hover {
+    background: #4338ca !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-compose-fab .compose-icon {
+    color: #ffffff !important;
+    font-size: 1rem;
+}
+
+.nav-pill-item {
+    border-radius: 8px !important;
+    margin-right: 0;
+    font-size: 0.88rem;
+    padding: 0.42rem 0.75rem !important;
+    transition: background-color 0.12s ease, color 0.12s ease, font-weight 0.12s ease;
+}
+
+.nav-pill-item.active {
+    background-color: #eef2ff !important;
+    color: #4338ca !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .nav-pill-item.active {
+    background-color: rgba(79, 70, 229, 0.18) !important;
+    color: #a5b4fc !important;
+}
+
+/* Sidebar Brand Header (Mockup Parity) */
+.sidebar-brand-header {
+    min-height: 44px;
+}
+
+.sidebar-brand-icon,
+.brand-monogram-container {
+    width: 32px;
+    height: 32px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.couriva-logo-symbol {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+/* Light / Dark Mode Monochrome Logo Switching */
+.couriva-logo-light {
+    display: block !important;
+}
+.couriva-logo-dark {
+    display: none !important;
+}
+
+[data-bs-theme="dark"] .couriva-logo-light {
+    display: none !important;
+}
+[data-bs-theme="dark"] .couriva-logo-dark {
+    display: block !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-bs-theme="light"]) .couriva-logo-light {
+        display: none !important;
+    }
+    :root:not([data-bs-theme="light"]) .couriva-logo-dark {
+        display: block !important;
+    }
+}
+
+.sidebar-brand-title {
+    color: var(--text) !important;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+[data-bs-theme="dark"] .sidebar-brand-title {
+    color: #ffffff !important;
+}
+
+.sidebar-brand-subtitle {
+    color: var(--text-muted) !important;
+    font-size: 0.72rem;
+    line-height: 1;
+}
+
+[data-bs-theme="dark"] .sidebar-brand-subtitle {
+    color: #9ca3af !important;
+}
+
+.sidebar-dock-btn {
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-dock-btn:hover {
+    background-color: var(--surface-subtle);
+}
+
+/* Sidebar Neutral Count Badges */
+.sidebar-count-pill {
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    padding: 0.2rem 0.55rem !important;
+    background-color: var(--surface-subtle) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border) !important;
+}
+
+[data-bs-theme="dark"] .sidebar-count-pill {
+    background-color: #27282d !important;
+    color: #9ca3af !important;
+    border-color: #33353a !important;
+}
+
+/* Sidebar Empty State Action */
+.sidebar-empty-action {
+    opacity: 0.75;
+    font-size: 0.84rem;
+}
+
+.sidebar-empty-action:hover {
+    opacity: 1;
+}
+
+/* Sidebar Elevated Settings Row */
+.sidebar-settings-pill {
+    background-color: #f5f3ff !important;
+    border: 1px solid #ddd6fe !important;
+    color: #4338ca !important;
+    border-radius: 8px !important;
+    padding: 0.42rem 0.75rem !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.sidebar-settings-pill:hover {
+    background-color: #ede9fe !important;
+    border-color: #c4b5fd !important;
+    transform: translateY(-1px);
+}
+
+.sidebar-settings-pill .settings-icon {
+    color: #6366f1 !important;
+    font-size: 1.05rem;
+}
+
+[data-bs-theme="dark"] .sidebar-settings-pill {
+    background-color: rgba(99, 102, 241, 0.12) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+    color: #c7d2fe !important;
+}
+
+[data-bs-theme="dark"] .sidebar-settings-pill:hover {
+    background-color: rgba(99, 102, 241, 0.18) !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+[data-bs-theme="dark"] .sidebar-settings-pill .settings-icon {
+    color: #818cf8 !important;
+}
+
+/* Sidebar Storage Card */
+.sidebar-storage-card .sidebar-storage-inner {
+    background-color: var(--surface);
+    border-color: var(--border) !important;
+    box-shadow: var(--shadow-sm);
+}
+
+[data-bs-theme="dark"] .sidebar-storage-card .sidebar-storage-inner {
+    background-color: #1f2024;
+    border-color: #2b2d33 !important;
+}
+
+.sidebar-storage-card .progress {
+    background-color: var(--surface-subtle);
+    overflow: hidden;
+}
+
+[data-bs-theme="dark"] .sidebar-storage-card .progress {
+    background-color: #2d2e33;
+}
+
+.btn-compose:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-compose:active {
+    transform: translateY(0);
+}
+
+.sidebar-section-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0.35rem 0.75rem 0.15rem;
+    margin-top: 0.35rem;
+}
+
+.webmail-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    padding: 0.42rem 0.75rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.webmail-nav-link .nav-text {
+    flex: 1 1 auto;
+    text-align: left;
+}
+
+.webmail-nav-link .badge {
+    margin-left: auto !important;
+}
+
+.webmail-nav-link:hover {
+    background-color: var(--surface-subtle);
+    color: var(--text);
+}
+
+.webmail-nav-link.active {
+    background-color: var(--primary-soft);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.webmail-nav-link.active i {
+    color: var(--primary) !important;
+}
+
+.webmail-nav-link .nav-icon {
+    font-size: 1rem;
+    width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Compact Storage Component (Section 39) */
+.sidebar-storage-widget {
+    margin-top: auto;
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.sidebar-storage-widget .progress {
+    height: 6px;
+    background-color: var(--surface-subtle);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Mailbox List View & Email Rows (Section 16, 17)
+   ========================================================================== */
+.mail-list-container {
+    padding: 0;
+    background-color: var(--surface);
+    min-height: calc(100vh - 240px);
+}
+
+/* Density Modes (Default, Comfortable, Compact) */
+.density-default .mail-item-row {
+    padding: 0.75rem 1rem;
+    min-height: 52px;
+}
+
+.density-comfortable .mail-item-row {
+    padding: 0.5rem 1rem;
+    min-height: 42px;
+}
+
+.density-comfortable .mail-attachment-chips {
+    display: none !important;
+}
+
+.density-compact .mail-item-row {
+    padding: 0.25rem 0.85rem;
+    min-height: 32px;
+    font-size: 0.82rem;
+}
+
+.density-compact .mail-attachment-chips {
+    display: none !important;
+}
+
+.density-compact .mail-sender {
+    font-size: 0.82rem;
+}
+
+/* Attachment Chips */
+.attachment-chip {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2px 8px;
+    font-size: 0.74rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.attachment-chip:hover {
+    background-color: var(--surface-subtle);
+    border-color: var(--border-strong);
+    color: var(--primary);
+}
+
+.mail-item-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+    text-decoration: none;
+    color: var(--text);
+    background-color: var(--surface);
+    font-size: 0.88rem;
+}
+
+.mail-item-row:last-child {
+    border-bottom: none;
+}
+
+.mail-item-row:hover {
+    background-color: var(--surface-subtle);
+}
+
+/* Unread Message Row */
+.mail-item-row.unread {
+    background-color: var(--surface);
+    font-weight: 600;
+}
+
+.mail-item-row.unread .mail-sender {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.mail-item-row.unread .mail-subject {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Read Message Row */
+.mail-item-row.read {
+    background-color: var(--surface-subtle);
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.mail-item-row.read .mail-sender {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.mail-item-row.read .mail-subject {
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+/* Active Preview in Split Mode */
+.mail-item-row.active-preview-row {
+    background-color: var(--primary-soft) !important;
+    border-left: 3px solid var(--primary);
+}
+
+/* Selected Row in Batch Selection */
+.mail-item-row.selected {
+    background-color: var(--primary-soft, #c2dbff) !important;
+    border-left: 3px solid var(--primary, #1a73e8);
+}
+
+[data-theme="dark"] .mail-item-row.selected {
+    background-color: rgba(26, 115, 232, 0.25) !important;
+    border-left: 3px solid var(--primary, #8ab4f8);
+}
+
+/* Unread Indicator Dot */
+.unread-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.star-btn {
+    background: transparent;
+    border: none;
+    color: var(--border-strong);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0 0.35rem;
+    line-height: 1;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.star-btn:hover {
+    transform: scale(1.15);
+    color: var(--webmail-starred-color);
+}
+
+.star-btn.starred {
+    color: var(--webmail-starred-color);
+}
+
+.mail-sender {
+    width: 180px;
+    min-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 0.75rem;
+}
+
+.mail-subject-snippet {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 1rem;
+}
+
+.mail-snippet {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.mail-date {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    text-align: right;
+    min-width: 70px;
+}
+
+/* Row Hover Quick Actions */
+.mail-quick-actions {
+    display: none;
+    position: absolute;
+    right: 12px;
+    background: inherit;
+    padding-left: 8px;
+    align-items: center;
+    gap: 0.35rem;
+    z-index: 2;
+}
+
+.mail-item-row:hover .mail-quick-actions {
+    display: flex;
+}
+
+.mail-item-row:hover .mail-date {
+    opacity: 0;
+}
+
+.quick-action-btn {
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(15, 23, 42, 0.05);
+    border: none;
+    color: var(--text-secondary);
+    transition: background-color 0.12s ease;
+}
+
+.quick-action-btn:hover {
+    background-color: rgba(15, 23, 42, 0.12);
+    color: var(--text);
+}
+
+/* ==========================================================================
+   Empty States (Section 34)
+   ========================================================================== */
+.empty-state-container {
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    opacity: 0.45;
+    margin-bottom: 0.75rem;
+    display: inline-block;
+}
+
+.empty-state-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.empty-state-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   Recipient Chips & Autocomplete (Compose Page)
+   ========================================================================== */
+.recipient-chips-container {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 40px;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--surface);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.recipient-chips-container:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.chips-label {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    width: 44px;
+    user-select: none;
+}
+
+.chips-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.chip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background-color: var(--primary-soft);
+    color: var(--primary);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    max-width: 280px;
+}
+
+.chip-badge .chip-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chip-badge .chip-remove {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+}
+
+.chip-badge .chip-remove:hover {
+    opacity: 1;
+}
+
+.chips-text-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.88rem;
+    color: var(--text);
+    min-width: 140px;
+    padding: 0.15rem 0.25rem;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1050;
+    margin-top: 4px;
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.85rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    transition: background-color 0.12s ease;
+}
+
+.autocomplete-item:hover {
+    background-color: var(--surface-subtle);
+}
+
+.autocomplete-item .contact-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text);
+}
+
+.autocomplete-item .contact-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Rich Text Editor & Dropzone (Section 33)
+   ========================================================================== */
+.editor-wrapper {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.editor-toolbar {
+    background-color: var(--surface-subtle);
+    border-bottom: 1px solid var(--border);
+}
+
+.editor-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.3rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.12s ease;
+}
+
+.editor-btn:hover {
+    background-color: rgba(15, 23, 42, 0.08);
+    color: var(--text);
+}
+
+.editor-btn.active {
+    background-color: var(--primary-soft);
+    color: var(--primary);
+}
+
+.rich-text-editor {
+    background-color: var(--surface);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.rich-text-editor:empty::before {
+    content: "Write your message here...";
+    color: var(--text-muted);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.rich-text-editor blockquote {
+    border-left: 3px solid var(--primary);
+    padding-left: 0.85rem;
+    margin-left: 0;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.rich-text-editor a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* Attachment Dropzone */
+.attachment-dropzone {
+    border: 1px dashed var(--border-strong) !important;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background-color: var(--surface-subtle);
+    transition: all 0.15s ease;
+}
+
+.attachment-dropzone.drag-over,
+.attachment-dropzone:hover {
+    background-color: var(--primary-soft) !important;
+    border-color: var(--primary) !important;
+}
+
+.attachment-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    font-size: 0.85rem;
+}
+
+.attachment-card .file-remove-btn {
+    border: none;
+    background: transparent;
+    color: var(--danger);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    opacity: 0.75;
+}
+
+.attachment-card .file-remove-btn:hover {
+    opacity: 1;
+}
+
+.attachment-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    margin-right: 0.4rem;
+    margin-top: 0.4rem;
+    text-decoration: none;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.12s ease;
+}
+
+.attachment-pill:hover {
+    background-color: var(--surface-subtle);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* ==========================================================================
+   Split Reading Pane (Section 19)
+   ========================================================================== */
+.reading-pane-card {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    background-color: var(--surface);
+}
+
+.reading-pane-body {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text);
+    word-break: break-word;
+}
+
+.reading-pane-body blockquote {
+    border-left: 3px solid var(--primary);
+    padding-left: 0.85rem;
+    color: var(--text-muted);
+    margin-left: 0;
+}
+
+/* ==========================================================================
+   Account Settings Layout
+   ========================================================================== */
+.settings-container,
+.settings-wrapper {
+    max-width: 1680px;
+    width: 100%;
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* Quick Settings Drawer Modernization (Mockup Parity) */
+#quickSettingsOffcanvas {
+    width: 350px !important;
+    background-color: var(--surface);
+    color: var(--text);
+    border-left: 1px solid var(--border);
+}
+
+.qs-section-heading {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+}
+
+/* Appearance 3-Card Grid */
+.qs-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.qs-theme-card {
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 0.25rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    width: 100%;
+}
+
+.qs-theme-card:hover {
+    background: var(--surface);
+    border-color: var(--primary);
+    color: var(--text);
+}
+
+.qs-theme-card.selected {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+    color: #6366f1 !important;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+.qs-theme-card .qs-card-indicator {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.qs-theme-card.selected .qs-card-indicator {
+    color: #6366f1 !important;
+}
+
+/* Density Stacked Cards */
+.qs-density-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.qs-density-card {
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 0;
+}
+
+.qs-density-card:hover {
+    background: var(--surface);
+    border-color: var(--primary);
+}
+
+.qs-density-card.selected {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+.qs-density-card .density-radio {
+    margin: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.qs-density-card.selected .density-radio:checked {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+.qs-density-title {
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+/* Reading Pane 2-Card Grid */
+.qs-pane-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.qs-pane-card {
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+    width: 100%;
+}
+
+.qs-pane-card:hover {
+    background: var(--surface);
+    border-color: var(--primary);
+}
+
+.qs-pane-card.selected {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+.qs-selected-badge {
+    font-size: 0.68rem !important;
+    font-weight: 600;
+}
+
+/* Color Swatches Selector (Mockup Parity) */
+.color-swatches-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.color-swatch-item {
+    cursor: pointer;
+    margin: 0;
+    position: relative;
+}
+
+.color-swatch-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.color-swatch-item .swatch-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    transition: transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.color-swatch-item:hover .swatch-circle {
+    transform: scale(1.1);
+}
+
+.color-swatch-item input[type="radio"]:checked + .swatch-circle {
+    color: #ffffff;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px #6366f1;
+}
+
+/* Mail Organization Tabs & Rows (Mockup Parity) */
+.org-nav-pills .nav-link {
+    border-radius: 9999px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    transition: all 0.15s ease;
+}
+
+.org-nav-pills .nav-link:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+
+.org-nav-pills .nav-link.active {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    border-color: #6366f1 !important;
+}
+
+.org-item-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.org-item-row:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    background: var(--surface-subtle);
+}
+
+.org-action-dropdown-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    transition: all 0.12s ease;
+}
+
+.org-action-dropdown-btn:hover {
+    background: var(--surface-subtle);
+    color: var(--text);
+}
+
+/* ==========================================================================
+   Authentication Views (Section 21, 22)
+   ========================================================================== */
+.auth-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+}
+
+.auth-brand-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background-color: var(--primary-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   Admin & Settings UI
+   ========================================================================== */
+.stat-card {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card-gradient-1 { border-top: 3px solid var(--primary); }
+.stat-card-gradient-2 { border-top: 3px solid var(--success); }
+.stat-card-gradient-3 { border-top: 3px solid var(--warning); }
+.stat-card-gradient-4 { border-top: 3px solid #8B5CF6; }
+
+/* ==========================================================================
+   Responsive & Print Styles (Section 20)
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .webmail-sidebar {
+        min-height: auto;
+        border-right: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .mail-sender {
+        width: 120px;
+        min-width: 100px;
+    }
+
+    .mail-quick-actions {
+        display: none !important;
+    }
+
+    .mail-item-row:hover .mail-date {
+        opacity: 1;
+    }
+
+    .chips-label {
+        width: 36px;
+    }
+}
+
+/* ==========================================================================
+   Bold Brand Refresh
+   ========================================================================== */
+:root {
+    --primary: #635bff;
+    --primary-hover: #5148e8;
+    --primary-soft: #eeedff;
+    --accent: #ff6b5f;
+    --surface-subtle: #f5f6fb;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-md: 0 16px 38px rgba(27, 24, 67, 0.1);
+}
+
+[data-bs-theme="dark"] {
+    --primary: #a7a1ff;
+    --primary-hover: #c4c0ff;
+    --primary-soft: #28254e;
+    --accent: #ff8b82;
+    --surface-subtle: #171a2a;
+    --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.32);
+}
+
+body {
+    background: var(--bg);
+}
+
+.webmail-navbar {
+    height: 68px;
+    padding-inline: 1.25rem;
+    background: var(--surface);
+}
+
+.webmail-brand {
+    font-size: 1.22rem;
+    letter-spacing: -0.035em;
+}
+
+.webmail-brand-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: var(--primary);
+    box-shadow: none;
+}
+
+.btn-compose,
+.auth-submit {
+    background: var(--primary);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.btn-compose:hover,
+.auth-submit:hover {
+    background: var(--primary-hover);
+    box-shadow: none;
+}
+
+.webmail-nav-link.active {
+    box-shadow: none;
+}
+
+/* Authentication */
+.auth-stage {
+    width: min(1120px, 100%);
+    min-height: min(680px, calc(100vh - 9rem));
+    margin: 2rem auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    background: var(--surface);
+    box-shadow: 0 28px 80px rgba(35, 29, 90, 0.14);
+}
+
+.auth-brand-panel {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(2rem, 6vw, 5rem);
+    color: #fff;
+    background:
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,.22), transparent 12rem),
+        linear-gradient(145deg, #322b9d 0%, #635bff 52%, #8b5cf6 100%);
+}
+
+.auth-brand-lockup {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+.auth-brand-mark {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 14px;
+    background: rgba(255,255,255,.16);
+    box-shadow: 0 10px 28px rgba(22, 16, 84, .2);
+}
+
+.auth-eyebrow,
+.auth-kicker {
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    font-size: .68rem;
+    font-weight: 800;
+}
+
+.auth-eyebrow {
+    position: relative;
+    z-index: 1;
+    margin: 5rem 0 1rem;
+    color: rgba(255,255,255,.72);
+}
+
+.auth-brand-panel h1 {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0;
+    font-size: clamp(2.4rem, 5vw, 4.7rem);
+    line-height: .98;
+    letter-spacing: -.07em;
+}
+
+.auth-brand-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 390px;
+    margin-top: 1.4rem;
+    color: rgba(255,255,255,.78);
+    font-size: 1.03rem;
+    line-height: 1.7;
+}
+
+.auth-brand-orbit {
+    position: absolute;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 50%;
+}
+
+.orbit-one { width: 420px; height: 420px; right: -180px; bottom: -150px; }
+.orbit-two { width: 230px; height: 230px; right: 45px; bottom: 35px; }
+
+.auth-card {
+    align-self: center;
+    margin: 2rem;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.auth-card-body {
+    max-width: 410px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.auth-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.auth-heading h2 {
+    margin: 0;
+    font-size: 1.7rem;
+    letter-spacing: -.045em;
+}
+
+.auth-heading p:not(.auth-kicker) {
+    margin: .35rem 0 0;
+    color: var(--text-muted);
+    font-size: .88rem;
+}
+
+.auth-kicker {
+    margin: .2rem 0 .4rem;
+    color: var(--primary);
+}
+
+.auth-brand-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+.auth-card .form-label {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.auth-card .form-control,
+.auth-card .input-group-text {
+    min-height: 46px;
+    border-color: var(--border);
+    background: var(--surface-subtle);
+}
+
+.auth-card .form-control:focus {
+    background: var(--surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.auth-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: .76rem;
+}
+
+.auth-note i { color: var(--success); }
+.auth-signout { border-color: var(--border) !important; }
+
+/* Shared workspace components */
+.card,
+.mail-list-container,
+.reading-pane-card,
+.table-responsive,
+.modal-content {
+    border-radius: 16px !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.card-header,
+.modal-header,
+.modal-footer {
+    padding: 1rem 1.25rem;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 650;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--primary);
+    --bs-btn-border-color: color-mix(in srgb, var(--primary) 36%, var(--border));
+    --bs-btn-hover-bg: var(--primary-soft);
+    --bs-btn-hover-border-color: var(--primary);
+    --bs-btn-hover-color: var(--primary);
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+    border-radius: 10px;
+}
+
+.mail-list-container {
+    overflow: hidden;
+}
+
+.mail-item-row {
+    min-height: 68px;
+    padding-block: .8rem;
+}
+
+.mail-item-row:hover {
+    box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.mail-item-row.active-preview-row {
+    box-shadow: inset 3px 0 0 var(--primary), 0 0 0 1px var(--primary-soft);
+}
+
+.badge {
+    border-radius: 999px;
+    padding-inline: .62rem;
+}
+
+.alert {
+    border-radius: 12px;
+    border-width: 1px;
+}
+
+.dropdown-menu {
+    border-radius: 14px;
+    padding: .45rem;
+    background: var(--surface);
+}
+
+.dropdown-item {
+    border-radius: 9px;
+    padding: .6rem .7rem;
+}
+
+@media (max-width: 767.98px) {
+    .auth-stage {
+        display: block;
+        min-height: 0;
+        margin: 0 auto 1.5rem;
+        border-radius: 0 0 24px 24px;
+    }
+
+    .auth-brand-panel {
+        min-height: 280px;
+        padding: 1.75rem;
+    }
+
+    .auth-eyebrow { margin-top: 3rem; }
+    .auth-brand-panel h1 { font-size: 2.7rem; }
+    .auth-card { margin: 0; }
+    .auth-card-body { padding: 2rem 1.5rem 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
+
+/* Task-focused sign-in and shared keyboard controls. */
+.auth-stage:not(.auth-stage-compact) {
+    display: block;
+    width: min(440px, 100%);
+    min-height: 0;
+    margin: clamp(1rem, 8vh, 5rem) auto 2rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+.auth-stage:not(.auth-stage-compact) .auth-card { margin: 0; }
+.auth-stage:not(.auth-stage-compact) .auth-card-body { padding: 2rem; }
+.auth-wordmark { font-size: 1rem; font-weight: 700; margin-bottom: 1.75rem; }
+.auth-wordmark i { color: var(--primary); margin-right: .35rem; }
+.auth-heading h1 { font-size: 1.6rem; font-weight: 700; margin: 0; }
+.auth-stage:not(.auth-stage-compact) .auth-submit { background: var(--primary); box-shadow: none; }
+.password-toggle {
+    min-width: 46px;
+    min-height: 46px;
+    border: 1px solid var(--border);
+    border-left: 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    color: var(--text-secondary);
+    background: var(--surface-subtle);
+}
+.password-toggle:hover { color: var(--text); background: var(--border); }
+.password-toggle:focus-visible, .skip-link:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.skip-link:focus { position: fixed; z-index: 1100; top: .5rem; left: .5rem; padding: .6rem; background: var(--surface); color: var(--text); }
+
+/* Mobile Gmail-style sidebar drawer. The sidebar used to expand inline and
+   push the mailbox down; on phones it now overlays the content. */
+@media (max-width: 767.98px) {
+    #sidebarMenu.collapse.show,
+    #sidebarMenu.collapse.collapsing {
+        display: flex !important;
+        position: fixed;
+        top: 68px;
+        left: 0;
+        bottom: 0;
+        width: min(86vw, 320px);
+        height: calc(100vh - 68px) !important;
+        height: calc(100dvh - 68px) !important;
+        min-height: 0;
+        z-index: 1035;
+        overflow-y: auto;
+        border-right: 1px solid var(--border);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+        padding-bottom: 1.5rem;
+    }
+
+    #sidebarMenu.collapsing {
+        transition: none;
+    }
+
+    body.sidebar-open {
+        overflow: hidden;
+    }
+
+    body.sidebar-open::before {
+        content: "";
+        position: fixed;
+        inset: 68px 0 0 0;
+        z-index: 1030;
+        background: rgba(15, 23, 42, 0.45);
+    }
+}
+
+/* ==========================================================================
+   Couriva feature surfaces
+   ========================================================================== */
+.label-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    vertical-align: middle;
+}
+
+.label-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-subtle);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.45;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+button.label-chip-remove {
+    border: 1px solid var(--border);
+    cursor: pointer;
+}
+
+button.label-chip-remove:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.sidebar-muted-note {
+    display: block;
+    padding: 0.25rem 0.75rem 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-style: italic;
+}
+
+.auth-card-wide .auth-card-body {
+    max-width: 590px;
+}
+
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.notification-item:last-child {
+    border-bottom: 0;
+}
+
+.notification-item.notification-unread {
+    background: var(--surface-subtle);
+    border-left: 3px solid var(--primary);
+    padding-left: calc(1.25rem - 3px);
+}
+
+.notification-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface);
+    font-size: 1.05rem;
+}
+
+.notification-title:hover {
+    color: var(--primary) !important;
+    text-decoration: underline !important;
+}
+
+.notification-unread-dot {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    background: var(--primary);
+}
+
+.organization-list li {
+    border-bottom: 1px dashed var(--border);
+    min-height: 34px;
+}
+
+.organization-list li:last-child {
+    border-bottom: 0;
+}
+
+.schedule-send-controls {
+    padding: 0.5rem 0.75rem;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-subtle);
+}
+
+.quick-snooze-menu {
+    min-width: 200px;
+    z-index: 1055;
+}
+
+.scheduled-table td {
+    vertical-align: middle;
+}
+
+@media (max-width: 575.98px) {
+    .schedule-send-controls {
+        width: 100%;
+    }
+
+    .schedule-send-controls .form-control {
+        max-width: none !important;
+        flex: 1 1 auto;
+    }
+
+    .label-chip {
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Gmail Floating Docked Compose Window */
+#dockedComposeContainer {
+    position: fixed;
+    bottom: 0;
+    right: 24px;
+    width: min(560px, calc(100vw - 32px));
+    height: 500px;
+    background-color: var(--surface);
+    border-radius: 12px 12px 0 0;
+    z-index: 1055;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2) !important;
+}
+
+.docked-compose-header {
+    background-color: var(--surface-subtle);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    height: 42px;
+}
+
+.docked-compose-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#dockedComposeForm {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.docked-editor-container {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.docked-editor-container textarea {
+    resize: none;
+    flex: 1 1 auto;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: transparent;
+}
+
+/* Docked States: Minimized and Fullscreen */
+#dockedComposeContainer.docked-minimized {
+    height: 42px !important;
+    width: 260px !important;
+}
+
+#dockedComposeContainer.docked-minimized .docked-compose-body {
+    display: none !important;
+}
+
+#dockedComposeContainer.docked-fullscreen {
+    top: 5vh !important;
+    bottom: 5vh !important;
+    left: 5vw !important;
+    right: 5vw !important;
+    width: 90vw !important;
+    height: 90vh !important;
+    border-radius: 12px !important;
+}
+
+/* Gmail-Style Conversation Thread Stack */
+.thread-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.thread-message-card {
+    border-radius: 10px;
+    background-color: var(--surface);
+    transition: all 0.2s ease;
+}
+
+.thread-message-card.collapsed .thread-card-body {
+    display: none !important;
+}
+
+.thread-message-card.collapsed .thread-card-header {
+    cursor: pointer;
+    background-color: var(--surface-subtle);
+}
+
+.thread-message-card.collapsed:hover {
+    border-color: var(--primary) !important;
+}
+
+.thread-message-card.collapsed .thread-expand-icon {
+    transform: rotate(-90deg);
+}
+
+.thread-expand-icon {
+    transition: transform 0.2s ease;
+}
+
+.thread-snippet {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    max-width: 50vw;
+}
+
+.thread-message-card:not(.collapsed) .thread-snippet {
+    display: none !important;
+}
+
+/* Inline Quick Reply Box */
+.inline-reply-box {
+    border-radius: 12px;
+    background-color: var(--surface);
+}
+
+.inline-reply-box .reply-trigger-pill {
+    cursor: pointer;
+    padding: 0.5rem 1.15rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    background-color: var(--surface-subtle);
+    transition: all 0.15s ease;
+}
+
+.inline-reply-box .reply-trigger-pill:hover {
+    background-color: var(--surface);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Dark Theme Overrides for Reading View & Buttons */
+[data-bs-theme="dark"] .btn-light,
+[data-theme="dark"] .btn-light {
+    background-color: var(--surface-subtle) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+[data-bs-theme="dark"] .btn-light:hover,
+[data-theme="dark"] .btn-light:hover {
+    background-color: var(--surface-elevated) !important;
+    border-color: var(--border-strong) !important;
+    color: var(--text) !important;
+}
+
+[data-bs-theme="dark"] .email-body-content,
+[data-theme="dark"] .email-body-content,
+[data-bs-theme="dark"] iframe.email-body-content,
+[data-theme="dark"] iframe.email-body-content {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+    color-scheme: dark;
+}
+
+[data-bs-theme="dark"] .reply-trigger-pill,
+[data-theme="dark"] .reply-trigger-pill {
+    background-color: var(--surface-subtle) !important;
+    border-color: var(--border) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-bs-theme="dark"] .reply-trigger-pill:hover,
+[data-theme="dark"] .reply-trigger-pill:hover {
+    background-color: var(--surface-elevated) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+[data-bs-theme="dark"] .thread-card-body .bg-body-subtle,
+[data-theme="dark"] .thread-card-body .bg-body-subtle {
+    background-color: var(--surface-elevated) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Gmail-Style Floating SnackBar with Undo */
+#gmailSnackbar {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    background-color: #202124;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 0.65rem 1.15rem;
+    z-index: 1060;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+[data-theme="dark"] #gmailSnackbar {
+    background-color: #303134;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.snackbar-undo-btn {
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.snackbar-undo-btn:hover {
+    filter: brightness(1.2);
+}
+
+/* Keyboard Shortcut Cheatsheet Styles */
+.shortcut-key {
+    background-color: var(--surface-subtle);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    font-size: 0.825rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    font-family: inherit;
+}
+
+/* Mail Item Keyboard Active Focus Indicator */
+.mail-item.keyboard-active {
+    box-shadow: inset 4px 0 0 var(--primary) !important;
+    background-color: var(--surface-subtle) !important;
+}
+
+/* =========================================================================
+   Gmail Desktop Revamp: Universal Action Bar
+   ========================================================================= */
+#gmailActionBar {
+    min-height: 48px;
+    background-color: var(--card-bg, #ffffff);
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    padding: 0.375rem 1rem;
+    z-index: 10;
+}
+
+#gmailActionBar .action-bar-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text-muted, #5f6368);
+    transition: background-color 0.15s ease, color 0.15s ease;
+    text-decoration: none;
+}
+
+#gmailActionBar .action-bar-btn:hover {
+    background-color: var(--hover-bg, rgba(60, 64, 67, 0.08));
+    color: var(--text-color, #202124);
+}
+
+.contextual-actions {
+    transition: opacity 0.2s ease;
+}
+
+.contextual-actions .action-divider {
+    border-color: var(--border, #e5e7eb) !important;
+}
+
+.action-bar-pagination .pagination-nav-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.action-bar-pagination .pagination-nav-btn:hover:not(.disabled) {
+    background-color: var(--hover-bg, rgba(60, 64, 67, 0.08));
+}
+
+/* =========================================================================
+   Gmail Desktop Revamp: Category Tabs (Primary, Promotions, Updates)
+   ========================================================================= */
+#inboxCategoryTabs {
+    border-bottom: 1px solid var(--border, #e5e7eb) !important;
+    background-color: var(--card-bg, #ffffff);
+    overflow-x: auto;
+}
+
+.category-tab-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-muted, #5f6368);
+    font-size: 0.875rem;
+    font-weight: 500;
+    position: relative;
+    border-bottom: 3px solid transparent;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+
+.category-tab-item:hover {
+    background-color: var(--hover-bg, rgba(60, 64, 67, 0.04));
+    color: var(--text-color, #202124);
+}
+
+.category-tab-item.active {
+    color: var(--primary, #1a73e8);
+    border-bottom-color: var(--primary, #1a73e8);
+    font-weight: 600;
+}
+
+.category-tab-item .tab-icon {
+    font-size: 1.1rem;
+}
+
+.category-tab-item.active .tab-icon {
+    color: var(--primary, #1a73e8);
+}
+
+/* =========================================================================
+   Gmail Desktop Revamp: Google Apps Launcher Grid
+   ========================================================================= */
+#googleAppsMenu {
+    min-width: 300px;
+    background-color: var(--card-bg, #ffffff);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.app-launcher-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding: 0.25rem;
+}
+
+.app-launcher-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 0.5rem;
+    border-radius: 0.75rem;
+    color: var(--text-color, #202124);
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    text-align: center;
+}
+
+.app-launcher-tile:hover {
+    background-color: var(--hover-bg, rgba(60, 64, 67, 0.08));
+    transform: translateY(-1px);
+    color: var(--primary, #1a73e8);
+}
+
+.app-launcher-tile .app-tile-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.35rem;
+    line-height: 1;
+}
+
+.app-launcher-tile .app-tile-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* =========================================================================
+   UI/UX Refinement: Skeleton Shimmer Loading & Compact Controls
+   ========================================================================= */
+.skeleton-row {
+    height: 48px;
+    background: linear-gradient(90deg, var(--surface-subtle) 25%, var(--border) 50%, var(--surface-subtle) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-row {
+        animation: none;
+        background: var(--surface-subtle);
+    }
+}
+
+.attachment-dropzone.compact-dropzone {
+    padding: 0.6rem 1rem !important;
+    background-color: var(--surface-subtle) !important;
+}
+
+.attachment-dropzone.compact-dropzone:hover {
+    border-color: var(--primary) !important;
+}
+
+@media (max-width: 576px) {
+    #dockedComposeContainer {
+        width: 100vw !important;
+        height: 100vh !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        border-radius: 0 !important;
+        max-width: 100vw !important;
+    }
+}
+
+@media print {
+    .webmail-navbar,
+    .webmail-sidebar,
+    #filterPanel,
+    .card-header,
+    .btn,
+    .nav,
+    .modal {
+        display: none !important;
+    }
+
+    body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+
+/* =========================================================================
+   Couriva Custom System-Wide Dialog (Mockup Parity)
+   ========================================================================= */
+.couriva-dialog-card {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-bs-theme="dark"] .couriva-dialog-card {
+    background-color: #121214 !important;
+    border-color: #27282b !important;
+}
+
+[data-bs-theme="dark"] #courivaConfirmTitle {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] #courivaConfirmMessage {
+    color: #9ca3af !important;
+}
+
+.couriva-dialog-icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.couriva-dialog-icon-badge.danger {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+.couriva-dialog-icon-badge.warning {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    color: #f59e0b !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+}
+
+.couriva-dialog-icon-badge.primary {
+    background-color: rgba(99, 102, 241, 0.12) !important;
+    color: #6366f1 !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+}
+
+#courivaConfirmCancelBtn {
+    border-radius: 8px;
+    border-color: var(--border);
+    color: var(--text);
+    background: transparent;
+}
+
+[data-bs-theme="dark"] #courivaConfirmCancelBtn {
+    background-color: #18181b;
+    border-color: #2e3035;
+    color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] #courivaConfirmCancelBtn:hover {
+    background-color: #27272a;
+    border-color: #3f3f46;
+    color: #ffffff;
+}
+
+#courivaConfirmSubmitBtn {
+    border-radius: 8px;
+    min-height: 34px;
+}
+
+#courivaConfirmSubmitBtn.btn-danger {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+#courivaConfirmSubmitBtn.btn-danger:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+#courivaConfirmSubmitBtn.btn-primary {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    color: #ffffff !important;
+}
+
+#courivaConfirmSubmitBtn.btn-primary:hover {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+}
+

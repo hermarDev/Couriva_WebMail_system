@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Couriva logo">
+  <style>
+    path { fill: #000000; }
+    @media (prefers-color-scheme: dark) {
+      path { fill: #FFFFFF; }
+    }
+  </style>
+  <path d="M408 171C367 113 310 92 263 92 164 92 90 165 90 264 90 362 162 438 259 438 320 438 372 415 401 364L336 317C319 343 293 359 261 359 213 359 175 321 175 267 175 216 215 175 269 175 302 175 324 190 341 216Z"/>
+  <path d="M181 221 270 273 364 220 363 239 268 297 181 240Z"/>
+</svg>

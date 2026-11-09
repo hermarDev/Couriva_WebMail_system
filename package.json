@@ -1,0 +1,13 @@
+{
+  "name": "webmail-system-ui",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/tailwind.generated.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/tailwind.generated.css --watch",
+    "test": "php tests/password_change_api_test.php && php tests/smtp_attachment_fail_closed_test.php && php tests/mail_delivery_safe_test.php && php tests/smtp_test.php && php tests/ui_ux_regression.php && php tests/gmail_modernization_regression_test.php && php tests/gmail_revamp_regression_test.php"
+  },
+  "devDependencies": {
+    "bootstrap-icons": "^1.11.3",
+    "tailwindcss": "^3.4.17"
+  }
+}
