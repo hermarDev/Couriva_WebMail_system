@@ -250,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     // Check for any delivery_status failures (SMTP path)
-                    $deliveryCheck = $this->pdo->prepare("
+                    $deliveryCheck = $pdo->prepare("
                         SELECT status, COUNT(*) as cnt FROM delivery_status
                         WHERE email_id = ? AND transport = 'smtp'
                         GROUP BY status
