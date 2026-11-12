@@ -51,13 +51,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $form['first_name'] = trim($_POST['first_name'] ?? '');
         $form['last_name'] = trim($_POST['last_name'] ?? '');
-        $form['username'] = strtolower(trim($_POST['username'] ?? ''));
-        $password = $_POST['password'] ?? '';
-        $confirm = $_POST['confirm_password'] ?? '';
+        $rawUsername = trim($_POST['username'] ?? '');
+        
+        // Reject full email addresses (e.g., @gmail.com)
+        if (str_contains($rawUsername, '@')) {
+            $error = 'Please enter only the username (local part). External email domains like @gmail.com are not allowed.';
+        } else {
+            $form['username'] = strtolower($rawUsername);
+            $password = $_POST['password'] ?? '';
+            $confirm = $_POST['confirm_password'] ?? '';
 
-        $username = preg_replace('/@.*$/', '', $form['username']) ?? '';
-        $form['username'] = $username;
-        $email = couriva_address($username);
+            $username = preg_replace('/@.*$/', '', $form['username']) ?? '';
+            $form['username'] = $username;
+            $email = couriva_address($username);
 
         $passwordPolicy = is_valid_password_complexity($password);
 
@@ -71,39 +77,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($password !== $confirm) {
             $error = 'Password and confirmation do not match.';
         } elseif ($userModel->findByEmail($email)) {
-            $error = 'An account or request already exists for ' . $email . '.';
-        } else {
-            try {
-                $newId = $userModel->create([
-                    'email' => $email,
-                    'password' => $password,
-                    'first_name' => $form['first_name'],
-                    'last_name' => $form['last_name'],
-                    'role' => 'user',
-                    'status' => 'active',
-                    'signature' => "-- \r\n{$form['first_name']} {$form['last_name']}\r\nCouriva Internal Mail\r\n{$email}",
-                    'timezone' => 'UTC',
-                    'theme' => 'light',
-                    'must_change_password' => 0,
-                ]);
+                    $error = 'An account or request already exists for ' . $email . '.';
+                } else {
+                    try {
+                        $newId = $userModel->create([
+                            'email' => $email,
+                            'password' => $password,
+                            'first_name' => $form['first_name'],
+                            'last_name' => $form['last_name'],
+                            'role' => 'user',
+                            'status' => 'active',
+                            'signature' => "-- \r\n{$form['first_name']} {$form['last_name']}\r\nCouriva Internal Mail\r\n{$email}",
+                            'timezone' => 'UTC',
+                            'theme' => 'light',
+                            'must_change_password' => 0,
+                        ]);
 
-                $stmt = $pdo->prepare("UPDATE users SET requested_at = NOW() WHERE id = ?");
-                $stmt->execute([$newId]);
+                        $stmt = $pdo->prepare("UPDATE users SET requested_at = NOW() WHERE id = ?");
+                        $stmt->execute([$newId]);
 
-                log_activity($newId, 'REGISTRATION_SUCCESS', 'SUCCESS', 'Active mailbox created: ' . $email);
-                set_flash('success', 'Your Couriva mailbox (' . $email . ') is ready! Login below.');
-                header('Location: ' . app_base_url('public/login.php?created=' . urlencode($email)));
-                exit;
-            } catch (Throwable $e) {
-                error_log('Registration failed: ' . $e->getMessage());
-                $error = 'Your request could not be submitted. Please try again later.';
+                        log_activity($newId, 'REGISTRATION_SUCCESS', 'SUCCESS', 'Active mailbox created: ' . $email);
+                        set_flash('success', 'Your Couriva mailbox (' . $email . ') is ready! Login below.');
+                        header('Location: ' . app_base_url('public/login.php?created=' . urlencode($email)));
+                        exit;
+                    } catch (Throwable $e) {
+                        error_log('Registration failed: ' . $e->getMessage());
+                        $error = 'Your request could not be submitted. Please try again later.';
+                    }
+                }
+            }
+
+            if ($error !== null) {
+                @log_activity(null, 'REGISTRATION_ATTEMPT', 'FAILED', 'Registration form validation failed.');
             }
         }
-
-        if ($error !== null) {
-            @log_activity(null, 'REGISTRATION_ATTEMPT', 'FAILED', 'Registration form validation failed.');
-        }
-    }
 }
 
 $pageTitle = 'Create account';
@@ -145,12 +152,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 </div>
 
                 <div class="mb-3">
-                    <label for="registerUsername" class="form-label">Username</label>
+                    <label for="registerUsername" class="form-label">Username <span class="text-muted small fw-normal">(@<?= e(app_domain()) ?> will be added automatically)</span></label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="registerUsername" name="username" maxlength="32" autocomplete="username" required pattern="^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$" placeholder="firstname.lastname" value="<?= e($form['username']) ?>">
+                        <input type="text" class="form-control" id="registerUsername" name="username" maxlength="32" autocomplete="username" required pattern="^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$" placeholder="firstname.lastname" value="<?= e($form['username']) ?>" oninput="this.value = this.value.replace(/@.*$/, '').toLowerCase()">
                         <span class="input-group-text">@<?= e(app_domain()) ?></span>
                     </div>
-                    <div class="form-text">Use 3–32 letters, numbers, dots, hyphens, or underscores.</div>
+                    <div class="form-text">Use 3–32 letters, numbers, dots, hyphens, or underscores. External emails (e.g. @gmail.com) are not allowed.</div>
+                    <div id="usernameWarning" class="text-danger small mt-1 d-none">External email domains are not allowed. Only the local username part is accepted.</div>
                 </div>
 
                 <div class="mb-3">
