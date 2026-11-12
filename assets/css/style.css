@@ -1437,15 +1437,15 @@ body {
    ========================================================================== */
 .settings-container,
 .settings-wrapper {
-    max-width: 1680px;
+    max-width: 1080px;
     width: 100%;
-    margin-left: 0;
-    margin-right: auto;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 /* Quick Settings Drawer Modernization (Mockup Parity) */
 #quickSettingsOffcanvas {
-    width: 350px !important;
+    width: min(350px, 90vw) !important;
     background-color: var(--surface);
     color: var(--text);
     border-left: 1px solid var(--border);
@@ -2325,6 +2325,35 @@ body:has(.auth-stage) footer {
     }
 }
 
+/* 390px breakpoint - tighter auth card padding for iPhone 14/15 */
+@media (max-width: 390px) {
+    .auth-card-body,
+    .auth-card-wide .auth-card-body {
+        padding: 1.25rem;
+    }
+}
+
+/* 360px breakpoint - minimal auth card padding for Galaxy S23 / small devices */
+@media (max-width: 360px) {
+    .auth-card-body,
+    .auth-card-wide .auth-card-body {
+        padding: 1rem;
+    }
+
+    .auth-heading h1,
+    .auth-heading h2 {
+        font-size: 1.25rem;
+    }
+
+    .auth-nav-pills .auth-nav-pill,
+    .auth-nav-pills .nav-link,
+    .auth-nav-pill {
+        min-height: 40px;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .auth-stage,
     .auth-card,
@@ -2423,6 +2452,22 @@ body:has(.auth-stage) footer {
         inset: 68px 0 0 0;
         z-index: 1030;
         background: rgba(15, 23, 42, 0.45);
+    }
+
+    /* Focus trap support for sidebar drawer */
+    #sidebarMenu.collapse.show:focus-within {
+        outline: none;
+    }
+
+    /* Ensure focusable elements in sidebar are accessible */
+    #sidebarMenu.collapse.show .webmail-nav-link:focus-visible,
+    #sidebarMenu.collapse.show .btn-compose:focus-visible,
+    #sidebarMenu.collapse.show .sidebar-settings-pill:focus-visible,
+    #sidebarMenu.collapse.show .sidebar-dock-btn:focus-visible,
+    #sidebarMenu.collapse.show .sidebar-edge-toggle:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+        z-index: 1036;
     }
 }
 
@@ -2577,6 +2622,20 @@ button.label-chip-remove:hover {
     box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2) !important;
 }
 
+/* Backdrop for mobile fullscreen compose */
+body.compose-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+}
+
+body.compose-open.compose-fullscreen::before {
+    display: block;
+}
+
 .docked-compose-header {
     background-color: var(--surface-subtle);
     border-bottom: 1px solid var(--border);
@@ -2630,6 +2689,54 @@ button.label-chip-remove:hover {
     width: 90vw !important;
     height: 90vh !important;
     border-radius: 12px !important;
+}
+
+/* Focus trap support for docked compose */
+#dockedComposeContainer.docked-fullscreen:focus-within {
+    outline: none;
+}
+
+#dockedComposeContainer.docked-fullscreen .docked-compose-header:focus-visible,
+#dockedComposeContainer.docked-fullscreen .editor-btn:focus-visible,
+#dockedComposeContainer.docked-fullscreen textarea:focus-visible,
+#dockedComposeContainer.docked-fullscreen button:focus-visible,
+#dockedComposeContainer.docked-fullscreen a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    z-index: 1056;
+}
+
+/* 360px/390px breakpoints for docked compose fullscreen */
+@media (max-width: 390px) {
+    #dockedComposeContainer.docked-fullscreen {
+        top: 4vh !important;
+        bottom: 4vh !important;
+        left: 4vw !important;
+        right: 4vw !important;
+        width: 92vw !important;
+        height: 92vh !important;
+        border-radius: 10px !important;
+    }
+
+    .docked-compose-header {
+        height: 40px;
+    }
+}
+
+@media (max-width: 360px) {
+    #dockedComposeContainer.docked-fullscreen {
+        top: 3vh !important;
+        bottom: 3vh !important;
+        left: 3vw !important;
+        right: 3vw !important;
+        width: 94vw !important;
+        height: 94vh !important;
+        border-radius: 8px !important;
+    }
+
+    .docked-compose-header {
+        height: 38px;
+    }
 }
 
 /* Gmail-Style Conversation Thread Stack */
@@ -2975,6 +3082,35 @@ button.label-chip-remove:hover {
         bottom: 0 !important;
         border-radius: 0 !important;
         max-width: 100vw !important;
+    }
+}
+
+/* 390px breakpoint for mobile compose */
+@media (max-width: 390px) {
+    #dockedComposeContainer {
+        width: 100vw !important;
+        height: 100vh !important;
+    }
+}
+
+/* 360px breakpoint for mobile compose */
+@media (max-width: 360px) {
+    #dockedComposeContainer {
+        width: 100vw !important;
+        height: 100vh !important;
+    }
+}
+
+/* Global responsive main content padding utility */
+.main-content-padding {
+    padding-left: 0.75rem;  /* px-3 */
+    padding-right: 0.75rem; /* px-3 */
+}
+
+@media (min-width: 768px) {
+    .main-content-padding {
+        padding-left: 1.5rem;  /* px-md-4 */
+        padding-right: 1.5rem; /* px-md-4 */
     }
 }
 

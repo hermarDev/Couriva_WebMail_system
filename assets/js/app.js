@@ -98,6 +98,55 @@ document.addEventListener('DOMContentLoaded', function () {
                 syncSidebarBackdrop();
             }
         });
+
+        // Focus trap for sidebar drawer (a11y)
+        let sidebarFocusableElements = [];
+        let sidebarFirstFocusable = null;
+        let sidebarLastFocusable = null;
+        let sidebarPreviouslyFocused = null;
+
+        const updateSidebarFocusableElements = function () {
+            sidebarFocusableElements = Array.from(sidebarMenu.querySelectorAll(
+                'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+            )).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0);
+            sidebarFirstFocusable = sidebarFocusableElements[0];
+            sidebarLastFocusable = sidebarFocusableElements[sidebarFocusableElements.length - 1];
+        };
+
+        const trapSidebarFocus = function (event) {
+            if (!mobileSidebarQuery.matches || !sidebarMenu.classList.contains('show')) return;
+            if (event.key !== 'Tab') return;
+
+            updateSidebarFocusableElements();
+
+            if (sidebarFocusableElements.length === 0) return;
+
+            if (event.shiftKey) {
+                if (document.activeElement === sidebarFirstFocusable) {
+                    event.preventDefault();
+                    sidebarLastFocusable?.focus();
+                }
+            } else {
+                if (document.activeElement === sidebarLastFocusable) {
+                    event.preventDefault();
+                    sidebarFirstFocusable?.focus();
+                }
+            }
+        };
+
+        sidebarMenu.addEventListener('shown.bs.collapse', function () {
+            sidebarPreviouslyFocused = document.activeElement;
+            updateSidebarFocusableElements();
+            setTimeout(() => sidebarFirstFocusable?.focus(), 0);
+            document.addEventListener('keydown', trapSidebarFocus);
+        });
+
+        sidebarMenu.addEventListener('hidden.bs.collapse', function () {
+            document.removeEventListener('keydown', trapSidebarFocus);
+            if (sidebarPreviouslyFocused && typeof sidebarPreviouslyFocused.focus === 'function') {
+                sidebarPreviouslyFocused.focus();
+            }
+        });
     }
 
     // =========================================================================
@@ -2386,6 +2435,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
         [dockedTo, dockedSubject, dockedBody].forEach(function (el) {
             if (el) el.addEventListener('input', triggerDockedAutosave);
+        });
+
+        // Focus trap and backdrop click-to-close for docked compose on mobile (a11y)
+        let dockedFocusableElements = [];
+        let dockedFirstFocusable = null;
+        let dockedLastFocusable = null;
+        let dockedPreviouslyFocused = null;
+
+        const updateDockedFocusableElements = function () {
+            dockedFocusableElements = Array.from(dockedComposeContainer.querySelectorAll(
+                'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+            )).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0);
+            dockedFirstFocusable = dockedFocusableElements[0];
+            dockedLastFocusable = dockedFocusableElements[dockedFocusableElements.length - 1];
+        };
+
+        const trapDockedFocus = function (event) {
+            const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+            if (!isMobile || !dockedComposeContainer.classList.contains('docked-fullscreen')) return;
+            if (event.key !== 'Tab') return;
+
+            updateDockedFocusableElements();
+
+            if (dockedFocusableElements.length === 0) return;
+
+            if (event.shiftKey) {
+                if (document.activeElement === dockedFirstFocusable) {
+                    event.preventDefault();
+                    dockedLastFocusable?.focus();
+                }
+            } else {
+                if (document.activeElement === dockedLastFocusable) {
+                    event.preventDefault();
+                    dockedFirstFocusable?.focus();
+                }
+            }
+        };
+
+        const handleBackdropClick = function (event) {
+            const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+            if (!isMobile || !dockedComposeContainer.classList.contains('docked-fullscreen')) return;
+            if (!dockedComposeContainer.contains(event.target)) {
+                closeDockedCompose();
+            }
+        };
+
+        // Use a MutationObserver to detect when docked compose enters fullscreen mode
+        const dockedObserver = new MutationObserver(function () {
+            const isFullscreen = dockedComposeContainer.classList.contains('docked-fullscreen');
+            const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+
+            if (isFullscreen && isMobile) {
+                dockedPreviouslyFocused = document.activeElement;
+                updateDockedFocusableElements();
+                setTimeout(() => dockedFirstFocusable?.focus(), 0);
+                document.addEventListener('keydown', trapDockedFocus);
+                document.addEventListener('click', handleBackdropClick);
+            } else {
+                document.removeEventListener('keydown', trapDockedFocus);
+                document.removeEventListener('click', handleBackdropClick);
+                if (dockedPreviouslyFocused && typeof dockedPreviouslyFocused.focus === 'function') {
+                    dockedPreviouslyFocused.focus();
+                }
+            }
+        });
+
+        dockedObserver.observe(dockedComposeContainer, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        // Also handle ESC key to close fullscreen on mobile
+        document.addEventListener('keydown', function (event) {
+            const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+            if (event.key === 'Escape' && isMobile && dockedComposeContainer.classList.contains('docked-fullscreen')) {
+                closeDockedCompose();
+            }
         });
     }
 

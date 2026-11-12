@@ -158,7 +158,7 @@ $folderHeading = match ($activeFolder) {
         <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
             <!-- Universal Gmail-Style Action Bar -->
             <div id="gmailActionBar" class="gmail-action-bar d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-body position-sticky top-0 z-3">
-                <div class="d-flex align-items-center gap-1 action-bar-left">
+                <div class="d-flex align-items-center gap-1 action-bar-left flex-column flex-sm-row gap-sm-1 gap-2">
                     <!-- Master Selection Dropdown -->
                     <div class="dropdown d-inline-flex align-items-center me-1">
                         <div class="form-check m-0 me-1">
@@ -182,30 +182,37 @@ $folderHeading = match ($activeFolder) {
                     </a>
 
                     <!-- Contextual Selection Actions (shown when checkedCount > 0) -->
-                    <div class="contextual-actions d-none align-items-center gap-1 ps-2 border-start ms-1" id="contextualActionsBar">
+                    <div class="contextual-actions d-none d-sm-flex align-items-center gap-1 ps-2 border-start ms-1" id="contextualActionsBar">
                         <span class="badge bg-primary-subtle text-primary rounded-pill me-2 px-2 py-1" id="selectedCountBadge">0</span>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="archive" data-action="<?= $activeFolder === 'archive' ? 'unarchive' : 'archive' ?>" title="<?= $activeFolder === 'archive' ? 'Move back to Inbox' : 'Archive' ?>" aria-label="Archive">
                             <i class="bi <?= $activeFolder === 'archive' ? 'bi-inbox' : 'bi-archive' ?> fs-5"></i>
+                            <span class="d-none d-sm-inline ms-1"><?= $activeFolder === 'archive' ? 'Unarchive' : 'Archive' ?></span>
                         </button>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="spam" data-action="spam" title="Report spam" aria-label="Report spam">
                             <i class="bi bi-exclamation-octagon fs-5"></i>
+                            <span class="d-none d-sm-inline ms-1">Spam</span>
                         </button>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="trash" data-action="trash" title="Delete" aria-label="Delete">
                             <i class="bi bi-trash3 fs-5"></i>
+                            <span class="d-none d-sm-inline ms-1">Trash</span>
                         </button>
-                        <span class="action-divider border-end mx-1" style="height: 18px;"></span>
+                        <span class="action-divider border-end mx-1 d-none d-sm-inline" style="height: 18px;"></span>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="mark_read" data-action="mark_read" title="Mark as read" aria-label="Mark as read">
                             <i class="bi bi-envelope-open fs-5"></i>
+                            <span class="d-none d-sm-inline ms-1">Read</span>
                         </button>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="mark_unread" data-action="mark_unread" title="Mark as unread" aria-label="Mark as unread">
                             <i class="bi bi-envelope fs-5"></i>
+                            <span class="d-none d-sm-inline ms-1">Unread</span>
                         </button>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="star" data-action="star" title="Star" aria-label="Star">
                             <i class="bi bi-star fs-5"></i>
+                            <span class="d-none d-sm-inline ms-1">Star</span>
                         </button>
                         <div class="dropdown d-inline-block">
                             <button class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Snooze" aria-label="Snooze">
                                 <i class="bi bi-alarm fs-5"></i>
+                                <span class="d-none d-sm-inline ms-1">Snooze</span>
                             </button>
                             <ul class="dropdown-menu shadow-sm">
                                 <li><button type="button" class="dropdown-item batch-snooze-preset" data-hours="4">In 4 hours</button></li>
@@ -217,6 +224,7 @@ $folderHeading = match ($activeFolder) {
                             <div class="dropdown d-inline-block">
                                 <button class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Labels" aria-label="Labels">
                                     <i class="bi bi-tag fs-5"></i>
+                                    <span class="d-none d-sm-inline ms-1">Labels</span>
                                 </button>
                                 <ul class="dropdown-menu shadow-sm">
                                     <?php foreach ($organizationLabels as $label): ?>

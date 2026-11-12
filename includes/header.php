@@ -206,27 +206,27 @@ $bodyClass = $bodyClass ?? '';
         <!-- Right: Actions, Theme Switcher & Dynamic Profile -->
         <div class="d-flex align-items-center gap-2">
             <!-- Notifications -->
-            <a href="<?= app_base_url('public/notifications.php') ?>" class="btn btn-sm webmail-header-btn border position-relative d-flex align-items-center justify-content-center rounded-circle px-2 py-1 shadow-sm" title="Notifications" aria-label="Notifications<?= $unreadNotifications > 0 ? ' (' . $unreadNotifications . ' unread)' : '' ?>" style="width: 36px; height: 36px;">
+            <button class="btn btn-sm webmail-header-btn border position-relative d-flex align-items-center justify-content-center rounded-circle px-2 py-1 shadow-sm" title="Notifications" aria-label="Notifications<?= $unreadNotifications > 0 ? ' (' . $unreadNotifications . ' unread)' : '' ?>" style="width: 44px; height: 44px;">
                 <i class="bi bi-bell<?= $unreadNotifications > 0 ? '-fill text-primary' : '' ?>"></i>
                 <?php if ($unreadNotifications > 0): ?>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.62rem;"><?= $unreadNotifications > 99 ? '99+' : $unreadNotifications ?></span>
                 <?php endif; ?>
-            </a>
+            </button>
 
             <!-- Quick Settings Button -->
-            <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="btnQuickSettings" data-bs-toggle="offcanvas" data-bs-target="#quickSettingsOffcanvas" aria-controls="quickSettingsOffcanvas" title="Quick settings" aria-label="Quick settings" style="width: 36px; height: 36px;">
+            <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="btnQuickSettings" data-bs-toggle="offcanvas" data-bs-target="#quickSettingsOffcanvas" aria-controls="quickSettingsOffcanvas" title="Quick settings" aria-label="Quick settings" style="width: 44px; height: 44px;">
                 <i class="bi bi-gear fs-6"></i>
             </button>
 
             <!-- Theme Toggle Button -->
-            <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" id="themeToggleBtn" type="button" title="Toggle Dark/Light Mode" aria-label="Toggle theme" style="width: 36px; height: 36px;">
+            <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" id="themeToggleBtn" type="button" title="Toggle Dark/Light Mode" aria-label="Toggle theme" style="width: 44px; height: 44px;">
                 <i class="bi <?= $currentTheme === 'dark' ? 'bi-moon-stars-fill text-warning' : 'bi-sun-fill text-warning' ?>" id="themeToggleIcon"></i>
                 <span class="visually-hidden" id="themeToggleLabel"><?= $currentTheme === 'dark' ? 'Dark' : 'Light' ?></span>
             </button>
 
             <!-- Google Apps Launcher Button & Dropdown -->
             <div class="dropdown">
-                <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="googleAppsLauncherBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Couriva apps" aria-label="Couriva apps" style="width: 36px; height: 36px;">
+                <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="googleAppsLauncherBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Couriva apps" aria-label="Couriva apps" style="width: 44px; height: 44px;">
                     <i class="bi bi-grid-3x3-gap-fill fs-6"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-3 rounded-4" id="googleAppsMenu" style="width: 300px;">
@@ -263,8 +263,8 @@ $bodyClass = $bodyClass ?? '';
 
             <!-- Authenticated User Profile Menu -->
             <div class="dropdown" id="userProfileMenu">
-                <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm user-avatar-btn p-0" type="button" id="userProfileBtn" data-bs-toggle="dropdown" aria-expanded="false" title="<?= e($userFullName) ?> (<?= e($userEmail) ?>)" aria-label="Account details" style="width: 36px; height: 36px;">
-                    <span class="user-avatar-badge rounded-circle" style="width: 32px; height: 32px; font-size: 0.85rem;"><?= e($userInitials) ?></span>
+                <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm user-avatar-btn p-0" type="button" id="userProfileBtn" data-bs-toggle="dropdown" aria-expanded="false" title="<?= e($userFullName) ?> (<?= e($userEmail) ?>)" aria-label="Account details" style="width: 44px; height: 44px;">
+                    <span class="user-avatar-badge rounded-circle" style="width: 36px; height: 36px; font-size: 0.9rem;"><?= e($userInitials) ?></span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-3 google-profile-card rounded-4" style="min-width: 280px;">
                     <div class="text-center py-2">
@@ -308,7 +308,7 @@ $bodyClass = $bodyClass ?? '';
 </header>
 
 <!-- Quick Settings Offcanvas Drawer (Mockup Parity) -->
-<div class="offcanvas offcanvas-end shadow" tabindex="-1" id="quickSettingsOffcanvas" role="dialog" aria-modal="true" aria-labelledby="quickSettingsOffcanvasLabel" style="width: 340px;">
+<div class="offcanvas offcanvas-end shadow" tabindex="-1" id="quickSettingsOffcanvas" role="dialog" aria-modal="true" aria-labelledby="quickSettingsOffcanvasLabel" style="width: min(350px, 90vw);">
     <div class="offcanvas-header border-bottom py-3 px-4">
         <div>
             <h5 class="offcanvas-title fw-bold fs-6 mb-0 text-body" id="quickSettingsOffcanvasLabel">Quick settings</h5>

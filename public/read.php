@@ -481,7 +481,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     </h6>
                     <div class="row g-2">
                         <?php foreach ($msgAttachments as $att): ?>
-                            <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                                 <div class="card h-100 border shadow-sm attachment-card p-2 d-flex flex-row align-items-center gap-2">
                                     <i class="<?= get_attachment_icon_class($att['mime_type'], $att['original_filename']) ?> fs-2"></i>
                                     <div class="flex-grow-1 text-truncate">

@@ -181,11 +181,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <input id="newContactEmail" type="email" class="form-control" name="contact_email" required placeholder="Enter email address">
                 </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-md-6">
+                    <div class="col-sm-6 col-md-6">
                         <label for="newContactPhone" class="form-label small">Phone</label>
                         <input id="newContactPhone" type="text" class="form-control form-control-sm" name="phone" placeholder="Enter phone number">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-sm-6 col-md-6">
                         <label for="newContactCompany" class="form-label small">Company</label>
                         <input id="newContactCompany" type="text" class="form-control form-control-sm" name="company" placeholder="Enter company">
                     </div>
@@ -224,11 +224,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <input type="email" class="form-control" name="contact_email" id="editContactEmail" required>
                 </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-md-6">
+                    <div class="col-sm-6 col-md-6">
                         <label for="editContactPhone" class="form-label small">Phone</label>
                         <input type="text" class="form-control form-control-sm" name="phone" id="editContactPhone">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-sm-6 col-md-6">
                         <label for="editContactCompany" class="form-label small">Company</label>
                         <input type="text" class="form-control form-control-sm" name="company" id="editContactCompany">
                     </div>

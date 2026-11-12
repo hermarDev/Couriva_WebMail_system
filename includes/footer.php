@@ -13,7 +13,7 @@ if (!defined('WEBMAIL_INIT')) {
 </div>
 
 <!-- Gmail-Style Floating Docked Compose Window -->
-<div id="dockedComposeContainer" class="docked-compose-window shadow-lg border d-none" role="dialog" aria-labelledby="dockedComposeTitle">
+<div id="dockedComposeContainer" class="docked-compose-window shadow-lg border d-none" role="dialog" aria-labelledby="dockedComposeTitle" tabindex="-1" aria-modal="true">
     <!-- Window Header -->
     <div id="dockedComposeHeader" class="docked-compose-header d-flex align-items-center justify-content-between px-3 py-2">
         <span class="fw-semibold small text-truncate" id="dockedComposeTitle">New Message</span>
