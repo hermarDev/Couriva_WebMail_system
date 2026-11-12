@@ -182,7 +182,7 @@ $folderHeading = match ($activeFolder) {
                     </a>
 
                     <!-- Contextual Selection Actions (shown when checkedCount > 0) -->
-                    <div class="contextual-actions d-none d-sm-flex align-items-center gap-1 ps-2 border-start ms-1" id="contextualActionsBar">
+                    <div class="contextual-actions d-none align-items-center gap-1 ps-2 border-start ms-1" id="contextualActionsBar">
                         <span class="badge bg-primary-subtle text-primary rounded-pill me-2 px-2 py-1" id="selectedCountBadge">0</span>
                         <button type="button" class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn batch-action-btn" data-batch-action="archive" data-action="<?= $activeFolder === 'archive' ? 'unarchive' : 'archive' ?>" title="<?= $activeFolder === 'archive' ? 'Move back to Inbox' : 'Archive' ?>" aria-label="Archive">
                             <i class="bi <?= $activeFolder === 'archive' ? 'bi-inbox' : 'bi-archive' ?> fs-5"></i>
