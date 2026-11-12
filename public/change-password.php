@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!password_verify($currentPass, $user['password'])) {
             $error = 'Current password is incorrect.';
-        } elseif (strlen($newPass) < 8) {
-            $error = 'New password must be at least 8 characters long.';
+        } elseif (!is_valid_password_complexity($newPass)) {
+            $error = 'New password must be at least 10 characters long and include uppercase, lowercase, a number, and a symbol.';
         } elseif ($newPass === $currentPass) {
             $error = 'New password must be different from the current password.';
         } elseif ($newPass !== $confirmPass) {
@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Change Password';
+$bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 

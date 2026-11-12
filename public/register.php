@@ -61,11 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $form['username'] = $username;
         $email = couriva_address($username);
 
-        $passwordPolicy = strlen($password) >= 10
-            && preg_match('/[a-z]/', $password)
-            && preg_match('/[A-Z]/', $password)
-            && preg_match('/[0-9]/', $password)
-            && preg_match('/[^A-Za-z0-9]/', $password);
+        $passwordPolicy = is_valid_password_complexity($password);
 
         if (mb_strlen($form['first_name']) < 1 || mb_strlen($form['first_name']) > 100
             || mb_strlen($form['last_name']) < 1 || mb_strlen($form['last_name']) > 100) {
@@ -86,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'first_name' => $form['first_name'],
                     'last_name' => $form['last_name'],
                     'role' => 'user',
-                    'status' => 'pending',
+                    'status' => 'active',
                     'signature' => "-- \r\n{$form['first_name']} {$form['last_name']}\r\nCouriva Internal Mail\r\n{$email}",
                     'timezone' => 'UTC',
                     'theme' => 'light',
@@ -96,16 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("UPDATE users SET requested_at = NOW() WHERE id = ?");
                 $stmt->execute([$newId]);
 
-                log_activity($newId, 'REGISTRATION_SUBMITTED', 'SUCCESS', 'Pending account request: ' . $email);
-                log_activity($newId, 'REGISTRATION_ATTEMPT', 'SUCCESS', 'Registration form submitted.');
-                notify_admins(
-                    'approval',
-                    'New account request',
-                    trim($form['first_name'] . ' ' . $form['last_name']) . ' requested ' . $email,
-                    'admin/registrations.php'
-                );
-
-                $registered = true;
+                log_activity($newId, 'REGISTRATION_SUCCESS', 'SUCCESS', 'Active mailbox created: ' . $email);
+                set_flash('success', 'Your Couriva mailbox (' . $email . ') is ready! Sign in below.');
+                header('Location: ' . app_base_url('public/login.php?created=' . urlencode($email)));
+                exit;
             } catch (Throwable $e) {
                 error_log('Registration failed: ' . $e->getMessage());
                 $error = 'Your request could not be submitted. Please try again later.';
@@ -118,13 +108,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Request an Account';
+$pageTitle = 'Create Your Email';
+$bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
 <div class="auth-stage">
     <div class="auth-card auth-card-wide">
         <div class="auth-card-body">
+            <nav class="auth-nav-pills" aria-label="Account actions">
+                <a href="<?= app_base_url('public/login.php') ?>" class="auth-nav-pill">Sign in</a>
+                <a href="<?= app_base_url('public/register.php') ?>" class="auth-nav-pill active" aria-current="page">Create account</a>
+            </nav>
             <div class="auth-heading">
                 <div>
                     <div class="auth-wordmark d-flex align-items-center gap-2">
@@ -134,8 +129,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         </div>
                         <span><?= e(app_name()) ?></span>
                     </div>
-                    <h1>Request an account</h1>
-                    <p>Create a <?= e('@' . app_domain()) ?> account. An administrator will review it before you can sign in.</p>
+                    <h1>Create your Couriva email</h1>
+                    <p>Choose a username to create your @<?= e(app_domain()) ?> mailbox.</p>
                 </div>
             </div>
 
@@ -199,13 +194,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">
-                        <i class="bi bi-person-plus me-1"></i> Submit request
+                        <i class="bi bi-person-plus me-1"></i> Create mailbox
                     </button>
                 </form>
 
                 <div class="auth-note mt-3">
                     <i class="bi bi-shield-check"></i>
-                    <span>Already approved? <a href="<?= app_base_url('public/login.php') ?>">Sign in</a></span>
+                    <span>Already have an account? <a href="<?= app_base_url('public/login.php') ?>">Sign in</a></span>
                 </div>
             <?php endif; ?>
         </div>

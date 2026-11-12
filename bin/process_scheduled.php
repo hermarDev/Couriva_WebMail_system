@@ -31,6 +31,30 @@ require_once dirname(__DIR__) . '/app/Services/SmtpTransport.php';
 require_once dirname(__DIR__) . '/app/Services/MailService.php';
 require_once dirname(__DIR__) . '/app/Services/ScheduledMailService.php';
 
+// Concurrency guard: Ensure single-instance execution under Windows Task Scheduler or cron
+$lockDir = dirname(__DIR__) . '/storage/cache';
+if (!is_dir($lockDir)) {
+    @mkdir($lockDir, 0755, true);
+}
+$lockFilePath = $lockDir . '/scheduled_worker.lock';
+$lockHandle = fopen($lockFilePath, 'c+');
+
+if (!$lockHandle || !flock($lockHandle, LOCK_EX | LOCK_NB)) {
+    if ($lockHandle) {
+        fclose($lockHandle);
+    }
+    echo "[" . date('Y-m-d H:i:s') . "] Scheduled worker already running. Exiting cleanly.\n";
+    exit(0);
+}
+
+register_shutdown_function(function() use ($lockHandle, $lockFilePath) {
+    if (is_resource($lockHandle)) {
+        flock($lockHandle, LOCK_UN);
+        fclose($lockHandle);
+    }
+    @unlink($lockFilePath);
+});
+
 $service = new \App\Services\ScheduledMailService($pdo);
 $totals = ['processed' => 0, 'sent' => 0, 'failed' => 0];
 

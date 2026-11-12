@@ -99,6 +99,7 @@ $storageQuotaBytes = 500 * 1024 * 1024; // 500 MB default quota
 $storagePercent = min(100, (int)round(($userStorageBytes / $storageQuotaBytes) * 100));
 $currentTheme = is_authenticated() ? ($_SESSION['user_theme'] ?? 'light') : '';
 $resolvedTheme = $currentTheme === 'dark' ? 'dark' : 'light';
+$bodyClass = $bodyClass ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="<?= e($resolvedTheme) ?>"<?= $currentTheme !== '' ? ' data-theme-preference="' . e($currentTheme) . '"' : '' ?>>
@@ -131,7 +132,7 @@ $resolvedTheme = $currentTheme === 'dark' ? 'dark' : 'light';
     <meta name="webmail-base-url" content="<?= e(rtrim(app_base_url(), '/')) ?>">
     <meta name="couriva-domain" content="<?= e(app_domain()) ?>">
 </head>
-<body>
+<body<?= $bodyClass !== '' ? ' class="' . e($bodyClass) . '"' : '' ?>>
 
 <?php if (is_authenticated() && empty($_SESSION['must_change_password'])): ?>
 <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to content</a>

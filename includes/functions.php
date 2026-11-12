@@ -51,6 +51,19 @@ function is_couriva_address(string $email): bool
     return str_ends_with($email, '@' . strtolower(app_domain()));
 }
 
+/**
+ * Enterprise password complexity validator:
+ * Minimum 10 characters, at least one uppercase, lowercase, numeric, and symbol.
+ */
+function is_valid_password_complexity(string $password): bool
+{
+    return strlen($password) >= 10
+        && preg_match('/[a-z]/', $password)
+        && preg_match('/[A-Z]/', $password)
+        && preg_match('/[0-9]/', $password)
+        && preg_match('/[^A-Za-z0-9]/', $password);
+}
+
 
 // Session initialization with modern security flags
 if (session_status() === PHP_SESSION_NONE) {

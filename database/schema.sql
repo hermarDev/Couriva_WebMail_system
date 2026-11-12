@@ -46,6 +46,7 @@ CREATE TABLE `users` (
     `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user',
     `status` ENUM('active', 'disabled', 'pending', 'rejected', 'suspended') NOT NULL DEFAULT 'active',
     `avatar` VARCHAR(255) NULL DEFAULT NULL,
+    `auth_source` ENUM('local', 'ldap') NOT NULL DEFAULT 'local',
     `signature` TEXT NULL DEFAULT NULL,
     `timezone` VARCHAR(100) NOT NULL DEFAULT 'UTC',
     `theme` VARCHAR(20) NOT NULL DEFAULT 'light',
@@ -60,7 +61,8 @@ CREATE TABLE `users` (
     CONSTRAINT `fk_users_reviewed_by` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
     INDEX `idx_users_email` (`email`),
     INDEX `idx_users_role` (`role`),
-    INDEX `idx_users_status` (`status`)
+    INDEX `idx_users_status` (`status`),
+    INDEX `idx_users_auth_source` (`auth_source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------

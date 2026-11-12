@@ -1,0 +1,11 @@
+======================================================================
+AUDITING DRAW.IO FILE: login_flowchart.drawio
+======================================================================
+[01] Couriva WebMail Authentication Workflow
+     Vertices: 41 | Edges: 40 | Decisions: 11
+     -> Quality Gates Status: PASSED (0 defects)
+----------------------------------------------------------------------
+AUDIT SUMMARY: 1 Diagrams | 41 Nodes | 40 Edges | 11 Decisions
+TOTAL DEFECTS FOUND: 0
+RESULT: PASS
+======================================================================

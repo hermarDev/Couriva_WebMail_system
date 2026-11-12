@@ -57,8 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif ($action === 'reset_password') {
             $newPass = $_POST['new_password'] ?? '';
-            if (strlen($newPass) < 8) {
-                $error = 'New password must be at least 8 characters long.';
+            if (!empty($targetUser['auth_source']) && $targetUser['auth_source'] === 'ldap') {
+                $error = 'This user is managed by Active Directory. Passwords must be reset in the Windows Domain Controller.';
+            } elseif (!is_valid_password_complexity($newPass)) {
+                $error = 'New password must be at least 10 characters long and include uppercase, lowercase, a number, and a symbol.';
             } else {
                 $userModel->updatePassword($targetId, $newPass, true);
                 log_activity($_SESSION['user_id'], 'PASSWORD_RESET', 'SUCCESS', "Admin reset password for user ID {$targetId}");

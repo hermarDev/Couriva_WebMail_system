@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1465" height="2055" viewBox="0 0 1465.0 2055.0">
+<defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#000000"/>
+      </marker>
+    </defs>
+<rect x="0" y="0" width="1465.0" height="2055.0" fill="#ffffff"/>
+<path d="M 550.0 145.0 L 550.0 175.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 660.0 220.0 L 750.0 220.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="705.0" y="214.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 980.0 220.0 L 1030.0 220.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 265.0 L 550.0 295.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="280.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 550.0 355.0 L 550.0 385.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 445.0 L 550.0 475.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 440.0 520.0 L 410.0 520.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="425.0" y="514.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 190.0 520.0 L 170.0 520.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 565.0 L 550.0 595.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="580.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 550.0 650.0 L 550.0 680.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 430.0 725.0 L 410.0 725.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="420.0" y="719.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 190.0 725.0 L 170.0 725.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 770.0 L 550.0 800.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="785.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 670.0 845.0 L 750.0 845.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="710.0" y="839.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 550.0 890.0 L 550.0 1170.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="1030.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO (Disabled)</text>
+<path d="M 880.0 877.5 L 880.0 910.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 990.0 952.5 L 1030.0 952.5" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="1010.0" y="946.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 880.0 995.0 L 880.0 1025.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="892.0" y="1010.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 1160.0 985.0 L 1160.0 1015.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 1265.0 1057.5 L 1290.0 1057.5" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="1277.5" y="1051.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 1362.5 1085.0 L 1362.5 1105.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 1160.0 1100.0 L 1160.0 1140.0 L 1200.0 1140.0 L 1200.0 1680.0 L 720.0 1680.0 L 720.0 1680.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="1172.0" y="1120.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES (Authenticated)</text>
+<path d="M 990.0 1067.5 L 970.0 1067.5" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="980.0" y="1061.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 1055.0 1095.0 L 1055.0 1115.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 770.0 1067.5 L 730.0 1067.5 L 730.0 1207.5 L 690.0 1207.5 L 690.0 1207.5" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="750.0" y="1061.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES (Fallback)</text>
+<path d="M 550.0 1245.0 L 550.0 1280.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 440.0 1325.0 L 410.0 1325.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="425.0" y="1319.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 190.0 1325.0 L 170.0 1325.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 1370.0 L 550.0 1400.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="1385.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 440.0 1445.0 L 410.0 1445.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="425.0" y="1439.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 190.0 1445.0 L 170.0 1445.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 1490.0 L 550.0 1520.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="1505.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 420.0 1565.0 L 410.0 1565.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="415.0" y="1559.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 190.0 1565.0 L 170.0 1565.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 1610.0 L 550.0 1645.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="1627.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 550.0 1715.0 L 550.0 1750.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 670.0 1795.0 L 750.0 1795.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="710.0" y="1789.0" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">YES</text>
+<path d="M 1000.0 1795.0 L 1040.0 1795.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 550.0 1840.0 L 550.0 1875.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="562.0" y="1857.5" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">NO</text>
+<path d="M 550.0 1935.0 L 550.0 1970.0" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="550.0" y="49.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#000000">COURIVA WEBMAIL — AUTHENTICATION &amp; LOGIN FLOWCHART</text>
+<text x="550.0" y="75.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">ANSI X3.5 / ISO 5807 Compliant Authentication Pipeline (Zero-Defect Standard)</text>
+<rect x="440.0" y="95.0" width="220.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="550.0" y="116.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">START: Access Login Page</text>
+<text x="550.0" y="131.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(GET /public/login.php)</text>
+<polygon points="550.0,175.0 660.0,220.0 550.0,265.0 440.0,220.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="208.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Already</text>
+<text x="550.0" y="223.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Authenticated?</text>
+<text x="550.0" y="238.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(is_authenticated())</text>
+<rect x="750.0" y="192.5" width="230.0" height="55.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="865.0" y="216.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Redirect to Inbox</text>
+<text x="865.0" y="230.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(header Location: inbox.php)</text>
+<rect x="1030.0" y="195.0" width="200.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="1130.0" y="216.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: User in Inbox</text>
+<text x="1130.0" y="231.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(public/inbox.php)</text>
+<rect x="420.0" y="295.0" width="260.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="321.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Render Login Form</text>
+<text x="550.0" y="335.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(Generate CSRF token &amp; render view)</text>
+<polygon points="430.0,385.0 690.0,385.0 670.0,445.0 410.0,445.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="411.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">User Submits Login Form</text>
+<text x="550.0" y="425.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(POST: email, password, csrf_token)</text>
+<polygon points="550.0,475.0 660.0,520.0 550.0,565.0 440.0,520.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="508.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">CSRF Token</text>
+<text x="550.0" y="523.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Valid?</text>
+<text x="550.0" y="538.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(verify_csrf_token())</text>
+<rect x="190.0" y="490.0" width="220.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="300.0" y="509.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Error:</text>
+<text x="300.0" y="523.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">&#x27;Session security token expired.</text>
+<text x="300.0" y="537.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Please try again.&#x27;</text>
+<rect x="30.0" y="495.0" width="140.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="100.0" y="516.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="100.0" y="531.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(CSRF Error Alert)</text>
+<rect x="420.0" y="595.0" width="260.0" height="55.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="618.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Sanitize &amp; Normalize Inputs</text>
+<text x="550.0" y="632.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(trim email, check couriva_address)</text>
+<polygon points="550.0,680.0 670.0,725.0 550.0,770.0 430.0,725.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="713.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Email &amp; Password</text>
+<text x="550.0" y="728.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Provided?</text>
+<text x="550.0" y="743.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(!empty($email) &amp;&amp; !empty($password))</text>
+<rect x="190.0" y="695.0" width="220.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="300.0" y="714.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Error:</text>
+<text x="300.0" y="728.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">&#x27;Please enter both email</text>
+<text x="300.0" y="742.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">and password.&#x27;</text>
+<rect x="30.0" y="700.0" width="140.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="100.0" y="721.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="100.0" y="736.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(Input Error Alert)</text>
+<polygon points="550.0,800.0 670.0,845.0 550.0,890.0 430.0,845.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="833.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">LDAP / AD</text>
+<text x="550.0" y="848.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Enabled?</text>
+<text x="550.0" y="863.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(!empty($ldapConfig[&#x27;enabled&#x27;]))</text>
+<rect x="750.0" y="812.5" width="260.0" height="65.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="880.0" y="834.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Attempt LDAP Bind &amp; Search</text>
+<text x="880.0" y="848.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(UPN, Domain\User, or Service DN bind;</text>
+<text x="880.0" y="862.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">fetch directory attributes)</text>
+<polygon points="880.0,910.0 990.0,952.5 880.0,995.0 770.0,952.5" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="880.0" y="941.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">LDAP Bind</text>
+<text x="880.0" y="956.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Successful?</text>
+<text x="880.0" y="971.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">($ldapResult[&#x27;success&#x27;])</text>
+<rect x="1030.0" y="920.0" width="260.0" height="65.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="1160.0" y="941.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Sync User to Local Database</text>
+<text x="1160.0" y="955.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(syncLdapUserToDatabase(): auto-create</text>
+<text x="1160.0" y="969.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">or update local user record)</text>
+<polygon points="1160.0,1015.0 1265.0,1057.5 1160.0,1100.0 1055.0,1057.5" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="1160.0" y="1046.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Local Account</text>
+<text x="1160.0" y="1061.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Active?</text>
+<text x="1160.0" y="1076.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">($status === &#x27;active&#x27;)</text>
+<rect x="1290.0" y="1030.0" width="145.0" height="55.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="1362.5" y="1053.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Error:</text>
+<text x="1362.5" y="1067.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">&#x27;Your account is disabled.&#x27;</text>
+<rect x="1290.0" y="1105.0" width="145.0" height="45.0" rx="22.5" ry="22.5" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="1362.5" y="1123.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="1362.5" y="1138.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(Account Disabled)</text>
+<polygon points="880.0,1025.0 990.0,1067.5 880.0,1110.0 770.0,1067.5" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="880.0" y="1056.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Fallback to</text>
+<text x="880.0" y="1071.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Local DB Allowed?</text>
+<text x="880.0" y="1086.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(!empty($fallback_to_local))</text>
+<rect x="970.0" y="1040.0" width="170.0" height="55.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="1055.0" y="1063.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Error:</text>
+<text x="1055.0" y="1077.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">&#x27;LDAP credentials rejected.&#x27;</text>
+<rect x="970.0" y="1115.0" width="170.0" height="45.0" rx="22.5" ry="22.5" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="1055.0" y="1133.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="1055.0" y="1148.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(LDAP Rejected)</text>
+<rect x="410.0" y="1178.0" width="280.0" height="59.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<ellipse cx="550.0" cy="1178.0" rx="140.0" ry="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<ellipse cx="550.0" cy="1237.0" rx="140.0" ry="8" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1203.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Query User from MariaDB Database</text>
+<text x="550.0" y="1217.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">($this-&gt;userModel-&gt;findByEmail($email))</text>
+<polygon points="550.0,1280.0 660.0,1325.0 550.0,1370.0 440.0,1325.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1313.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">User Record</text>
+<text x="550.0" y="1328.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Found in DB?</text>
+<text x="550.0" y="1343.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(!empty($user))</text>
+<rect x="190.0" y="1295.0" width="220.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="300.0" y="1314.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Error:</text>
+<text x="300.0" y="1328.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">&#x27;Invalid email or password.&#x27;</text>
+<text x="300.0" y="1342.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(log FAILED_LOGIN attempt)</text>
+<rect x="30.0" y="1300.0" width="140.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="100.0" y="1321.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="100.0" y="1336.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(Auth Failed Alert)</text>
+<polygon points="550.0,1400.0 660.0,1445.0 550.0,1490.0 440.0,1445.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1433.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Account Status</text>
+<text x="550.0" y="1448.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Active?</text>
+<text x="550.0" y="1463.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">($user[&#x27;status&#x27;] === &#x27;active&#x27;)</text>
+<rect x="190.0" y="1415.0" width="220.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="300.0" y="1434.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Status Error:</text>
+<text x="300.0" y="1448.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(pending approval, suspended,</text>
+<text x="300.0" y="1462.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">rejected, or disabled)</text>
+<rect x="30.0" y="1420.0" width="140.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="100.0" y="1441.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="100.0" y="1456.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(Status Alert)</text>
+<polygon points="550.0,1520.0 680.0,1565.0 550.0,1610.0 420.0,1565.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1553.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Password Matches</text>
+<text x="550.0" y="1568.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Hash?</text>
+<text x="550.0" y="1583.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(password_verify($password, $hash))</text>
+<rect x="190.0" y="1535.0" width="220.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="300.0" y="1554.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Error:</text>
+<text x="300.0" y="1568.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">&#x27;Invalid email or password.&#x27;</text>
+<text x="300.0" y="1582.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(log FAILED_LOGIN attempt)</text>
+<rect x="30.0" y="1540.0" width="140.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="100.0" y="1561.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Re-render Form</text>
+<text x="100.0" y="1576.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(Bad Password Alert)</text>
+<rect x="380.0" y="1645.0" width="340.0" height="70.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1669.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Regenerate Session ID &amp; Initialize Session State</text>
+<text x="550.0" y="1683.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(session_regenerate_id(true), set $_SESSION user keys,</text>
+<text x="550.0" y="1697.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">log USER_LOGIN SUCCESS)</text>
+<polygon points="550.0,1750.0 670.0,1795.0 550.0,1840.0 430.0,1795.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1783.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Must Change</text>
+<text x="550.0" y="1798.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Password?</text>
+<text x="550.0" y="1813.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(!empty($_SESSION[&#x27;must_change_password&#x27;]))</text>
+<rect x="750.0" y="1765.0" width="250.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="875.0" y="1784.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Flash Warning &amp;</text>
+<text x="875.0" y="1798.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Redirect to Change Password</text>
+<text x="875.0" y="1812.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(header Location: change-password.php)</text>
+<rect x="1040.0" y="1770.0" width="210.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="1145.0" y="1791.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Change Password Page</text>
+<text x="1145.0" y="1806.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(public/change-password.php)</text>
+<rect x="410.0" y="1875.0" width="280.0" height="60.0" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+<text x="550.0" y="1894.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Set Flash Success Welcome &amp;</text>
+<text x="550.0" y="1908.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">Redirect to Inbox</text>
+<text x="550.0" y="1922.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#000000">(header Location: inbox.php)</text>
+<rect x="440.0" y="1970.0" width="220.0" height="50.0" rx="25.0" ry="25.0" fill="#ffffff" stroke="#000000" stroke-width="2.0"/>
+<text x="550.0" y="1991.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">END: Authenticated User in Inbox</text>
+<text x="550.0" y="2006.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">(public/inbox.php)</text>
+</svg>

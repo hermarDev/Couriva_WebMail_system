@@ -105,6 +105,10 @@ class User
             $fields[] = "avatar = ?";
             $params[] = $data['avatar'];
         }
+        if (isset($data['auth_source']) && in_array($data['auth_source'], ['local', 'ldap'], true)) {
+            $fields[] = "auth_source = ?";
+            $params[] = $data['auth_source'];
+        }
 
         if (empty($fields)) {
             return false;

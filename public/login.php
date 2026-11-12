@@ -41,12 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Sign In';
+$bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
 <div class="auth-stage">
     <div class="auth-card">
         <div class="auth-card-body">
+            <nav class="auth-nav-pills" aria-label="Account actions">
+                <a href="<?= app_base_url('public/login.php') ?>" class="auth-nav-pill active" aria-current="page">Sign in</a>
+                <a href="<?= app_base_url('public/register.php') ?>" class="auth-nav-pill">Create account</a>
+            </nav>
             <div class="auth-heading">
                 <div>
                     <div class="auth-wordmark d-flex align-items-center gap-2">
@@ -72,10 +77,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <?= csrf_field() ?>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email address or username</label>
+                        <label for="email" class="form-label">Email address</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-at"></i></span>
-                            <input type="text" class="form-control" id="email" name="email" required autofocus value="<?= e($_POST['email'] ?? '') ?>" placeholder="name@<?= e(app_domain()) ?>" autocomplete="username">
+                            <input type="email" class="form-control" id="email" name="email" required autofocus value="<?= e($_POST['email'] ?? '') ?>" placeholder="name@<?= e(app_domain()) ?>" autocomplete="email">
                         </div>
                     </div>
 
@@ -94,8 +99,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     </button>
 
                     <div class="auth-note">
-                        <i class="bi bi-shield-check"></i>
-                        <span>Accounts require administrator approval. <a href="<?= app_base_url('public/register.php') ?>">Request an account</a></span>
+                        <i class="bi bi-envelope-plus"></i>
+                        <span>New to Couriva? <a href="<?= app_base_url('public/register.php') ?>">Create an email account</a></span>
                     </div>
                 </form>
         </div>

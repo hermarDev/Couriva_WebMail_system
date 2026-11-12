@@ -52,15 +52,24 @@ class AuthService
             return ['success' => false, 'message' => 'Invalid email or password.'];
         }
 
-        if (!str_contains($email, '@') && function_exists('couriva_address')) {
-            $email = couriva_address($email);
+        // Enforce strict email requirement — no bare username fallback
+        if (!str_contains($email, '@') || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'Please enter a valid email address.'];
         }
+
+        $existingUser = $this->userModel->findByEmail($email);
+        $isAdUser = $existingUser && (($existingUser['auth_source'] ?? 'local') === 'ldap');
 
         // 1. Attempt LDAP / Active Directory if enabled
         if (!empty($this->ldapConfig['enabled'])) {
             $ldapResult = $this->attemptLdapAuth($email, $password);
             if ($ldapResult['success']) {
                 return $ldapResult;
+            }
+
+            // Active Directory accounts MUST NOT fall back to local DB authentication
+            if ($isAdUser) {
+                return ['success' => false, 'message' => $ldapResult['message'] ?? 'Active Directory credentials rejected.'];
             }
 
             // If LDAP failed and fallback to local DB is disabled, stop here
@@ -70,6 +79,10 @@ class AuthService
         }
 
         // 2. Local Database Authentication Fallback
+        if ($isAdUser) {
+            return ['success' => false, 'message' => 'Active Directory accounts must authenticate via domain controller.'];
+        }
+
         return $this->attemptLocalAuth($email, $password);
     }
 
@@ -227,10 +240,11 @@ class AuthService
                 return ['success' => false, 'message' => 'Your account is disabled. Contact system administrator.'];
             }
 
-            // Sync updated name from AD if provided
+            // Sync updated name and mark auth_source as ldap
             $this->userModel->update((int)$localUser['id'], [
-                'first_name' => $firstName,
-                'last_name'  => $lastName,
+                'first_name'  => $firstName,
+                'last_name'   => $lastName,
+                'auth_source' => 'ldap',
             ]);
 
             // Re-fetch updated user record
