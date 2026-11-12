@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Sign In';
+$pageTitle = 'Login';
 $bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -48,11 +48,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="auth-stage">
     <div class="auth-card">
         <div class="auth-card-body">
-            <nav class="auth-nav-pills" aria-label="Account actions">
-                <a href="<?= app_base_url('public/login.php') ?>" class="auth-nav-pill active" aria-current="page">Sign in</a>
-                <a href="<?= app_base_url('public/register.php') ?>" class="auth-nav-pill">Create account</a>
-            </nav>
-
             <div class="auth-heading">
                 <div class="auth-wordmark">
                     <div class="brand-monogram-container">
@@ -61,8 +56,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     </div>
                     <span><?= e(app_name()) ?></span>
                 </div>
-                <h1>Welcome back</h1>
-                <p>Sign in to your Couriva workspace.</p>
+                <h1>Login to your Couriva workspace</h1>
             </div>
 
             <?php if (!empty($error)): ?>
@@ -88,10 +82,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <p class="auth-recovery-note">Password resets are managed by a Couriva administrator.</p>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 fw-semibold auth-submit">Sign in</button>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold auth-submit">Login</button>
 
                 <div class="auth-note">
-                    <span>New to Couriva? <a href="<?= app_base_url('public/register.php') ?>">Create account</a></span>
+                    <span>Don't have an account? <a href="<?= app_base_url('public/register.php') ?>">Create account</a></span>
                 </div>
             </form>
         </div>

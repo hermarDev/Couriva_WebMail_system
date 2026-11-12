@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$newId]);
 
                 log_activity($newId, 'REGISTRATION_SUCCESS', 'SUCCESS', 'Active mailbox created: ' . $email);
-                set_flash('success', 'Your Couriva mailbox (' . $email . ') is ready! Sign in below.');
+                set_flash('success', 'Your Couriva mailbox (' . $email . ') is ready! Login below.');
                 header('Location: ' . app_base_url('public/login.php?created=' . urlencode($email)));
                 exit;
             } catch (Throwable $e) {
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Create your Couriva account';
+$pageTitle = 'Create account';
 $bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -114,18 +114,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="auth-stage">
     <div class="auth-card auth-card-wide">
         <div class="auth-card-body">
-            <nav class="auth-nav-pills" aria-label="Account actions">
-                <a href="<?= app_base_url('public/login.php') ?>" class="auth-nav-pill">Sign in</a>
-                <a href="<?= app_base_url('public/register.php') ?>" class="auth-nav-pill active" aria-current="page">Create account</a>
-            </nav>
-
             <div class="auth-heading">
                 <div class="auth-wordmark">
                     <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="24" height="24">
                     <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="24" height="24">
                     <span><?= e(app_name()) ?></span>
                 </div>
-                <h1>Create your Couriva account</h1>
+                <h1>Create account</h1>
                 <p>Choose a username for your @<?= e(app_domain()) ?> mailbox, then create your password.</p>
             </div>
 
@@ -164,13 +159,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         <input type="password" class="form-control" id="registerPassword" name="password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
                         <button type="button" class="password-toggle" aria-label="Show password" aria-controls="registerPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
                     </div>
-                    <ul id="registerPasswordRules" class="auth-password-rules" aria-label="Password requirements">
-                        <li class="auth-password-rule" data-rule="length"><span>At least 10 characters</span><span class="auth-password-rule-status">Not met</span></li>
-                        <li class="auth-password-rule" data-rule="uppercase"><span>One uppercase letter</span><span class="auth-password-rule-status">Not met</span></li>
-                        <li class="auth-password-rule" data-rule="lowercase"><span>One lowercase letter</span><span class="auth-password-rule-status">Not met</span></li>
-                        <li class="auth-password-rule" data-rule="number"><span>One number</span><span class="auth-password-rule-status">Not met</span></li>
-                        <li class="auth-password-rule" data-rule="symbol"><span>One symbol</span><span class="auth-password-rule-status">Not met</span></li>
-                    </ul>
                 </div>
 
                 <div class="mb-3">
@@ -182,13 +170,21 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <div id="registerPasswordMatch" class="auth-password-match" role="status" aria-live="polite" hidden></div>
                 </div>
 
+                <ul id="registerPasswordRules" class="auth-password-rules" aria-label="Password requirements">
+                    <li class="auth-password-rule" data-rule="length"><span>At least 10 characters</span><span class="auth-password-rule-status">Not met</span></li>
+                    <li class="auth-password-rule" data-rule="uppercase"><span>One uppercase letter</span><span class="auth-password-rule-status">Not met</span></li>
+                    <li class="auth-password-rule" data-rule="lowercase"><span>One lowercase letter</span><span class="auth-password-rule-status">Not met</span></li>
+                    <li class="auth-password-rule" data-rule="number"><span>One number</span><span class="auth-password-rule-status">Not met</span></li>
+                    <li class="auth-password-rule" data-rule="symbol"><span>One symbol</span><span class="auth-password-rule-status">Not met</span></li>
+                </ul>
+
                 <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">
                     <span class="auth-submit-label">Create account</span>
                 </button>
             </form>
 
             <div class="auth-note mt-3">
-                <span>Already have an account? <a href="<?= app_base_url('public/login.php') ?>">Sign in</a></span>
+                <span>Already have an account? <a href="<?= app_base_url('public/login.php') ?>">Login</a></span>
             </div>
         </div>
     </div>

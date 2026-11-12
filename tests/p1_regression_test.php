@@ -405,13 +405,13 @@ try {
     $registerPath = $projectRoot . '/public/register.php';
     assertP1(is_file($registerPath), 'H1 public/register.php exists for secure account requests');
     $registerSource = is_file($registerPath) ? (string)file_get_contents($registerPath) : '';
-    assertP1(str_contains($registerSource, 'pending'), 'H1 registration creates a pending account');
+    assertP1(str_contains($registerSource, "'status' => 'active'"), 'H1 registration creates an active account');
     assertP1(str_contains($registerSource, 'verify_csrf_token'), 'H1 registration verifies CSRF tokens');
     assertP1(str_contains($registerSource, 'registration_is_throttled'), 'H1 registration is rate limited');
 
     $loginSource = (string)file_get_contents($projectRoot . '/public/login.php');
-    assertP1(str_contains($loginSource, 'register.php'), 'H1 login page links to account requests');
-    assertP1(str_contains($loginSource, 'Request an account'), 'H1 login page offers the request-account action');
+    assertP1(str_contains($loginSource, 'register.php'), 'H1 login page links to account creation');
+    assertP1(str_contains($loginSource, 'Create account'), 'H1 login page offers the create-account action');
     assertP1(!preg_match('/Admin123!|User123!/', $loginSource), 'H1 login page exposes no demo credentials');
 
     $authServiceSource = (string)file_get_contents($projectRoot . '/app/Services/AuthService.php');

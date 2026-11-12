@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const rule = rules[item.dataset.rule];
             const met = Boolean(rule && rule(password.value));
             const status = item.querySelector('.auth-password-rule-status');
-            item.classList.toggle('is-met', met);
+            item.classList.toggle('met', met);
+            item.classList.toggle('unmet', !met);
             item.setAttribute('aria-label', item.firstElementChild.textContent.trim() + ': ' + (met ? 'Met' : 'Not met'));
             if (status) status.textContent = met ? 'Met' : 'Not met';
         });
@@ -34,18 +35,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!password.value || !confirmation.value) {
             match.hidden = true;
             match.textContent = '';
+            match.classList.remove('matched', 'mismatched');
             return;
         }
 
         match.hidden = false;
         if (password.value === confirmation.value) {
             match.textContent = 'Passwords match';
-            match.classList.remove('is-mismatch');
-            match.classList.add('is-match');
+            match.classList.remove('mismatched');
+            match.classList.add('matched');
         } else {
             match.textContent = 'Passwords do not match';
-            match.classList.remove('is-match');
-            match.classList.add('is-mismatch');
+            match.classList.remove('matched');
+            match.classList.add('mismatched');
         }
     };
 

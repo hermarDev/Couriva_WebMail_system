@@ -8,7 +8,7 @@ $script = is_file($root . '/assets/js/auth-registration.js')
     : '';
 
 $checks = [
-    'registration heading matches contract' => str_contains($source, '<h1>Create your Couriva account</h1>'),
+    'registration heading matches contract' => str_contains($source, '<h1>Create account</h1>'),
     'active account flow contains no pending approval copy' => !str_contains($source, 'pending administrator approval'),
     'username field accepts local part only' => (bool) preg_match('/<input\b(?=[^>]*\bname="username")(?=[^>]*\bmaxlength="32")(?=[^>]*\bautocomplete="username")(?=[^>]*\bplaceholder="firstname\.lastname")(?=[^>]*\bpattern="[^"]*")[^>]*>/', $source),
     'username field shows @couriva.local suffix' => str_contains($source, '<span class="input-group-text">@<?= e(app_domain()) ?></span>'),
@@ -18,6 +18,7 @@ $checks = [
         && str_contains($source, 'lowercase')
         && str_contains($source, 'number')
         && str_contains($source, 'symbol'),
+    'password checklist positioned below confirm password' => strpos($source, 'auth-password-rules') > strpos($source, 'registerConfirmPassword'),
     'password confirmation has match feedback selector' => str_contains($source, 'auth-password-match'),
     'name fields use visible labels and autocomplete' => str_contains($source, 'autocomplete="given-name"')
         && str_contains($source, 'autocomplete="family-name"'),
@@ -42,6 +43,11 @@ $checks = [
     'server creates active account' => str_contains($source, "'status' => 'active'"),
     'server preserves duplicate email check' => str_contains($source, '$userModel->findByEmail($email)'),
     'submit action uses contract label' => str_contains($source, 'Create account'),
+    'no segmented nav pills' => !str_contains($source, 'auth-nav-pills'),
+    'no Sign in terminology' => !str_contains($source, 'Sign in'),
+    'login link at bottom uses Login' => str_contains($source, 'Already have an account?') && str_contains($source, 'Login'),
+    'password rule animation classes present' => str_contains($source, 'auth-password-rule-status')
+        && (str_contains($script, 'auth-password-rule.met') || str_contains($script, 'classList.add') || str_contains($script, 'classList.toggle')),
 ];
 
 $failed = 0;
