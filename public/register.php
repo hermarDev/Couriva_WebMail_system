@@ -1,8 +1,7 @@
 <?php
 /**
- * Couriva - Account Registration Request
- * Public signup creates a PENDING account. An administrator must approve it
- * before the account can sign in.
+ * Couriva - Account Registration
+ * Public signup creates an active Couriva mailbox.
  */
 
 define('WEBMAIL_INIT', true);
@@ -19,7 +18,6 @@ if (is_authenticated()) {
 
 $userModel = new \App\Models\User($pdo);
 $error = null;
-$registered = false;
 $form = [
     'first_name' => '',
     'last_name' => '',
@@ -108,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Create Your Email';
+$pageTitle = 'Create your Couriva account';
 $bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -120,91 +118,81 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <a href="<?= app_base_url('public/login.php') ?>" class="auth-nav-pill">Sign in</a>
                 <a href="<?= app_base_url('public/register.php') ?>" class="auth-nav-pill active" aria-current="page">Create account</a>
             </nav>
+
             <div class="auth-heading">
-                <div>
-                    <div class="auth-wordmark d-flex align-items-center gap-2">
-                        <div class="brand-monogram-container" style="width: 24px; height: 24px;">
-                            <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="24" height="24">
-                            <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="24" height="24">
-                        </div>
-                        <span><?= e(app_name()) ?></span>
-                    </div>
-                    <h1>Create your Couriva email</h1>
-                    <p>Choose a username to create your @<?= e(app_domain()) ?> mailbox.</p>
+                <div class="auth-wordmark">
+                    <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="24" height="24">
+                    <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="24" height="24">
+                    <span><?= e(app_name()) ?></span>
                 </div>
+                <h1>Create your Couriva account</h1>
+                <p>Choose a username for your @<?= e(app_domain()) ?> mailbox, then create your password.</p>
             </div>
 
-            <?php if ($registered): ?>
-                <div class="alert alert-success d-flex align-items-start gap-2" role="status">
-                    <i class="bi bi-hourglass-split fs-5 mt-1"></i>
-                    <div>
-                        <div class="fw-semibold">Request submitted</div>
-                        <div class="small">Your account is pending administrator approval. You will be able to sign in once it is approved.</div>
-                    </div>
-                </div>
-                <a href="<?= app_base_url('public/login.php') ?>" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Back to sign in
-                </a>
-            <?php else: ?>
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
-                        <div class="small"><?= e($error) ?></div>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST" action="<?= app_base_url('public/register.php') ?>">
-                    <?= csrf_field() ?>
-
-                    <div class="row g-2 mb-3">
-                        <div class="col-sm-6">
-                            <label for="registerFirstName" class="form-label">First name</label>
-                            <input type="text" class="form-control" id="registerFirstName" name="first_name" maxlength="100" required autofocus value="<?= e($form['first_name']) ?>">
-                        </div>
-                        <div class="col-sm-6">
-                            <label for="registerLastName" class="form-label">Last name</label>
-                            <input type="text" class="form-control" id="registerLastName" name="last_name" maxlength="100" required value="<?= e($form['last_name']) ?>">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="registerUsername" class="form-label">Username</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="registerUsername" name="username" maxlength="32" required autocomplete="username" value="<?= e($form['username']) ?>" placeholder="firstname.lastname">
-                            <span class="input-group-text">@<?= e(app_domain()) ?></span>
-                        </div>
-                        <div class="form-text">Letters, numbers, dots, hyphens, and underscores.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="registerPassword" class="form-label">Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="registerPassword" name="password" required minlength="10" autocomplete="new-password">
-                            <button type="button" class="password-toggle" aria-label="Show password" aria-controls="registerPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="form-text">At least 10 characters with uppercase, lowercase, a number, and a symbol.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="registerConfirmPassword" class="form-label">Confirm password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="registerConfirmPassword" name="confirm_password" required minlength="10" autocomplete="new-password">
-                            <button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="registerConfirmPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">
-                        <i class="bi bi-person-plus me-1"></i> Create mailbox
-                    </button>
-                </form>
-
-                <div class="auth-note mt-3">
-                    <i class="bi bi-shield-check"></i>
-                    <span>Already have an account? <a href="<?= app_base_url('public/login.php') ?>">Sign in</a></span>
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?= e($error) ?>
                 </div>
             <?php endif; ?>
+
+            <form method="POST" action="<?= app_base_url('public/register.php') ?>">
+                <?= csrf_field() ?>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label for="registerFirstName" class="form-label">First name</label>
+                        <input type="text" class="form-control" id="registerFirstName" name="first_name" maxlength="100" autocomplete="given-name" required autofocus value="<?= e($form['first_name']) ?>">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="registerLastName" class="form-label">Last name</label>
+                        <input type="text" class="form-control" id="registerLastName" name="last_name" maxlength="100" autocomplete="family-name" required value="<?= e($form['last_name']) ?>">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="registerUsername" class="form-label">Username</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="registerUsername" name="username" maxlength="32" autocomplete="username" required pattern="^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$" placeholder="firstname.lastname" value="<?= e($form['username']) ?>">
+                        <span class="input-group-text">@<?= e(app_domain()) ?></span>
+                    </div>
+                    <div class="form-text">Use 3–32 letters, numbers, dots, hyphens, or underscores.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="registerPassword" class="form-label">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="registerPassword" name="password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
+                        <button type="button" class="password-toggle" aria-label="Show password" aria-controls="registerPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                    </div>
+                    <ul id="registerPasswordRules" class="auth-password-rules" aria-label="Password requirements">
+                        <li class="auth-password-rule" data-rule="length"><span>At least 10 characters</span><span class="auth-password-rule-status">Not met</span></li>
+                        <li class="auth-password-rule" data-rule="uppercase"><span>One uppercase letter</span><span class="auth-password-rule-status">Not met</span></li>
+                        <li class="auth-password-rule" data-rule="lowercase"><span>One lowercase letter</span><span class="auth-password-rule-status">Not met</span></li>
+                        <li class="auth-password-rule" data-rule="number"><span>One number</span><span class="auth-password-rule-status">Not met</span></li>
+                        <li class="auth-password-rule" data-rule="symbol"><span>One symbol</span><span class="auth-password-rule-status">Not met</span></li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label for="registerConfirmPassword" class="form-label">Confirm password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="registerConfirmPassword" name="confirm_password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordMatch">
+                        <button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="registerConfirmPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                    </div>
+                    <div id="registerPasswordMatch" class="auth-password-match" role="status" aria-live="polite" hidden></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">
+                    <span class="auth-submit-label">Create account</span>
+                </button>
+            </form>
+
+            <div class="auth-note mt-3">
+                <span>Already have an account? <a href="<?= app_base_url('public/login.php') ?>">Sign in</a></span>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="<?= app_base_url('assets/js/auth-registration.js') ?>"></script>
 <?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>
