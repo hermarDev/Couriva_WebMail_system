@@ -26,7 +26,7 @@ $checks = [
     'admin does not claim unmeasured health or capacity' => !str_contains(file_get_contents($root . '/admin/index.php'), 'Services Healthy') && !str_contains(file_get_contents($root . '/admin/index.php'), 'Available Storage Pool'),
     'forced password page avoids marketing hero' => !str_contains(file_get_contents($root . '/public/change-password.php'), 'Protect your new beginning.'),
     'each password field has a toggle' => $passwordCoverage,
-    'login uses a task-focused heading' => str_contains($login, '<h1>Sign in</h1>') && !str_contains($login, 'Make space for better conversations.'),
+    'login uses a task-focused heading' => str_contains($login, '<h1>Login to your Couriva workspace</h1>') && !str_contains($login, 'Make space for better conversations.'),
     'unsupported remember me is removed' => !str_contains($login, 'name="remember_me"'),
     'password has an accessible icon toggle' => str_contains($login, 'password-toggle') && str_contains($js, 'password-toggle'),
     'navigation provides a skip link' => str_contains($header, 'href="#main-content"') && str_contains($header, 'id="main-content"'),

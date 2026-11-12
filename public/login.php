@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Sign In';
+$pageTitle = 'Login';
 $bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -48,63 +48,49 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="auth-stage">
     <div class="auth-card">
         <div class="auth-card-body">
-            <nav class="auth-nav-pills" aria-label="Account actions">
-                <a href="<?= app_base_url('public/login.php') ?>" class="auth-nav-pill active" aria-current="page">Sign in</a>
-                <a href="<?= app_base_url('public/register.php') ?>" class="auth-nav-pill">Create account</a>
-            </nav>
             <div class="auth-heading">
-                <div>
-                    <div class="auth-wordmark d-flex align-items-center gap-2">
-                        <div class="brand-monogram-container" style="width: 24px; height: 24px;">
-                            <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="24" height="24">
-                            <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="24" height="24">
-                        </div>
-                        <span><?= e(app_name()) ?></span>
+                <div class="auth-wordmark">
+                    <div class="brand-monogram-container">
+                        <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="32" height="32">
+                        <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="32" height="32">
                     </div>
-                    <h1>Sign in</h1>
-                    <p>Sign in to continue to your Couriva inbox.</p>
+                    <span><?= e(app_name()) ?></span>
                 </div>
+                <h1>Login to your Couriva workspace</h1>
             </div>
 
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger shadow-sm mb-3 d-flex align-items-center" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5 flex-shrink-0"></i>
-                        <div class="small"><?= e($error) ?></div>
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger auth-form-status" role="alert">
+                    <?= e($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="<?= app_base_url('public/login.php') ?>">
+                <?= csrf_field() ?>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" required autofocus value="<?= e($_POST['email'] ?? '') ?>" placeholder="name@couriva.local" autocomplete="email">
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                        <button type="button" class="password-toggle" aria-label="Show password" aria-controls="password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
                     </div>
-                <?php endif; ?>
+                    <p class="auth-recovery-note">Password resets are managed by a Couriva administrator.</p>
+                </div>
 
-                <form method="POST" action="<?= app_base_url('public/login.php') ?>">
-                    <?= csrf_field() ?>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold auth-submit">Login</button>
 
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email address</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-at"></i></span>
-                            <input type="email" class="form-control" id="email" name="email" required autofocus value="<?= e($_POST['email'] ?? '') ?>" placeholder="name@<?= e(app_domain()) ?>" autocomplete="email">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="password" class="form-label mb-0">Password</label>
-                        </div>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
-                            <button type="button" class="password-toggle" aria-label="Show password" aria-controls="password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-3 auth-submit">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
-                    </button>
-
-                    <div class="auth-note">
-                        <i class="bi bi-envelope-plus"></i>
-                        <span>New to Couriva? <a href="<?= app_base_url('public/register.php') ?>">Create an email account</a></span>
-                    </div>
-                </form>
+                <div class="auth-note">
+                    <span>Don't have an account? <a href="<?= app_base_url('public/register.php') ?>">Create account</a></span>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
+<script src="<?= app_base_url('assets/js/auth-signin.js') ?>"></script>
 <?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>
