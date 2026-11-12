@@ -43,8 +43,26 @@ class Contact
         return $stmt->fetchAll();
     }
 
+    private function validatePhone(?string $phone): ?string
+    {
+        if ($phone === null || $phone === '') {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $phone);
+        if (!preg_match('/^09\d{9}$/', $digits)) {
+            return 'Phone must be 11 digits starting with 09 (e.g., 09XXXXXXXXX).';
+        }
+        return null;
+    }
+
     public function create(array $data): int
     {
+        $phone = trim($data['phone'] ?? '');
+        $phoneError = $this->validatePhone($phone !== '' ? $phone : null);
+        if ($phoneError) {
+            throw new \InvalidArgumentException($phoneError);
+        }
+
         $stmt = $this->pdo->prepare("
             INSERT INTO contacts (user_id, contact_name, contact_email, phone, company, notes, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
@@ -53,7 +71,7 @@ class Contact
             $data['user_id'],
             trim($data['contact_name']),
             trim(strtolower($data['contact_email'])),
-            $data['phone'] ?? null,
+            $phone !== '' ? $phone : null,
             $data['company'] ?? null,
             $data['notes'] ?? null,
         ]);
@@ -62,6 +80,12 @@ class Contact
 
     public function update(int $id, int $userId, array $data): bool
     {
+        $phone = trim($data['phone'] ?? '');
+        $phoneError = $this->validatePhone($phone !== '' ? $phone : null);
+        if ($phoneError) {
+            throw new \InvalidArgumentException($phoneError);
+        }
+
         $stmt = $this->pdo->prepare("
             UPDATE contacts 
             SET contact_name = ?, contact_email = ?, phone = ?, company = ?, notes = ?, updated_at = NOW()
@@ -70,7 +94,7 @@ class Contact
         return $stmt->execute([
             trim($data['contact_name']),
             trim(strtolower($data['contact_email'])),
-            $data['phone'] ?? null,
+            $phone !== '' ? $phone : null,
             $data['company'] ?? null,
             $data['notes'] ?? null,
             $id,

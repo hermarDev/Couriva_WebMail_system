@@ -167,7 +167,7 @@ if (!defined('WEBMAIL_INIT')) {
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="create_label">
                 <div class="modal-body px-4 py-3">
-                    <div id="createLabelAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+                    <?= render_inline_alert($error, ['class' => 'alert-danger', 'margin' => 'mb-3']) ?>
                     <div class="mb-3">
                         <label for="createLabelNameInput" class="form-label small text-muted fw-semibold">Label name</label>
                         <input type="text" class="form-control" id="createLabelNameInput" name="label_name" placeholder="e.g. Project updates" required maxlength="64" autocomplete="off">
@@ -226,7 +226,7 @@ if (!defined('WEBMAIL_INIT')) {
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="create_folder">
                 <div class="modal-body px-4 py-3">
-                    <div id="createFolderAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+                    <?= render_inline_alert($error, ['class' => 'alert-danger', 'margin' => 'mb-3']) ?>
                     <div class="mb-3">
                         <label for="createFolderNameInput" class="form-label small text-muted fw-semibold">Folder name</label>
                         <input type="text" class="form-control" id="createFolderNameInput" name="folder_name" placeholder="e.g. Invoices" required maxlength="80" autocomplete="off">

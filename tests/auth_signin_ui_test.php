@@ -41,8 +41,7 @@ $checks = [
         && str_contains($login, 'aria-controls="password"')
         && str_contains($login, 'aria-pressed="false"'),
     'CSRF field rendered' => str_contains($login, 'csrf_field()'),
-    'server error renders as persistent alert' => str_contains($login, 'role="alert"')
-        && str_contains($login, 'alert alert-danger'),
+    'server error renders as persistent alert' => str_contains($login, 'render_inline_alert'),
     'sign-in script loaded only by this page' => str_contains($login, 'assets/js/auth-signin.js'),
     'server CSRF verification preserved' => str_contains($login, 'verify_csrf_token()'),
     'server login call preserved' => str_contains($login, 'attempt_login('),

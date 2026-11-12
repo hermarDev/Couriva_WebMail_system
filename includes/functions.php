@@ -64,6 +64,18 @@ function is_valid_password_complexity(string $password): bool
         && preg_match('/[^A-Za-z0-9]/', $password);
 }
 
+/**
+ * Validate Philippine mobile phone number format (09XXXXXXXXX).
+ * 11 digits starting with 09. Optional field - returns true if empty.
+ */
+function is_valid_ph_phone(?string $phone): bool
+{
+    if ($phone === null || $phone === '') {
+        return true;
+    }
+    return preg_match('/^09\d{9}$/', $phone) === 1;
+}
+
 
 // Session initialization with modern security flags
 if (session_status() === PHP_SESSION_NONE) {
@@ -207,6 +219,96 @@ function verify_csrf_token(?string $token = null): bool
 function set_flash(string $type, string $message): void
 {
     $_SESSION['flash'][$type][] = $message;
+}
+
+/**
+ * Render an inline alert with dismiss button for server-side errors.
+ * Returns HTML string or empty string if no error.
+ *
+ * @param string|null $error
+ * @param array $options Optional: ['class' => 'alert-danger', 'role' => 'alert', 'icon' => 'bi-exclamation-triangle-fill']
+ * @return string
+ */
+function render_inline_alert(?string $error, array $options = []): string
+{
+    if (empty($error)) {
+        return '';
+    }
+
+    $defaults = [
+        'class' => 'alert-danger',
+        'role' => 'alert',
+        'icon' => 'bi-exclamation-triangle-fill',
+        'dismissible' => true,
+        'shadow' => 'shadow-sm',
+        'margin' => 'mb-3',
+    ];
+    $opts = array_merge($defaults, $options);
+
+    $classes = 'alert ' . e($opts['class']) . ' alert-dismissible fade show ' . e($opts['shadow']) . ' ' . e($opts['margin']);
+    $icon = '<i class="bi ' . e($opts['icon']) . ' me-2"></i>';
+    $dismissBtn = $opts['dismissible']
+        ? '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+        : '';
+
+    return '<div class="' . $classes . '" role="' . e($opts['role']) . '">' . $icon . e($error) . $dismissBtn . '</div>';
+}
+
+/**
+ * Render client-side validation error for a specific field.
+ * Returns HTML string for an invalid-feedback div or empty string.
+ *
+ * @param string|null $error
+ * @param string $id Field ID for aria-describedby linking
+ * @return string
+ */
+function render_field_error(?string $error, string $id = ''): string
+{
+    if (empty($error)) {
+        return '';
+    }
+
+    $idAttr = $id !== '' ? ' id="' . e($id . '-error') . '"' : '';
+    return '<div class="invalid-feedback"' . $idAttr . '>' . e($error) . '</div>';
+}
+
+/**
+ * Render a validation summary alert for multiple field errors.
+ * Returns HTML string or empty string if no errors.
+ *
+ * @param array $errors Associative array of field => error message
+ * @param array $options Optional alert classes
+ * @return string
+ */
+function render_validation_summary(array $errors, array $options = []): string
+{
+    if (empty($errors)) {
+        return '';
+    }
+
+    $defaults = [
+        'class' => 'alert-danger',
+        'role' => 'alert',
+        'icon' => 'bi-exclamation-triangle-fill',
+        'dismissible' => true,
+        'shadow' => 'shadow-sm',
+        'margin' => 'mb-3',
+    ];
+    $opts = array_merge($defaults, $options);
+
+    $classes = 'alert ' . e($opts['class']) . ' alert-dismissible fade show ' . e($opts['shadow']) . ' ' . e($opts['margin']);
+    $icon = '<i class="bi ' . e($opts['icon']) . ' me-2"></i>';
+    $dismissBtn = $opts['dismissible']
+        ? '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+        : '';
+
+    $list = '<ul class="mb-0 mt-2 ps-3">';
+    foreach ($errors as $field => $msg) {
+        $list .= '<li>' . e($msg) . '</li>';
+    }
+    $list .= '</ul>';
+
+    return '<div class="' . $classes . '" role="' . e($opts['role']) . '">' . $icon . '<strong>Please correct the following:</strong>' . $list . $dismissBtn . '</div>';
 }
 
 /**

@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form[action*="register.php"]');
     const password = document.getElementById('registerPassword');
     const confirmation = document.getElementById('registerConfirmPassword');
+    const phone = document.getElementById('registerPhone');
+    const phoneError = document.getElementById('phoneError');
     const submit = document.querySelector('.auth-submit');
     const submitLabel = submit ? submit.querySelector('.auth-submit-label') : null;
 
@@ -29,6 +31,89 @@ document.addEventListener('DOMContentLoaded', function () {
             if (status) status.textContent = met ? 'OK' : 'Not OK';
         });
     };
+
+    // Phone input mask and validation
+    if (phone) {
+        phone.addEventListener('input', function () {
+            // Strip non-digits
+            let value = this.value.replace(/\D/g, '');
+            // Limit to 11 digits
+            if (value.length > 11) value = value.slice(0, 11);
+            this.value = value;
+
+            // Validation
+            if (value.length > 0) {
+                const isValid = /^09\d{9}$/.test(value);
+                phoneError.textContent = isValid ? '' : 'Phone number must be in Philippine format: 09XXXXXXXXX (11 digits starting with 09).';
+                phoneError.classList.toggle('d-none', isValid);
+                phone.classList.toggle('is-invalid', !isValid);
+                phone.classList.toggle('is-valid', isValid);
+            } else {
+                phoneError.classList.add('d-none');
+                phone.classList.remove('is-invalid', 'is-valid');
+            }
+        });
+
+        phone.addEventListener('blur', function () {
+            if (this.value.length > 0 && !/^09\d{9}$/.test(this.value)) {
+                phoneError.textContent = 'Phone number must be in Philippine format: 09XXXXXXXXX (11 digits starting with 09).';
+                phoneError.classList.remove('d-none');
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            }
+        });
+    }
+
+    // Username validation: prevent invalid characters as typed
+    const usernameInput = document.getElementById('registerUsername');
+    const usernameWarning = document.getElementById('usernameWarning');
+    const usernameCharWarning = document.getElementById('usernameCharWarning');
+
+    // Valid characters: a-z, 0-9, ., _, -
+    const validCharRegex = /^[a-z0-9._-]+$/;
+    const atRegex = /@/;
+
+    function validateUsernameInput(input) {
+        let value = input.value;
+
+        // Strip @ and everything after it
+        if (atRegex.test(value)) {
+            value = value.replace(/@.*$/, '');
+            usernameWarning.classList.remove('d-none');
+        } else {
+            usernameWarning.classList.add('d-none');
+        }
+
+        // Convert to lowercase
+        value = value.toLowerCase();
+
+        // Check for invalid characters
+        let hasInvalidChars = false;
+        const sanitized = value.split('').filter(ch => {
+            if (validCharRegex.test(ch)) {
+                return true;
+            }
+            hasInvalidChars = true;
+            return false;
+        }).join('');
+
+        if (hasInvalidChars) {
+            usernameCharWarning.classList.remove('d-none');
+        } else {
+            usernameCharWarning.classList.add('d-none');
+        }
+
+        // Update input value with sanitized version
+        if (input.value !== sanitized) {
+            input.value = sanitized;
+        }
+    }
+
+    if (usernameInput) {
+        usernameInput.addEventListener('input', function () {
+            validateUsernameInput(this);
+        });
+    }
 
     const restoreSubmit = function () {
         if (!submit) return;

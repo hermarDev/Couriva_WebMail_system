@@ -2087,6 +2087,51 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================================================================
     // 9. Contacts Modals Data Binding (Contacts Page)
     // =========================================================================
+    // Phone input mask & validation (PH format: 09XXXXXXXXX)
+    function initPhoneMask() {
+        document.querySelectorAll('[data-phone-mask]').forEach(function (input) {
+            input.addEventListener('input', function () {
+                let val = this.value.replace(/\D/g, '');
+                if (val.length > 11) val = val.slice(0, 11);
+                this.value = val;
+                validatePhoneInput(this);
+            });
+            input.addEventListener('blur', function () {
+                validatePhoneInput(this);
+            });
+        });
+    }
+
+    function validatePhoneInput(input) {
+        const val = input.value.trim();
+        const errorEl = document.getElementById(input.id + 'Error');
+        if (!errorEl) return true;
+
+        if (val === '') {
+            input.classList.remove('is-invalid');
+            errorEl.textContent = '';
+            return true;
+        }
+
+        const digitsOnly = val.replace(/\D/g, '');
+        const valid = /^09\d{9}$/.test(digitsOnly);
+
+        if (valid) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            errorEl.textContent = '';
+            return true;
+        } else {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            errorEl.textContent = 'Phone must be 11 digits starting with 09 (e.g., 09XXXXXXXXX).';
+            return false;
+        }
+    }
+
+    // Initialize phone mask on page load
+    initPhoneMask();
+
     document.querySelectorAll('.edit-contact-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const id = this.dataset.id;

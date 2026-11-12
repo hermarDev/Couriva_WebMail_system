@@ -206,12 +206,12 @@ $bodyClass = $bodyClass ?? '';
         <!-- Right: Actions, Theme Switcher & Dynamic Profile -->
         <div class="d-flex align-items-center gap-2">
             <!-- Notifications -->
-            <button class="btn btn-sm webmail-header-btn border position-relative d-flex align-items-center justify-content-center rounded-circle px-2 py-1 shadow-sm" title="Notifications" aria-label="Notifications<?= $unreadNotifications > 0 ? ' (' . $unreadNotifications . ' unread)' : '' ?>" style="width: 44px; height: 44px;">
+            <a href="<?= app_base_url('public/notifications.php') ?>" class="btn btn-sm webmail-header-btn border position-relative d-flex align-items-center justify-content-center rounded-circle px-2 py-1 shadow-sm" title="Notifications" aria-label="Notifications<?= $unreadNotifications > 0 ? ' (' . $unreadNotifications . ' unread)' : '' ?>" style="width: 44px; height: 44px;">
                 <i class="bi bi-bell<?= $unreadNotifications > 0 ? '-fill text-primary' : '' ?>"></i>
                 <?php if ($unreadNotifications > 0): ?>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.62rem;"><?= $unreadNotifications > 99 ? '99+' : $unreadNotifications ?></span>
                 <?php endif; ?>
-            </button>
+            </a>
 
             <!-- Quick Settings Button -->
             <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="btnQuickSettings" data-bs-toggle="offcanvas" data-bs-target="#quickSettingsOffcanvas" aria-controls="quickSettingsOffcanvas" title="Quick settings" aria-label="Quick settings" style="width: 44px; height: 44px;">

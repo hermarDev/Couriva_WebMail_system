@@ -18,9 +18,10 @@ $activeFolder = 'contacts';
 $pageTitle = 'Contacts';
 
 // Handle POST actions (Create, Edit, Delete)
+$formError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf_token()) {
-        set_flash('danger', 'Security token invalid.');
+        $formError = 'Security token invalid.';
     } else {
         $action = $_POST['action'] ?? '';
 
@@ -29,17 +30,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['contact_email'] ?? '');
 
             if (empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                set_flash('danger', 'Valid contact name and email are required.');
+                $formError = 'Valid contact name and email are required.';
             } else {
-                $contactModel->create([
-                    'user_id'       => $userId,
-                    'contact_name'  => $name,
-                    'contact_email' => $email,
-                    'phone'         => trim($_POST['phone'] ?? ''),
-                    'company'       => trim($_POST['company'] ?? ''),
-                    'notes'         => trim($_POST['notes'] ?? ''),
-                ]);
-                set_flash('success', 'Contact added successfully.');
+                try {
+                    $contactModel->create([
+                        'user_id'       => $userId,
+                        'contact_name'  => $name,
+                        'contact_email' => $email,
+                        'phone'         => trim($_POST['phone'] ?? ''),
+                        'company'       => trim($_POST['company'] ?? ''),
+                        'notes'         => trim($_POST['notes'] ?? ''),
+                    ]);
+                    set_flash('success', 'Contact added successfully.');
+                } catch (\InvalidArgumentException $e) {
+                    $formError = $e->getMessage();
+                }
             }
         } elseif ($action === 'update') {
             $contactId = (int)($_POST['contact_id'] ?? 0);
@@ -47,16 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['contact_email'] ?? '');
 
             if ($contactId <= 0 || empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                set_flash('danger', 'Valid contact name and email are required to update.');
+                $formError = 'Valid contact name and email are required to update.';
             } else {
-                $contactModel->update($contactId, $userId, [
-                    'contact_name'  => $name,
-                    'contact_email' => $email,
-                    'phone'         => trim($_POST['phone'] ?? ''),
-                    'company'       => trim($_POST['company'] ?? ''),
-                    'notes'         => trim($_POST['notes'] ?? ''),
-                ]);
-                set_flash('success', 'Contact details updated successfully.');
+                try {
+                    $contactModel->update($contactId, $userId, [
+                        'contact_name'  => $name,
+                        'contact_email' => $email,
+                        'phone'         => trim($_POST['phone'] ?? ''),
+                        'company'       => trim($_POST['company'] ?? ''),
+                        'notes'         => trim($_POST['notes'] ?? ''),
+                    ]);
+                    set_flash('success', 'Contact details updated successfully.');
+                } catch (\InvalidArgumentException $e) {
+                    $formError = $e->getMessage();
+                }
             }
         } elseif ($action === 'delete') {
             $contactId = (int)($_POST['contact_id'] ?? 0);
@@ -66,8 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    header('Location: ' . app_base_url('public/contacts.php'));
-    exit;
+    // If there's a form error, don't redirect - show it inline
+    if ($formError !== null) {
+        // Fall through to render with error
+    } else {
+        header('Location: ' . app_base_url('public/contacts.php'));
+        exit;
+    }
 }
 
 $search = trim($_GET['search'] ?? '');
@@ -172,6 +186,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <?= render_inline_alert($formError) ?>
                 <div class="mb-3">
                     <label for="newContactName" class="form-label fw-semibold">Contact Name *</label>
                     <input id="newContactName" type="text" class="form-control" name="contact_name" required placeholder="Enter contact name">
@@ -183,7 +198,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="row g-2 mb-3">
                     <div class="col-sm-6 col-md-6">
                         <label for="newContactPhone" class="form-label small">Phone</label>
-                        <input id="newContactPhone" type="text" class="form-control form-control-sm" name="phone" placeholder="Enter phone number">
+                        <input id="newContactPhone" type="text" class="form-control form-control-sm" name="phone" placeholder="09XXXXXXXXX" maxlength="11" data-phone-mask>
+                        <div class="invalid-feedback" id="newContactPhoneError"></div>
                     </div>
                     <div class="col-sm-6 col-md-6">
                         <label for="newContactCompany" class="form-label small">Company</label>
@@ -215,6 +231,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <?= render_inline_alert($formError) ?>
                 <div class="mb-3">
                     <label for="editContactName" class="form-label fw-semibold">Contact Name *</label>
                     <input type="text" class="form-control" name="contact_name" id="editContactName" required>
@@ -226,7 +243,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="row g-2 mb-3">
                     <div class="col-sm-6 col-md-6">
                         <label for="editContactPhone" class="form-label small">Phone</label>
-                        <input type="text" class="form-control form-control-sm" name="phone" id="editContactPhone">
+                        <input type="text" class="form-control form-control-sm" name="phone" id="editContactPhone" placeholder="09XXXXXXXXX" maxlength="11" data-phone-mask>
+                        <div class="invalid-feedback" id="editContactPhoneError"></div>
                     </div>
                     <div class="col-sm-6 col-md-6">
                         <label for="editContactCompany" class="form-label small">Company</label>

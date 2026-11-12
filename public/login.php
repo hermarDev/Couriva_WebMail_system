@@ -59,11 +59,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <h1>Login to your Couriva workspace</h1>
             </div>
 
-            <?php if (!empty($error)): ?>
-                <div class="alert alert-danger auth-form-status" role="alert">
-                    <?= e($error) ?>
-                </div>
-            <?php endif; ?>
+            <?= render_inline_alert($error) ?>
 
             <form method="POST" action="<?= app_base_url('public/login.php') ?>">
                 <?= csrf_field() ?>

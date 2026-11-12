@@ -147,12 +147,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <p class="text-muted small">Manage your user profile, email signature, and security credentials</p>
     </div>
 
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger shadow-sm mb-4">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i><?= e($error) ?>
-        </div>
-    <?php endif; ?>
-
     <!-- Settings Section Tabs -->
     <ul class="nav nav-pills settings-section-tabs gap-2 mb-4" id="settingsSectionTabs" role="tablist">
         <li class="nav-item" role="presentation">
@@ -212,6 +206,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                             <form method="POST" action="<?= app_base_url('public/settings.php') ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="profile">
+
+                                <?= render_inline_alert($error) ?>
 
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6">
@@ -309,6 +305,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <form method="POST" action="<?= app_base_url('public/settings.php') ?>" id="passwordChangeForm">
                         <?= csrf_field() ?>
                         <input type="hidden" name="action" value="password">
+
+                        <?= render_inline_alert($error) ?>
 
                         <div class="mb-3">
                             <label for="settingsCurrentPassword" class="form-label fw-semibold">Current Password *</label>
@@ -529,6 +527,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <input type="hidden" name="action" value="update_label">
                 <input type="hidden" name="label_id" id="editLabelIdInput" value="0">
                 <div class="modal-body px-4 py-3">
+                    <?= render_inline_alert($error) ?>
                     <div class="mb-3">
                         <label for="editLabelNameInput" class="form-label small text-muted fw-semibold">Label name</label>
                         <input type="text" class="form-control" id="editLabelNameInput" name="label_name" required maxlength="64" autocomplete="off">
@@ -588,6 +587,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <input type="hidden" name="action" value="update_folder">
                 <input type="hidden" name="folder_id" id="editFolderIdInput" value="0">
                 <div class="modal-body px-4 py-3">
+                    <?= render_inline_alert($error) ?>
                     <div class="mb-3">
                         <label for="editFolderNameInput" class="form-label small text-muted fw-semibold">Folder name</label>
                         <input type="text" class="form-control" id="editFolderNameInput" name="folder_name" required maxlength="80" autocomplete="off">

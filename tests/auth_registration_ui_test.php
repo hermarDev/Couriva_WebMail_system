@@ -25,7 +25,7 @@ $checks = [
     'username and passwords retain password-manager autocomplete' => str_contains($source, 'autocomplete="username"')
         && substr_count($source, 'autocomplete="new-password"') === 2,
     'registration form includes CSRF field' => str_contains($source, 'csrf_field()'),
-    'server error remains an alert' => str_contains($source, 'role="alert"'),
+    'server error remains an alert' => str_contains($source, 'render_inline_alert'),
     'password toggles expose accessible state' => substr_count($source, 'class="password-toggle"') === 2
         && substr_count($source, 'aria-controls="registerPassword"') === 1
         && substr_count($source, 'aria-controls="registerConfirmPassword"') === 1
