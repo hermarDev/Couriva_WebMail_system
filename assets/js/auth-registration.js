@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form[action*="register.php"]');
     const password = document.getElementById('registerPassword');
     const confirmation = document.getElementById('registerConfirmPassword');
-    const match = document.querySelector('.auth-password-match');
     const submit = document.querySelector('.auth-submit');
     const submitLabel = submit ? submit.querySelector('.auth-submit-label') : null;
 
@@ -14,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         lowercase: (value) => /[a-z]/.test(value),
         number: (value) => /[0-9]/.test(value),
         symbol: (value) => /[^A-Za-z0-9]/.test(value),
+        match: () => password && confirmation && password.value === confirmation.value && password.value.length > 0,
     };
 
     const updateRules = function () {
@@ -25,30 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const status = item.querySelector('.auth-password-rule-status');
             item.classList.toggle('met', met);
             item.classList.toggle('unmet', !met);
-            item.setAttribute('aria-label', item.firstElementChild.textContent.trim() + ': ' + (met ? 'Met' : 'Not met'));
-            if (status) status.textContent = met ? 'Met' : 'Not met';
+            item.setAttribute('aria-label', item.firstElementChild.textContent.trim() + ': ' + (met ? 'OK' : 'Not OK'));
+            if (status) status.textContent = met ? 'OK' : 'Not OK';
         });
-    };
-
-    const updateMatch = function () {
-        if (!password || !confirmation || !match) return;
-        if (!password.value || !confirmation.value) {
-            match.hidden = true;
-            match.textContent = '';
-            match.classList.remove('matched', 'mismatched');
-            return;
-        }
-
-        match.hidden = false;
-        if (password.value === confirmation.value) {
-            match.textContent = 'Passwords match';
-            match.classList.remove('mismatched');
-            match.classList.add('matched');
-        } else {
-            match.textContent = 'Passwords do not match';
-            match.classList.remove('matched');
-            match.classList.add('mismatched');
-        }
     };
 
     const restoreSubmit = function () {
@@ -62,14 +41,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (password) {
         password.addEventListener('input', function () {
             updateRules();
-            updateMatch();
         });
     }
 
     if (confirmation) {
-        confirmation.addEventListener('input', updateMatch);
+        confirmation.addEventListener('input', updateRules);
         confirmation.addEventListener('blur', function () {
-            if (password.value && confirmation.value) updateMatch();
+            if (password.value && confirmation.value) updateRules();
         });
     }
 

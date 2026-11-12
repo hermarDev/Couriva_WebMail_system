@@ -19,7 +19,7 @@ $checks = [
         && str_contains($source, 'number')
         && str_contains($source, 'symbol'),
     'password checklist positioned below confirm password' => strpos($source, 'auth-password-rules') > strpos($source, 'registerConfirmPassword'),
-    'password confirmation has match feedback selector' => str_contains($source, 'auth-password-match'),
+    'password confirmation has match feedback in checklist' => str_contains($source, 'data-rule="match"') && str_contains($source, 'Passwords match'),
     'name fields use visible labels and autocomplete' => str_contains($source, 'autocomplete="given-name"')
         && str_contains($source, 'autocomplete="family-name"'),
     'username and passwords retain password-manager autocomplete' => str_contains($source, 'autocomplete="username"')
@@ -32,7 +32,7 @@ $checks = [
         && substr_count($source, 'aria-pressed="false"') === 2,
     'registration script is included' => str_contains($source, 'assets/js/auth-registration.js'),
     'registration script implements loading and live feedback' => str_contains($script, 'auth-password-rule')
-        && str_contains($script, 'auth-password-match')
+        && str_contains($script, 'match')
         && str_contains($script, 'is-loading')
         && str_contains($script, 'aria-busy'),
     'server preserves CSRF check' => str_contains($source, 'verify_csrf_token()'),
