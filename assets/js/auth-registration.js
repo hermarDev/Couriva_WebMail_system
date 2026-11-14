@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Validation
             if (value.length > 0) {
                 const isValid = /^09\d{9}$/.test(value);
-                phoneError.textContent = isValid ? '' : 'Phone number must be in Philippine format: 09XXXXXXXXX (11 digits starting with 09).';
+                phoneError.textContent = isValid ? '' : 'Enter an 11-digit mobile number starting with 09.';
                 phoneError.classList.toggle('d-none', isValid);
                 phone.classList.toggle('is-invalid', !isValid);
                 phone.classList.toggle('is-valid', isValid);
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         phone.addEventListener('blur', function () {
             if (this.value.length > 0 && !/^09\d{9}$/.test(this.value)) {
-                phoneError.textContent = 'Phone number must be in Philippine format: 09XXXXXXXXX (11 digits starting with 09).';
+                phoneError.textContent = 'Enter an 11-digit mobile number starting with 09.';
                 phoneError.classList.remove('d-none');
                 this.classList.add('is-invalid');
                 this.classList.remove('is-valid');

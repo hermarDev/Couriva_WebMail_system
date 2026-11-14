@@ -132,7 +132,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <span><?= e(app_name()) ?></span>
                 </div>
                 <h1>Create account</h1>
-                <p>Choose a username for your @<?= e(app_domain()) ?> mailbox, then create your password.</p>
+                <p>Create your @<?= e(app_domain()) ?> email address and set your password.</p>
             </div>
 
             <?= render_inline_alert($error) ?>
@@ -152,20 +152,20 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 </div>
 
                 <div class="mb-3">
-                    <label for="registerUsername" class="form-label">Username <span class="text-muted small fw-normal">(@<?= e(app_domain()) ?> will be added automatically)</span></label>
+                    <label for="registerUsername" class="form-label">Email address</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="registerUsername" name="username" maxlength="32" autocomplete="username" required pattern="^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$" placeholder="firstname.lastname" value="<?= e($form['username']) ?>">
                         <span class="input-group-text">@<?= e(app_domain()) ?></span>
                     </div>
-                    <div class="form-text">Use 3–32 letters, numbers, dots, hyphens, or underscores. External emails (e.g. @gmail.com) are not allowed.</div>
-                    <div id="usernameWarning" class="text-danger small mt-1 d-none">External email domains are not allowed. Only the local username part is accepted.</div>
+                    <div class="form-text">3–32 lowercase letters, numbers, dots, hyphens, or underscores.</div>
+                    <div id="usernameWarning" class="text-danger small mt-1 d-none">Enter only the name before @<?= e(app_domain()) ?>.</div>
                     <div id="usernameCharWarning" class="text-warning small mt-1 d-none">Only letters, numbers, dots, hyphens, and underscores are allowed.</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="registerPhone" class="form-label">Phone number <span class="text-muted small fw-normal">(optional)</span></label>
                     <input type="tel" class="form-control" id="registerPhone" name="phone" maxlength="11" autocomplete="tel" placeholder="09XXXXXXXXX" value="<?= e($form['phone']) ?>" pattern="^09\d{9}$" aria-describedby="phoneHelp">
-                    <div id="phoneHelp" class="form-text">Philippine mobile format: 09XXXXXXXXX (11 digits starting with 09).</div>
+                    <div id="phoneHelp" class="form-text">11-digit Philippine mobile number starting with 09.</div>
                     <div id="phoneError" class="text-danger small mt-1 d-none"></div>
                 </div>
 
