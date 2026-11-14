@@ -412,9 +412,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
         $allowRemoteImages = isset($_GET['images']) && $_GET['images'] === '1';
         $sanitizedBody = sanitize_email_html($msg['body'], $allowRemoteImages);
         $hasBlockedImages = str_contains($sanitizedBody, 'data-blocked-src=');
+        $isDarkTheme = (($_SESSION['user_theme'] ?? 'light') === 'dark');
         $emailBodyDocument = '<!doctype html><html><head><meta charset="utf-8"><base target="_blank"><style>'
-            . 'html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.6;background:transparent;color:inherit;overflow-wrap:anywhere}'
-            . '@media (prefers-color-scheme: dark){html,body{color:#f8fafc;background:#111827}a{color:#60a5fa}}'
+            . 'html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.6;background:' . ($isDarkTheme ? '#18181b' : '#ffffff') . ';color:' . ($isDarkTheme ? '#e5e7eb' : '#1f2937') . ';overflow-wrap:anywhere}'
+            . ((($_SESSION['user_theme'] ?? 'light') === 'system') ? '@media (prefers-color-scheme: dark){html,body{color:#e5e7eb;background:#18181b}a{color:#60a5fa}}' : '')
+            . 'blockquote{border-left:1px solid #cbd5e1;padding-left:12px}'
             . 'img{max-width:100%;height:auto}table{max-width:100%;border-collapse:collapse}'
             . 'a{color:#0d6efd}'
             . '</style></head><body>' . $sanitizedBody . '</body></html>';
@@ -424,7 +426,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     ?>
     <div class="card shadow-sm border mb-3 thread-message-card email-reader-card <?= $isCollapsed ? 'collapsed' : '' ?>" id="message-<?= (int)$msg['id'] ?>" data-message-id="<?= (int)$msg['id'] ?>">
         <!-- Thread Item Header -->
-        <div class="card-header bg-body p-3 thread-card-header d-flex align-items-center justify-content-between gap-2" role="button" title="Click to expand/collapse message">
+        <div class="card-header bg-body p-3 thread-card-header d-flex align-items-center justify-content-between gap-2" role="button" tabindex="0" aria-expanded="<?= $isCollapsed ? 'false' : 'true' ?>" title="Click to expand/collapse message">
             <div class="d-flex align-items-center gap-3 text-truncate flex-grow-1">
                 <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fw-bold shadow-sm flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
                     <?= $avatarLetter ?>
@@ -527,7 +529,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <!-- Report Spam Modal -->
 <?php if (!$isSenderSelf && $senderEmail !== ''): ?>
     <div class="modal fade" id="reportSpamModal" tabindex="-1" aria-labelledby="reportSpamModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <form method="POST" action="<?= app_base_url('public/read.php?id=' . $emailId) ?>">
                     <?= csrf_field() ?>

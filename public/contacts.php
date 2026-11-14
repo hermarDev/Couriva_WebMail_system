@@ -116,7 +116,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small text-uppercase">
+            <thead class="bg-body-tertiary small text-uppercase">
                 <tr>
                     <th>Name</th>
                     <th>Email Address</th>
@@ -177,7 +177,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Modal: Add New Contact -->
 <div class="modal fade" id="newContactModal" tabindex="-1" aria-labelledby="newContactModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form method="POST" action="<?= app_base_url('public/contacts.php') ?>" class="modal-content">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="create">
@@ -221,7 +221,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Modal: Edit Contact -->
 <div class="modal fade" id="editContactModal" tabindex="-1" aria-labelledby="editContactModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form method="POST" action="<?= app_base_url('public/contacts.php') ?>" class="modal-content" id="editContactForm">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="update">
@@ -234,11 +234,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <?= render_inline_alert($formError) ?>
                 <div class="mb-3">
                     <label for="editContactName" class="form-label fw-semibold">Contact Name *</label>
-                    <input type="text" class="form-control" name="contact_name" id="editContactName" required>
+                    <input type="text" class="form-control" name="contact_name" id="editContactName" placeholder="Full name" required>
                 </div>
                 <div class="mb-3">
                     <label for="editContactEmail" class="form-label fw-semibold">Email Address *</label>
-                    <input type="email" class="form-control" name="contact_email" id="editContactEmail" required>
+                    <input type="email" class="form-control" name="contact_email" id="editContactEmail" placeholder="name@couriva.local" required>
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-sm-6 col-md-6">
@@ -248,12 +248,12 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     </div>
                     <div class="col-sm-6 col-md-6">
                         <label for="editContactCompany" class="form-label small">Company</label>
-                        <input type="text" class="form-control form-control-sm" name="company" id="editContactCompany">
+                        <input type="text" class="form-control form-control-sm" name="company" id="editContactCompany" placeholder="Company or team">
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="editContactNotes" class="form-label small">Notes</label>
-                    <textarea class="form-control form-control-sm" name="notes" id="editContactNotes" rows="3"></textarea>
+                    <textarea class="form-control form-control-sm" name="notes" id="editContactNotes" rows="3" placeholder="Optional notes"></textarea>
                 </div>
             </div>
             <div class="modal-footer">

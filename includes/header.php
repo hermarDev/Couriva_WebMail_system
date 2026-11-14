@@ -160,6 +160,12 @@ $bodyClass = $bodyClass ?? '';
         <div class="d-none d-md-flex flex-grow-1 justify-content-center px-3 position-relative">
             <div style="max-width: 720px; width: 100%;">
                 <form class="w-100 d-flex align-items-center gmail-search-bar rounded-pill px-3 py-1 position-relative" id="gmailSearchBar" action="<?= app_base_url('public/inbox.php') ?>" method="GET">
+                    <?php if (in_array($activeFolder, ['starred', 'archive', 'snoozed', 'label', 'custom'], true)): ?>
+                        <input type="hidden" name="folder" value="<?= e($activeFolder) ?>">
+                        <?php if ($activeFolder === 'label'): ?><input type="hidden" name="label" value="<?= (int)$activeLabelId ?>"><?php endif; ?>
+                        <?php if ($activeFolder === 'custom'): ?><input type="hidden" name="id" value="<?= (int)$activeCustomFolderId ?>"><?php endif; ?>
+                    <?php endif; ?>
+                    <?php if (isset($_GET['is_starred']) && in_array($_GET['is_starred'], ['0', '1'], true)): ?><input type="hidden" name="is_starred" value="<?= e($_GET['is_starred']) ?>"><?php endif; ?>
                     <button type="submit" class="btn btn-link p-0 text-muted me-2 border-0 search-submit-btn" aria-label="Submit Search">
                         <i class="bi bi-search"></i>
                     </button>
@@ -175,23 +181,31 @@ $bodyClass = $bodyClass ?? '';
                     <!-- Floating Search Options Popover Menu -->
                     <div class="dropdown-menu dropdown-menu-end p-3 shadow-lg border-0 rounded-4 advanced-search-popover" style="width: min(520px, 90vw);">
                         <div class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label small text-muted mb-1">Search Keywords</label>
-                                <input type="text" name="filter_q" class="form-control form-control-sm" placeholder="Words in message" value="<?= e($_GET['q'] ?? '') ?>">
+                            <div class="col-sm-6">
+                                <label for="popoverStatus" class="form-label small text-muted mb-1">Status</label>
+                                <select id="popoverStatus" name="is_unread" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    <option value="1" <?= ($_GET['is_unread'] ?? '') === '1' ? 'selected' : '' ?>>Unread only</option>
+                                    <option value="0" <?= ($_GET['is_unread'] ?? '') === '0' ? 'selected' : '' ?>>Read only</option>
+                                </select>
                             </div>
                             <div class="col-sm-6">
-                                <label class="form-label small text-muted mb-1">Date from</label>
-                                <input type="date" name="date_from" class="form-control form-control-sm" value="<?= e($_GET['date_from'] ?? '') ?>">
+                                <label for="popoverAttachment" class="form-label small text-muted mb-1">Attachments</label>
+                                <select id="popoverAttachment" name="has_attachment" class="form-select form-select-sm">
+                                    <option value="">Any</option>
+                                    <option value="1" <?= ($_GET['has_attachment'] ?? '') === '1' ? 'selected' : '' ?>>Has attachment</option>
+                                    <option value="0" <?= ($_GET['has_attachment'] ?? '') === '0' ? 'selected' : '' ?>>No attachment</option>
+                                </select>
                             </div>
                             <div class="col-sm-6">
-                                <label class="form-label small text-muted mb-1">Date to</label>
-                                <input type="date" name="date_to" class="form-control form-control-sm" value="<?= e($_GET['date_to'] ?? '') ?>">
+                                <label for="popoverDateFrom" class="form-label small text-muted mb-1">Date from</label>
+                                <input type="date" id="popoverDateFrom" name="date_from" class="form-control form-control-sm" value="<?= e($_GET['date_from'] ?? '') ?>">
                             </div>
-                            <div class="col-12 d-flex align-items-center justify-content-between pt-2">
-                                <div class="form-check m-0">
-                                    <input class="form-check-input" type="checkbox" name="has_attachment" value="1" id="popoverHasAttachment" <?= (!empty($_GET['has_attachment']) && $_GET['has_attachment'] === '1') ? 'checked' : '' ?>>
-                                    <label class="form-check-label small" for="popoverHasAttachment">Has attachment</label>
-                                </div>
+                            <div class="col-sm-6">
+                                <label for="popoverDateTo" class="form-label small text-muted mb-1">Date to</label>
+                                <input type="date" id="popoverDateTo" name="date_to" class="form-control form-control-sm" value="<?= e($_GET['date_to'] ?? '') ?>">
+                            </div>
+                            <div class="col-12 d-flex align-items-center justify-content-end pt-2">
                                 <div class="d-flex gap-2">
                                     <a href="<?= app_base_url('public/inbox.php') ?>" class="btn btn-sm btn-outline-secondary">Reset</a>
                                     <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">Search</button>
@@ -220,7 +234,7 @@ $bodyClass = $bodyClass ?? '';
 
             <!-- Theme Toggle Button -->
             <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" id="themeToggleBtn" type="button" title="Toggle Dark/Light Mode" aria-label="Toggle theme" style="width: 44px; height: 44px;">
-                <i class="bi <?= $currentTheme === 'dark' ? 'bi-moon-stars-fill text-warning' : 'bi-sun-fill text-warning' ?>" id="themeToggleIcon"></i>
+                <i class="bi <?= $currentTheme === 'dark' ? 'bi-moon-stars-fill' : 'bi-sun-fill' ?>" id="themeToggleIcon"></i>
                 <span class="visually-hidden" id="themeToggleLabel"><?= $currentTheme === 'dark' ? 'Dark' : 'Light' ?></span>
             </button>
 
@@ -241,7 +255,7 @@ $bodyClass = $bodyClass ?? '';
                         </a>
                         <a href="<?= app_base_url('public/settings.php') ?>" class="app-launcher-tile text-decoration-none">
                             <div class="app-tile-icon"><i class="bi bi-gear-fill"></i></div>
-                            <span class="app-tile-name">Settings</span>
+                            <span class="app-tile-name">Account settings</span>
                         </a>
                         <?php if ($isAdmin): ?>
                             <a href="<?= app_base_url('admin/index.php') ?>" class="app-launcher-tile text-decoration-none">
@@ -274,14 +288,14 @@ $bodyClass = $bodyClass ?? '';
                         <div class="fw-bold text-body text-truncate fs-6"><?= e($userFullName) ?></div>
                         <div class="text-muted small text-truncate mb-2"><?= e($userEmail) ?></div>
                         <a href="<?= app_base_url('public/settings.php') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-medium">
-                            Manage Account
+                            Account settings
                         </a>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex flex-column gap-1">
                         <a class="dropdown-item py-2 rounded-3 d-flex align-items-center gap-2" href="<?= app_base_url('public/settings.php') ?>">
                             <i class="bi bi-sliders text-secondary"></i>
-                            <span>All Settings</span>
+                            <span>Account settings</span>
                         </a>
                         <a class="dropdown-item py-2 rounded-3 d-flex align-items-center gap-2" href="<?= app_base_url('public/contacts.php') ?>">
                             <i class="bi bi-person-lines-fill text-secondary"></i>
@@ -397,7 +411,7 @@ $bodyClass = $bodyClass ?? '';
 
         <div class="pt-1">
             <a href="<?= app_base_url('public/settings.php') ?>" class="d-flex align-items-center justify-content-between text-decoration-none fw-medium text-body px-1 py-1">
-                <span>All settings</span>
+                <span>Account settings</span>
                 <i class="bi bi-arrow-right fs-5 text-muted"></i>
             </a>
         </div>
@@ -460,7 +474,7 @@ $bodyClass = $bodyClass ?? '';
                 <?php
                 $isSecondaryActive = in_array($activeFolder, ['snoozed', 'scheduled', 'archive', 'spam', 'trash'], true);
                 ?>
-                <button class="btn btn-link webmail-nav-link nav-pill-item text-muted w-100 text-start text-decoration-none border-0 d-flex align-items-center py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#moreFoldersCollapse" aria-expanded="<?= $isSecondaryActive ? 'true' : 'false' ?>" aria-controls="#moreFoldersCollapse" id="moreFoldersToggle">
+                <button class="btn btn-link webmail-nav-link nav-pill-item text-muted w-100 text-start text-decoration-none border-0 d-flex align-items-center py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#moreFoldersCollapse" aria-expanded="<?= $isSecondaryActive ? 'true' : 'false' ?>" aria-controls="moreFoldersCollapse" id="moreFoldersToggle">
                     <i class="bi bi-chevron-<?= $isSecondaryActive ? 'up' : 'down' ?> nav-icon me-2" id="moreFoldersIcon"></i>
                     <span class="nav-text">More</span>
                 </button>
@@ -563,9 +577,9 @@ $bodyClass = $bodyClass ?? '';
 
             <!-- Elevated Settings Row (Mockup Parity) -->
             <div class="mb-2">
-                <a class="webmail-nav-link sidebar-settings-pill <?= ($activeFolder ?? '') === 'settings' ? 'active' : '' ?>" href="<?= app_base_url('public/settings.php') ?>" title="Settings">
+                <a class="webmail-nav-link sidebar-settings-pill <?= ($activeFolder ?? '') === 'settings' ? 'active' : '' ?>" href="<?= app_base_url('public/settings.php') ?>" title="Account settings">
                     <i class="bi bi-gear-fill nav-icon settings-icon"></i>
-                    <span class="nav-text fw-medium">Settings</span>
+                    <span class="nav-text fw-medium">Account settings</span>
                 </a>
             </div>
 

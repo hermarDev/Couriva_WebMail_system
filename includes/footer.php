@@ -86,7 +86,7 @@ if (!defined('WEBMAIL_INIT')) {
 
 <!-- Gmail Keyboard Shortcuts Cheatsheet Modal -->
 <div class="modal fade" id="keyboardShortcutsModal" tabindex="-1" aria-labelledby="keyboardShortcutsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content shadow-lg border-0">
             <div class="modal-header border-bottom px-4 py-3">
                 <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="keyboardShortcutsModalLabel">
@@ -154,7 +154,7 @@ if (!defined('WEBMAIL_INIT')) {
 
 <!-- Create Label Modal (Mockup Parity) -->
 <div class="modal fade" id="createLabelModal" tabindex="-1" aria-labelledby="createLabelModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
         <div class="modal-content shadow-lg border rounded-4 bg-body">
             <div class="modal-header border-bottom px-4 pt-3 pb-2">
                 <div>
@@ -167,7 +167,7 @@ if (!defined('WEBMAIL_INIT')) {
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="create_label">
                 <div class="modal-body px-4 py-3">
-                    <?= render_inline_alert($error, ['class' => 'alert-danger', 'margin' => 'mb-3']) ?>
+                    <div id="createLabelAlert" class="alert alert-danger small py-2 mb-3 d-none" role="alert"></div>
                     <div class="mb-3">
                         <label for="createLabelNameInput" class="form-label small text-muted fw-semibold">Label name</label>
                         <input type="text" class="form-control" id="createLabelNameInput" name="label_name" placeholder="e.g. Project updates" required maxlength="64" autocomplete="off">
@@ -213,7 +213,7 @@ if (!defined('WEBMAIL_INIT')) {
 
 <!-- Create Folder Modal (Mockup Parity) -->
 <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
         <div class="modal-content shadow-lg border rounded-4 bg-body">
             <div class="modal-header border-bottom px-4 pt-3 pb-2">
                 <div>
@@ -226,7 +226,7 @@ if (!defined('WEBMAIL_INIT')) {
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="create_folder">
                 <div class="modal-body px-4 py-3">
-                    <?= render_inline_alert($error, ['class' => 'alert-danger', 'margin' => 'mb-3']) ?>
+                    <div id="createFolderAlert" class="alert alert-danger small py-2 mb-3 d-none" role="alert"></div>
                     <div class="mb-3">
                         <label for="createFolderNameInput" class="form-label small text-muted fw-semibold">Folder name</label>
                         <input type="text" class="form-control" id="createFolderNameInput" name="folder_name" placeholder="e.g. Invoices" required maxlength="80" autocomplete="off">
@@ -275,7 +275,7 @@ if (!defined('WEBMAIL_INIT')) {
 
 <!-- Custom System-Wide Confirmation & Action Dialog (Mockup Parity) -->
 <div class="modal fade" id="courivaConfirmModal" tabindex="-1" aria-labelledby="courivaConfirmTitle" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
         <div class="modal-content shadow-lg border couriva-dialog-card">
             <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex align-items-start justify-content-between">
                 <div class="couriva-dialog-icon-badge danger" id="courivaConfirmBadge">

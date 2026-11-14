@@ -137,7 +137,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="card shadow-sm border-0 mb-4">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small text-uppercase">
+            <thead class="bg-body-tertiary small text-uppercase">
                 <tr>
                     <th>ID</th>
                     <th>Timestamp</th>
@@ -179,11 +179,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
     </div>
 
     <?php if ($totalPages > 1): ?>
-        <div class="card-footer bg-white py-2 d-flex justify-content-between align-items-center">
+        <div class="card-footer bg-body py-2 d-flex justify-content-between align-items-center">
             <span class="small text-muted">Showing page <?= $page ?> of <?= $totalPages ?> (<?= $totalLogs ?> records)</span>
             <div class="btn-group btn-group-sm">
-                <a href="?page=<?= max(1, $page - 1) ?>&action=<?= urlencode($filterAction) ?>&status=<?= urlencode($filterStatus) ?>&search=<?= urlencode($search) ?>" class="btn btn-light border <?= $page <= 1 ? 'disabled' : '' ?>">Previous</a>
-                <a href="?page=<?= min($totalPages, $page + 1) ?>&action=<?= urlencode($filterAction) ?>&status=<?= urlencode($filterStatus) ?>&search=<?= urlencode($search) ?>" class="btn btn-light border <?= $page >= $totalPages ? 'disabled' : '' ?>">Next</a>
+                <a href="?page=<?= max(1, $page - 1) ?>&action=<?= urlencode($filterAction) ?>&status=<?= urlencode($filterStatus) ?>&search=<?= urlencode($search) ?>&date_from=<?= urlencode($filterDateFrom) ?>&date_to=<?= urlencode($filterDateTo) ?>" class="btn btn-light border <?= $page <= 1 ? 'disabled' : '' ?>">Previous</a>
+                <a href="?page=<?= min($totalPages, $page + 1) ?>&action=<?= urlencode($filterAction) ?>&status=<?= urlencode($filterStatus) ?>&search=<?= urlencode($search) ?>&date_from=<?= urlencode($filterDateFrom) ?>&date_to=<?= urlencode($filterDateTo) ?>" class="btn btn-light border <?= $page >= $totalPages ? 'disabled' : '' ?>">Next</a>
             </div>
         </div>
     <?php endif; ?>

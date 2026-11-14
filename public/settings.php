@@ -74,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!password_verify($currentPass, $user['password'])) {
                 $error = 'Current password is incorrect.';
-            } elseif (strlen($newPass) < 8) {
-                $error = 'New password must be at least 8 characters long.';
+            } elseif (!is_valid_password_complexity($newPass)) {
+                $error = 'Password must be at least 10 characters and include uppercase, lowercase, number, and symbol.';
             } elseif ($newPass !== $confirmPass) {
                 $error = 'New password and confirmation do not match.';
             } else {
@@ -315,7 +315,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
                         <div class="mb-3">
                             <label for="newPasswordInput" class="form-label fw-semibold">New Password *</label>
-                            <div class="input-group"><input type="password" class="form-control" name="new_password" id="newPasswordInput" required autocomplete="new-password" placeholder="Min 8 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="newPasswordInput" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                            <div class="input-group"><input type="password" class="form-control" name="new_password" id="newPasswordInput" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="newPasswordInput" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
 
                             <!-- Password Strength Meter -->
                             <div class="mt-2">
@@ -326,7 +326,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                     <span id="passwordStrengthLabel" class="small text-muted" style="font-size: 0.78rem;">Strength: Enter password</span>
                                 </div>
                                 <div class="d-flex flex-wrap gap-2 mt-2" id="passwordRulesPills" style="font-size: 0.8125rem;">
-                                    <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleLength">8+ chars</span>
+                                    <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleLength">10+ chars</span>
                                     <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleUpper">Uppercase</span>
                                     <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleNumber">Number</span>
                                     <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleSpecial">Symbol</span>
@@ -513,7 +513,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Edit Label Modal -->
 <div class="modal fade" id="editLabelModal" tabindex="-1" aria-labelledby="editLabelModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
         <div class="modal-content shadow-lg border rounded-4 bg-body">
             <div class="modal-header border-bottom px-4 pt-3 pb-2">
                 <div>
@@ -573,7 +573,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Edit Folder Modal -->
 <div class="modal fade" id="editFolderModal" tabindex="-1" aria-labelledby="editFolderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
         <div class="modal-content shadow-lg border rounded-4 bg-body">
             <div class="modal-header border-bottom px-4 pt-3 pb-2">
                 <div>

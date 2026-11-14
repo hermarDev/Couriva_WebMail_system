@@ -301,12 +301,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     </div>
 
     <div class="card-body p-4">
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger shadow-sm mb-3 d-flex align-items-center">
-                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                <div><?= e($error) ?></div>
-            </div>
-        <?php endif; ?>
+        <?= render_inline_alert($error) ?>
 
         <!-- Client-side validation alert container -->
         <div id="attachmentAlert" class="alert alert-danger alert-dismissible fade show d-none mb-3" role="alert">
@@ -365,91 +360,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <div class="autocomplete-dropdown shadow-sm" id="bccDropdown" style="display: none;"></div>
                 </div>
             </div>
-
-            <style>
-                .recipient-chips-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    align-items: center;
-                    gap: 0.25rem;
-                    padding: 0.5rem;
-                    border: 1px solid var(--bs-border-color);
-                    border-radius: 0.375rem;
-                    background-color: var(--bs-body-bg);
-                    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-                }
-                .recipient-chips-container:focus-within {
-                    border-color: var(--bs-primary);
-                    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
-                }
-                .chips-label {
-                    flex-shrink: 0;
-                    font-weight: 600;
-                    font-size: 0.875rem;
-                    color: var(--bs-secondary-color);
-                    white-space: nowrap;
-                }
-                .chips-list {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 0.25rem;
-                    flex: 1;
-                    min-width: 0;
-                }
-                .chips-text-input {
-                    flex: 1;
-                    min-width: 120px;
-                    border: none;
-                    background: transparent;
-                    padding: 0.25rem 0;
-                    font-size: 0.875rem;
-                    outline: none;
-                }
-                .chips-text-input::placeholder {
-                    color: var(--bs-secondary-color);
-                    opacity: 0.7;
-                }
-                .chip {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.25rem;
-                    padding: 0.125rem 0.5rem;
-                    background-color: var(--bs-primary-bg-subtle);
-                    border: 1px solid var(--bs-primary-border-subtle);
-                    border-radius: 1rem;
-                    font-size: 0.8125rem;
-                    color: var(--bs-primary-text-emphasis);
-                }
-                .chip .chip-remove {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 1rem;
-                    height: 1rem;
-                    border-radius: 50%;
-                    color: inherit;
-                    opacity: 0.7;
-                    transition: opacity 0.15s, background-color 0.15s;
-                }
-                .chip .chip-remove:hover {
-                    opacity: 1;
-                    background-color: rgba(0,0,0,0.1);
-                }
-                @media (max-width: 575.98px) {
-                    .recipient-chips-container {
-                        overflow-x: auto;
-                        flex-wrap: nowrap;
-                        padding-bottom: 0.75rem; /* space for scrollbar */
-                    }
-                    .chips-list {
-                        flex-wrap: nowrap;
-                    }
-                    .chips-text-input {
-                        min-width: 140px;
-                        flex-shrink: 0;
-                    }
-                }
-            </style>
 
             <!-- Subject Input -->
             <div class="compose-field-row mb-3">
@@ -555,7 +465,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
             <!-- Schedule Send Modal -->
             <div class="modal fade" id="scheduleSendModal" tabindex="-1" aria-labelledby="scheduleSendModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 420px;">
                     <div class="modal-content shadow-lg border-0 rounded-4">
                         <div class="modal-header border-bottom py-3">
                             <h5 class="modal-title fw-bold fs-6 d-flex align-items-center gap-2" id="scheduleSendModalLabel">

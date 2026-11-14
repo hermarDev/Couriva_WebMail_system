@@ -87,29 +87,24 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 </div>
             </div>
 
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger shadow-sm mb-3" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <span class="small"><?= e($error) ?></span>
-                    </div>
-                <?php endif; ?>
+                <?= render_inline_alert($error) ?>
 
                 <form method="POST" action="<?= app_base_url('public/change-password.php') ?>">
                     <?= csrf_field() ?>
 
                     <div class="mb-3">
                         <label for="current_password" class="form-label">Current password</label>
-                        <div class="input-group"><input type="password" class="form-control" id="current_password" name="current_password" required autofocus autocomplete="current-password"><button type="button" class="password-toggle" aria-label="Show current password" aria-controls="current_password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                        <div class="input-group"><input type="password" class="form-control" id="current_password" name="current_password" required autofocus autocomplete="current-password" placeholder="Enter current password"><button type="button" class="password-toggle" aria-label="Show current password" aria-controls="current_password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
                     </div>
 
                     <div class="mb-3">
                         <label for="new_password" class="form-label">New password</label>
-                        <div class="input-group"><input type="password" class="form-control" id="new_password" name="new_password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="new_password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                        <div class="input-group"><input type="password" class="form-control" id="new_password" name="new_password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="new_password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
                     </div>
 
                     <div class="mb-4">
                         <label for="confirm_password" class="form-label">Confirm new password</label>
-                        <div class="input-group"><input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="8" autocomplete="new-password"><button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="confirm_password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                        <div class="input-group"><input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="10" autocomplete="new-password" placeholder="Re-enter new password"><button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="confirm_password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">

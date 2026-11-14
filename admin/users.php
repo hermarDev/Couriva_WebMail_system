@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 set_flash('danger', 'A valid email address is required.');
-            } elseif (empty($password) || strlen($password) < 8) {
-                set_flash('danger', 'Password must be at least 8 characters long.');
+            } elseif (!is_valid_password_complexity($password)) {
+                set_flash('danger', 'Password must be at least 10 characters and include uppercase, lowercase, number, and symbol.');
             } elseif (empty($firstName) || empty($lastName)) {
                 set_flash('danger', 'First name and last name are required.');
             } elseif (!is_valid_user_role($role) || !is_valid_user_status($status)) {
@@ -121,7 +121,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="card shadow-sm border-0 mb-4">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small text-uppercase">
+            <thead class="bg-body-tertiary small text-uppercase">
                 <tr>
                     <th>ID</th>
                     <th>User</th>
@@ -226,7 +226,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Modal: Create New User -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <form method="POST" action="<?= app_base_url('admin/users.php') ?>" class="modal-content">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="create_user">
@@ -238,22 +238,22 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">First Name *</label>
-                        <input type="text" class="form-control" name="first_name" required placeholder="e.g. Robert">
+                        <input type="text" class="form-control" name="first_name" required placeholder="Enter first name">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Last Name *</label>
-                        <input type="text" class="form-control" name="last_name" required placeholder="e.g. Miller">
+                        <input type="text" class="form-control" name="last_name" required placeholder="Enter last name">
                     </div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Email Address *</label>
-                        <input type="email" class="form-control" name="email" required placeholder="robert.miller@couriva.local">
+                        <input type="email" class="form-control" name="email" required placeholder="username@couriva.local">
                     </div>
                     <div class="col-md-6">
                         <label for="modalCreatePassword" class="form-label fw-semibold">Password *</label>
-                        <div class="input-group"><input type="password" class="form-control" id="modalCreatePassword" name="password" required autocomplete="new-password" placeholder="Min. 8 characters"><button type="button" class="password-toggle" aria-label="Show password" aria-controls="modalCreatePassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                        <div class="input-group"><input type="password" class="form-control" id="modalCreatePassword" name="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show password" aria-controls="modalCreatePassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
                     </div>
                 </div>
 
@@ -294,7 +294,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Modal: Edit User -->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <form method="POST" action="<?= app_base_url('admin/users.php') ?>" class="modal-content" id="editUserForm">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="update_user">

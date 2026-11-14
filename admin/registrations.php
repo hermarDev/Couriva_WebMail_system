@@ -74,7 +74,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light small text-uppercase">
+                <thead class="bg-body-tertiary small text-uppercase">
                     <tr>
                         <th>Applicant</th>
                         <th>Requested Address</th>
@@ -125,7 +125,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light small text-uppercase">
+                <thead class="bg-body-tertiary small text-uppercase">
                     <tr><th>Account</th><th>Status</th><th>Reviewed By</th><th>Reason</th><th>Reviewed</th></tr>
                 </thead>
                 <tbody>
@@ -146,7 +146,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <!-- Reject confirmation modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <form method="POST" action="<?= app_base_url('admin/registrations.php') ?>">
                 <?= csrf_field() ?>

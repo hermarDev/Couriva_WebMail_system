@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'A valid email address is required.';
-        } elseif (empty($password) || strlen($password) < 8) {
-            $error = 'Password must be at least 8 characters long.';
+        } elseif (!is_valid_password_complexity($password)) {
+            $error = 'Password must be at least 10 characters and include uppercase, lowercase, number, and symbol.';
         } elseif (empty($firstName) || empty($lastName)) {
             $error = 'First name and last name are required.';
         } elseif (!is_valid_user_role($role) || !is_valid_user_status($status)) {
@@ -71,11 +71,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
             <a href="<?= app_base_url('admin/users.php') ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Users</a>
         </div>
 
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger shadow-sm mb-4">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i><?= e($error) ?>
-            </div>
-        <?php endif; ?>
+        <?= render_inline_alert($error, ['margin' => 'mb-4']) ?>
 
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4">
@@ -85,22 +81,22 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">First Name *</label>
-                            <input type="text" class="form-control" name="first_name" required value="<?= e($_POST['first_name'] ?? '') ?>" placeholder="e.g. Robert">
+                            <input type="text" class="form-control" name="first_name" required value="<?= e($_POST['first_name'] ?? '') ?>" placeholder="Enter first name">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Last Name *</label>
-                            <input type="text" class="form-control" name="last_name" required value="<?= e($_POST['last_name'] ?? '') ?>" placeholder="e.g. Miller">
+                            <input type="text" class="form-control" name="last_name" required value="<?= e($_POST['last_name'] ?? '') ?>" placeholder="Enter last name">
                         </div>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Email Address *</label>
-                            <input type="email" class="form-control" name="email" required value="<?= e($_POST['email'] ?? '') ?>" placeholder="robert.miller@couriva.local">
+                            <input type="email" class="form-control" name="email" required value="<?= e($_POST['email'] ?? '') ?>" placeholder="username@couriva.local">
                         </div>
                         <div class="col-md-6">
                             <label for="createUserPassword" class="form-label fw-semibold">Password *</label>
-                            <div class="input-group"><input type="password" class="form-control" id="createUserPassword" name="password" required autocomplete="new-password" placeholder="Min. 8 characters"><button type="button" class="password-toggle" aria-label="Show password" aria-controls="createUserPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                            <div class="input-group"><input type="password" class="form-control" id="createUserPassword" name="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show password" aria-controls="createUserPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
                         </div>
                     </div>
 

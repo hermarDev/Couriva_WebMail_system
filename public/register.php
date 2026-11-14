@@ -143,11 +143,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="row g-3 mb-3">
                     <div class="col-sm-6">
                         <label for="registerFirstName" class="form-label">First name</label>
-                        <input type="text" class="form-control" id="registerFirstName" name="first_name" maxlength="100" autocomplete="given-name" required autofocus value="<?= e($form['first_name']) ?>">
+                        <input type="text" class="form-control" id="registerFirstName" name="first_name" maxlength="100" placeholder="First name" autocomplete="given-name" required autofocus value="<?= e($form['first_name']) ?>">
                     </div>
                     <div class="col-sm-6">
                         <label for="registerLastName" class="form-label">Last name</label>
-                        <input type="text" class="form-control" id="registerLastName" name="last_name" maxlength="100" autocomplete="family-name" required value="<?= e($form['last_name']) ?>">
+                        <input type="text" class="form-control" id="registerLastName" name="last_name" maxlength="100" placeholder="Last name" autocomplete="family-name" required value="<?= e($form['last_name']) ?>">
                     </div>
                 </div>
 
@@ -172,7 +172,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="mb-3">
                     <label for="registerPassword" class="form-label">Password</label>
                     <div class="input-group">
-                        <input type="password" class="form-control" id="registerPassword" name="password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
+                        <input type="password" class="form-control" id="registerPassword" name="password" placeholder="At least 10 characters" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
                         <button type="button" class="password-toggle" aria-label="Show password" aria-controls="registerPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
                     </div>
                 </div>
@@ -180,18 +180,18 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="mb-3">
                     <label for="registerConfirmPassword" class="form-label">Confirm password</label>
                     <div class="input-group">
-                        <input type="password" class="form-control" id="registerConfirmPassword" name="confirm_password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
+                        <input type="password" class="form-control" id="registerConfirmPassword" name="confirm_password" placeholder="Re-enter password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
                         <button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="registerConfirmPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
                 <ul id="registerPasswordRules" class="auth-password-rules" aria-label="Password requirements">
-                    <li class="auth-password-rule" data-rule="length"><span>At least 10 characters</span><span class="auth-password-rule-status">Not met</span></li>
-                    <li class="auth-password-rule" data-rule="uppercase"><span>One uppercase letter</span><span class="auth-password-rule-status">Not met</span></li>
-                    <li class="auth-password-rule" data-rule="lowercase"><span>One lowercase letter</span><span class="auth-password-rule-status">Not met</span></li>
-                    <li class="auth-password-rule" data-rule="number"><span>One number</span><span class="auth-password-rule-status">Not met</span></li>
-                    <li class="auth-password-rule" data-rule="symbol"><span>One symbol</span><span class="auth-password-rule-status">Not met</span></li>
-                    <li class="auth-password-rule" data-rule="match"><span>Passwords match</span><span class="auth-password-rule-status">Not met</span></li>
+                    <li class="auth-password-rule" data-rule="length"><span>At least 10 characters</span><span class="auth-password-rule-status">Not OK</span></li>
+                    <li class="auth-password-rule" data-rule="uppercase"><span>One uppercase letter</span><span class="auth-password-rule-status">Not OK</span></li>
+                    <li class="auth-password-rule" data-rule="lowercase"><span>One lowercase letter</span><span class="auth-password-rule-status">Not OK</span></li>
+                    <li class="auth-password-rule" data-rule="number"><span>One number</span><span class="auth-password-rule-status">Not OK</span></li>
+                    <li class="auth-password-rule" data-rule="symbol"><span>One symbol</span><span class="auth-password-rule-status">Not OK</span></li>
+                    <li class="auth-password-rule" data-rule="match"><span>Passwords match</span><span class="auth-password-rule-status">Not OK</span></li>
                 </ul>
 
                 <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">

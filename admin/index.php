@@ -56,7 +56,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
         <div class="card stat-card border-0 shadow-sm h-100 position-relative overflow-hidden">
-            <div class="card-accent-bar bg-primary position-absolute top-0 start-0 w-100" style="height: 4px;"></div>
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="text-muted small text-uppercase fw-bold">Total Accounts</span>
                 <span class="p-2 bg-primary-subtle text-primary rounded-circle"><i class="bi bi-people-fill fs-5"></i></span>
@@ -71,7 +70,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
     <div class="col-sm-6 col-lg-3">
         <div class="card stat-card border-0 shadow-sm h-100 position-relative overflow-hidden">
-            <div class="card-accent-bar bg-info position-absolute top-0 start-0 w-100" style="height: 4px;"></div>
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="text-muted small text-uppercase fw-bold">Total Messages</span>
                 <span class="p-2 bg-info-subtle text-info rounded-circle"><i class="bi bi-envelope-check-fill fs-5"></i></span>
@@ -83,7 +81,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
     <div class="col-sm-6 col-lg-3">
         <div class="card stat-card border-0 shadow-sm h-100 position-relative overflow-hidden">
-            <div class="card-accent-bar bg-warning position-absolute top-0 start-0 w-100" style="height: 4px;"></div>
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="text-muted small text-uppercase fw-bold">Attachments Disk</span>
                 <span class="p-2 bg-warning-subtle text-warning rounded-circle"><i class="bi bi-paperclip fs-5"></i></span>
@@ -95,7 +92,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
     <div class="col-sm-6 col-lg-3">
         <div class="card stat-card border-0 shadow-sm h-100 position-relative overflow-hidden">
-            <div class="card-accent-bar bg-success position-absolute top-0 start-0 w-100" style="height: 4px;"></div>
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="text-muted small text-uppercase fw-bold">Environment</span>
                 <span class="p-2 bg-success-subtle text-success rounded-circle"><i class="bi bi-hdd-network-fill fs-5"></i></span>
@@ -140,7 +136,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small text-uppercase">
+            <thead class="bg-body-tertiary small text-uppercase">
                 <tr>
                     <th>Timestamp</th>
                     <th>Action</th>

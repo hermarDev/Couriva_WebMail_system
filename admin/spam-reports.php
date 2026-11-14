@@ -112,7 +112,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="card shadow-sm border-0">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small text-uppercase">
+            <thead class="bg-body-tertiary small text-uppercase">
                 <tr><th>Status</th><th>Reported Message</th><th>Reporter</th><th>Reason</th><th>Filed</th><th class="text-end">Action</th></tr>
             </thead>
             <tbody>

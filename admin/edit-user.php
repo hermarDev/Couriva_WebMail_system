@@ -86,15 +86,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
             <a href="<?= app_base_url('admin/users.php') ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Users</a>
         </div>
 
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger shadow-sm mb-4">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i><?= e($error) ?>
-            </div>
-        <?php endif; ?>
+        <?= render_inline_alert($error, ['margin' => 'mb-4']) ?>
 
         <!-- Edit Profile Card -->
         <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3 border-bottom">
+            <div class="card-header bg-body py-3 border-bottom">
                 <h6 class="mb-0 fw-bold">Account Information</h6>
             </div>
             <div class="card-body p-4">
@@ -149,7 +145,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
         <!-- Reset Password Card -->
         <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white py-3 border-bottom">
+            <div class="card-header bg-body py-3 border-bottom">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-key text-warning me-2"></i>Reset User Password</h6>
             </div>
             <div class="card-body p-4">
@@ -159,10 +155,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
                     <div class="mb-3">
                         <label for="adminResetPassword" class="form-label fw-semibold">New Password for <?= e($targetUser['email']) ?></label>
-                        <div class="input-group"><input type="password" class="form-control" id="adminResetPassword" name="new_password" required autocomplete="new-password" placeholder="Min. 8 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="adminResetPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                        <div class="input-group"><input type="password" class="form-control" id="adminResetPassword" name="new_password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="adminResetPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
                     </div>
 
-                    <button type="submit" class="btn btn-outline-warning text-dark fw-semibold">
+                    <button type="submit" class="btn btn-outline-warning fw-semibold">
                         <i class="bi bi-arrow-repeat me-1"></i> Reset Password
                     </button>
                 </form>

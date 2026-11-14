@@ -102,9 +102,10 @@ $folderHeading = match ($activeFolder) {
 };
 ?>
 <!-- Advanced Search Filters Panel (Collapsible) -->
-<div class="collapse <?= (!empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'show' : '' ?> mb-3" id="filterPanel">
+<div class="collapse <?= (!empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'show' : '' ?> mb-3 d-md-none" id="filterPanel">
     <div class="card card-body bg-body-tertiary border-0 shadow-sm p-3">
         <form method="GET" action="<?= app_base_url('public/inbox.php') ?>" class="row g-2 align-items-center">
+            <?php if (in_array($criteria['is_starred'], ['0', '1'], true)): ?><input type="hidden" name="is_starred" value="<?= e($criteria['is_starred']) ?>"><?php endif; ?>
             <?php if ($activeFolder !== 'inbox'): ?>
                 <input type="hidden" name="folder" value="<?= e($activeFolder) ?>">
             <?php endif; ?>
@@ -238,6 +239,7 @@ $folderHeading = match ($activeFolder) {
 
                 <!-- Right: Pagination & View Modes -->
                 <div class="d-flex align-items-center gap-2 action-bar-right">
+                    <button class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-controls="filterPanel" aria-expanded="<?= (!empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'true' : 'false' ?>" title="Search filters" aria-label="Toggle search filters"><i class="bi bi-sliders2 fs-6"></i></button>
                     <div class="action-bar-pagination d-flex align-items-center text-muted small" style="font-size: 0.85rem;">
                         <?php
                         $startCount = $totalEmails > 0 ? (($page - 1) * $perPage) + 1 : 0;
@@ -253,9 +255,6 @@ $folderHeading = match ($activeFolder) {
                             </a>
                         </div>
                     </div>
-                    <button class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-controls="filterPanel" title="Search filters" aria-label="Toggle search filters">
-                        <i class="bi bi-sliders2 fs-6"></i>
-                    </button>
                 </div>
             </div>
 

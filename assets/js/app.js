@@ -642,7 +642,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const icon = themeToggleBtn.querySelector('svg, i');
             if (icon) {
                 const iconName = resolved === 'dark' ? 'moon-stars-fill' : 'sun-fill';
-                icon.setAttribute('class', 'bi bi-' + iconName + ' text-warning');
+                icon.setAttribute('class', 'bi bi-' + iconName);
                 const use = icon.querySelector('use');
                 if (use) use.setAttribute('href', use.getAttribute('href').replace(/#.*$/, '#' + iconName));
             }
@@ -682,7 +682,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (doc && doc.body) {
                     doc.documentElement.setAttribute('data-bs-theme', resolved);
                     if (resolved === 'dark') {
-                        doc.body.style.backgroundColor = '#111827';
+                        doc.body.style.backgroundColor = '#18181b';
                         doc.body.style.color = '#f8fafc';
                     } else {
                         doc.body.style.backgroundColor = 'transparent';
@@ -1713,6 +1713,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     const dot = row.querySelector('.unread-dot');
                     if (dot) dot.classList.toggle('d-none', nextRead);
                 }
+                const makeUnread = !nextRead;
+                if (typeof window.showGmailSnackbar === 'function') window.showGmailSnackbar(makeUnread ? 'Marked as unread' : 'Marked as read');
             }).catch(err => {
                 console.error('Failed to toggle read status:', err);
                 CourivaDialog.alert({
@@ -1844,6 +1846,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         row.style.opacity = '0';
                         setTimeout(() => row.remove(), 300);
                     }
+                    if (typeof window.showGmailSnackbar === 'function') window.showGmailSnackbar('Message snoozed');
                 })
                 .catch(function (err) {
                     CourivaDialog.alert({
@@ -1866,7 +1869,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const readingPaneCol = document.getElementById('readingPaneCol');
     const readingPaneContent = document.getElementById('readingPaneContent');
 
-    if (viewModeListBtn && viewModeSplitBtn && mailListCol && readingPaneCol) {
+    if (mailListCol && readingPaneCol) {
         let currentMode = 'list';
         try { currentMode = localStorage.getItem('webmail_view_mode') || 'list'; } catch (_) { /* Storage may be blocked. */ }
 
@@ -1880,16 +1883,21 @@ document.addEventListener('DOMContentLoaded', function () {
             if (mode === 'split') {
                 mailListCol.className = 'col-lg-6 col-12';
                 readingPaneCol.classList.remove('d-none');
-                viewModeSplitBtn.classList.add('active');
-                viewModeListBtn.classList.remove('active');
+                if (viewModeListBtn && viewModeSplitBtn) {
+                    viewModeSplitBtn.classList.add('active');
+                    viewModeListBtn.classList.remove('active');
+                }
             } else {
                 mailListCol.className = 'col-12';
                 readingPaneCol.classList.add('d-none');
-                viewModeListBtn.classList.add('active');
-                viewModeSplitBtn.classList.remove('active');
+                if (viewModeListBtn && viewModeSplitBtn) {
+                    viewModeListBtn.classList.add('active');
+                    viewModeSplitBtn.classList.remove('active');
+                }
                 document.querySelectorAll('.mail-item-row.active-preview-row').forEach(r => r.classList.remove('active-preview-row'));
             }
         }
+        window.setCourivaViewMode = setViewMode;
 
         // Initialize based on saved preference (only on large desktop screens >= 992px)
         if (window.innerWidth >= 992 && currentMode === 'split') {
@@ -1898,8 +1906,8 @@ document.addEventListener('DOMContentLoaded', function () {
             setViewMode('list');
         }
 
-        viewModeListBtn.addEventListener('click', () => setViewMode('list'));
-        viewModeSplitBtn.addEventListener('click', () => setViewMode('split'));
+        if (viewModeListBtn) viewModeListBtn.addEventListener('click', () => setViewMode('list'));
+        if (viewModeSplitBtn) viewModeSplitBtn.addEventListener('click', () => setViewMode('split'));
 
         // Handle Row Clicks in Split Mode
         document.querySelectorAll('.mail-item-row').forEach(row => {
@@ -2071,8 +2079,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function buildEmailDocument(bodyHtml) {
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
             return '<!doctype html><html><head><meta charset="utf-8"><style>'
-                + 'html,body{margin:0;padding:0;background:transparent;color:inherit;font:inherit;line-height:1.65;overflow-wrap:anywhere}'
+                + `html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.6;color:${isDark ? '#e5e7eb' : '#1f2937'};background:${isDark ? '#18181b' : '#ffffff'};overflow-wrap:anywhere}`
+                + `blockquote{margin:0 0 1em;padding-left:12px;border-left:1px solid ${isDark ? '#3f3f46' : '#cbd5e1'};color:${isDark ? '#9ca3af' : '#475569'};}`
                 + 'img{max-width:100%;height:auto}table{max-width:100%;border-collapse:collapse}'
                 + '</style></head><body>' + bodyHtml + '</body></html>';
         }
@@ -2203,7 +2213,7 @@ document.addEventListener('DOMContentLoaded', function () {
         newPasswordInput.addEventListener('input', function () {
             const pass = this.value;
 
-            const hasLength = pass.length >= 8;
+            const hasLength = pass.length >= 10;
             const hasUpper = /[A-Z]/.test(pass);
             const hasNumber = /[0-9]/.test(pass);
             const hasSpecial = /[^A-Za-z0-9]/.test(pass);
@@ -2376,17 +2386,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const dockedSaveStatus = document.getElementById('dockedSaveStatus');
         const btnDockedDiscard = document.getElementById('btnDockedDiscard');
 
+        let dockedAutosaveTimer = null;
+        let isDockedActive = false;
+        let isDockedSaving = false;
+        let dockedNeedsResave = false;
+        let dockedAutosaveSeq = 0;
+
         const openDockedCompose = function (draftData = null) {
             dockedComposeContainer.classList.remove('d-none');
             dockedComposeContainer.classList.remove('docked-minimized');
+            isDockedActive = true;
+            dockedNeedsResave = false;
+            dockedAutosaveSeq++;
             if (draftData) {
                 if (dockedDraftId) dockedDraftId.value = draftData.id || '';
                 if (dockedTo) dockedTo.value = draftData.to || '';
                 if (dockedSubject) dockedSubject.value = draftData.subject || '';
                 if (dockedBody) dockedBody.value = draftData.body || '';
                 if (dockedTitle) dockedTitle.textContent = draftData.subject || 'Edit Draft';
+                if (dockedSaveStatus) dockedSaveStatus.textContent = 'Saved';
             } else {
+                if (dockedDraftId) dockedDraftId.value = '';
                 if (dockedTitle) dockedTitle.textContent = 'New Message';
+                if (dockedSaveStatus) dockedSaveStatus.textContent = '';
             }
             if (dockedTo && !dockedTo.value) {
                 dockedTo.focus();
@@ -2396,6 +2418,11 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         const closeDockedCompose = function () {
+            isDockedActive = false;
+            clearTimeout(dockedAutosaveTimer);
+            dockedAutosaveTimer = null;
+            dockedNeedsResave = false;
+            dockedAutosaveSeq++;
             dockedComposeContainer.classList.add('d-none');
             dockedComposeContainer.classList.remove('docked-fullscreen', 'docked-minimized');
         };
@@ -2431,51 +2458,108 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (btnDockedDiscard) {
-            btnDockedDiscard.addEventListener('click', function () {
+            btnDockedDiscard.addEventListener('click', async function () {
+                // Cancel pending autosave timer immediately before asking confirmation
+                clearTimeout(dockedAutosaveTimer);
+                dockedAutosaveTimer = null;
+                dockedNeedsResave = false;
+
+                const hasContent = Boolean(dockedTo?.value.trim() || dockedSubject?.value.trim() || (dockedBody?.value || dockedBody?.innerText || '').trim());
+                if (hasContent) {
+                    const ok = window.CourivaDialog ? await window.CourivaDialog.confirm({ title: 'Discard draft?', message: 'Unsaved changes in this draft will be lost.', confirmText: 'Discard draft', variant: 'danger' }) : confirm('Discard this draft?');
+                    if (!ok) return;
+                }
+
+                // Invalidate any in-flight response and cancel pending timers
+                isDockedActive = false;
+                dockedAutosaveSeq++;
+                clearTimeout(dockedAutosaveTimer);
+                dockedAutosaveTimer = null;
+                dockedNeedsResave = false;
+
                 if (dockedTo) dockedTo.value = '';
                 if (dockedSubject) dockedSubject.value = '';
                 if (dockedBody) dockedBody.value = '';
                 if (dockedDraftId) dockedDraftId.value = '';
+                if (dockedSaveStatus) dockedSaveStatus.textContent = '';
                 closeDockedCompose();
             });
         }
 
-        // Live draft autosave for docked composer
-        let dockedAutosaveTimer = null;
+        // Live draft autosave for docked composer with race-condition prevention
+        const performDockedAutosave = function () {
+            if (!isDockedActive || dockedComposeContainer.classList.contains('d-none')) {
+                return;
+            }
+
+            if (isDockedSaving) {
+                // Queue a resave after current request completes so we don't send duplicate create requests
+                dockedNeedsResave = true;
+                return;
+            }
+
+            const toVal = dockedTo ? dockedTo.value.trim() : '';
+            const subjectVal = dockedSubject ? dockedSubject.value.trim() : '';
+            const bodyVal = dockedBody ? (dockedBody.value || '').trim() : '';
+            if (!toVal && !subjectVal && !bodyVal) return;
+
+            const seq = ++dockedAutosaveSeq;
+            const draftIdToSend = dockedDraftId ? dockedDraftId.value : '';
+
+            isDockedSaving = true;
+            if (dockedSaveStatus) dockedSaveStatus.textContent = 'Saving...';
+
+            fetch(baseUrl + '/public/api/autosave_draft.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({
+                    draft_id: draftIdToSend,
+                    to: toVal,
+                    subject: subjectVal,
+                    body: bodyVal
+                })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                // If discarded, closed, or superseded by a newer save cycle, ignore
+                if (!isDockedActive || seq !== dockedAutosaveSeq) return;
+
+                if (data.success && data.draft_id && dockedDraftId) {
+                    dockedDraftId.value = data.draft_id;
+                    if (dockedSaveStatus) dockedSaveStatus.textContent = 'Saved';
+                }
+            })
+            .catch(function () {
+                if (isDockedActive && seq === dockedAutosaveSeq && dockedSaveStatus) {
+                    dockedSaveStatus.textContent = 'Offline';
+                }
+            })
+            .finally(function () {
+                isDockedSaving = false;
+                if (isDockedActive && dockedNeedsResave) {
+                    dockedNeedsResave = false;
+                    performDockedAutosave();
+                }
+            });
+        };
+
         const triggerDockedAutosave = function () {
-            if (!dockedTo || !dockedSubject || !dockedBody) return;
-            const toVal = dockedTo.value.trim();
-            const subjectVal = dockedSubject.value.trim();
-            const bodyVal = dockedBody.value.trim();
+            if (!isDockedActive) return;
+            const toVal = dockedTo ? dockedTo.value.trim() : '';
+            const subjectVal = dockedSubject ? dockedSubject.value.trim() : '';
+            const bodyVal = dockedBody ? (dockedBody.value || '').trim() : '';
 
             if (!toVal && !subjectVal && !bodyVal) return;
 
-            if (dockedSaveStatus) dockedSaveStatus.textContent = 'Saving...';
+            if (dockedSaveStatus && !isDockedSaving) {
+                dockedSaveStatus.textContent = 'Saving...';
+            }
 
             clearTimeout(dockedAutosaveTimer);
-            dockedAutosaveTimer = setTimeout(function () {
-                fetch(baseUrl + '/public/api/autosave_draft.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken
-                    },
-                    body: JSON.stringify({
-                        draft_id: dockedDraftId ? dockedDraftId.value : '',
-                        to: toVal,
-                        subject: subjectVal,
-                        body: bodyVal
-                    })
-                }).then(function (res) { return res.json(); })
-                  .then(function (data) {
-                      if (data.success && data.draft_id && dockedDraftId) {
-                          dockedDraftId.value = data.draft_id;
-                          if (dockedSaveStatus) dockedSaveStatus.textContent = 'Saved';
-                      }
-                  }).catch(function () {
-                      if (dockedSaveStatus) dockedSaveStatus.textContent = 'Offline';
-                  });
-            }, 1500);
+            dockedAutosaveTimer = setTimeout(performDockedAutosave, 1500);
         };
 
         [dockedTo, dockedSubject, dockedBody].forEach(function (el) {
@@ -2568,6 +2652,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const card = this.closest('.thread-message-card');
             if (card) {
                 card.classList.toggle('collapsed');
+                header.setAttribute('aria-expanded', card.classList.contains('collapsed') ? 'false' : 'true');
+            }
+        });
+        header.addEventListener('keydown', function (e) {
+            if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('a, button')) {
+                e.preventDefault();
+                header.click();
             }
         });
     });
@@ -2624,8 +2715,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (openModal && openModal.id !== 'keyboardShortcutsModal') return;
 
         const shortcutsModalEl = document.getElementById('keyboardShortcutsModal');
-        const searchBar = document.getElementById('gmailSearchBar');
-        const mailItems = Array.from(document.querySelectorAll('.mail-list-container .mail-item'));
+        const searchBar = document.getElementById('headerSearchInput') || document.querySelector('#gmailSearchBar input[name="q"]');
+        const mailItems = Array.from(document.querySelectorAll('.mail-list-container .mail-item-row'));
 
         // ? : Show shortcuts modal
         if (e.key === '?') {
@@ -2794,8 +2885,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const qsPaneRightBtn = document.getElementById('qsPaneRightBtn');
     if (qsPaneNoneBtn) {
         qsPaneNoneBtn.addEventListener('click', function () {
-            if (typeof setViewMode === 'function') {
-                setViewMode('list');
+            if (typeof window.setCourivaViewMode === 'function') {
+                window.setCourivaViewMode('list');
             } else {
                 try { localStorage.setItem('webmail_view_mode', 'list'); } catch (_) {}
                 updateQsPaneCards('list');
@@ -2804,8 +2895,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (qsPaneRightBtn) {
         qsPaneRightBtn.addEventListener('click', function () {
-            if (typeof setViewMode === 'function') {
-                setViewMode('split');
+            if (typeof window.setCourivaViewMode === 'function') {
+                window.setCourivaViewMode('split');
             } else {
                 try { localStorage.setItem('webmail_view_mode', 'split'); } catch (_) {}
                 updateQsPaneCards('split');

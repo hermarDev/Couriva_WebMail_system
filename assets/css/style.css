@@ -452,8 +452,8 @@ body {
     border: none !important;
     border-radius: 6px !important;
     box-shadow: none !important;
-    width: 28px;
-    height: 28px;
+    width: 44px;
+    height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -501,8 +501,8 @@ body {
     }
 
     body.sidebar-mini .webmail-sidebar .sidebar-edge-toggle {
-        width: 36px !important;
-        height: 36px !important;
+        width: 44px !important;
+        height: 44px !important;
     }
 
     body.sidebar-mini .webmail-sidebar .sidebar-edge-toggle .sidebar-icon-expanded {
@@ -763,40 +763,49 @@ body {
     opacity: 1;
 }
 
-/* Sidebar Elevated Settings Row */
+/* Sidebar Settings Row (Neutral) */
 .sidebar-settings-pill {
-    background-color: #f5f3ff !important;
-    border: 1px solid #ddd6fe !important;
-    color: #4338ca !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    color: var(--text-secondary) !important;
     border-radius: 8px !important;
     padding: 0.42rem 0.75rem !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    transition: background-color 0.12s ease, color 0.12s ease;
 }
 
 .sidebar-settings-pill:hover {
-    background-color: #ede9fe !important;
-    border-color: #c4b5fd !important;
-    transform: translateY(-1px);
+    background: var(--surface-subtle) !important;
+    border-color: transparent !important;
+    color: var(--text) !important;
 }
 
 .sidebar-settings-pill .settings-icon {
-    color: #6366f1 !important;
+    color: inherit !important;
     font-size: 1.05rem;
 }
 
+.sidebar-settings-pill.active,
+[data-bs-theme="dark"] .sidebar-settings-pill.active {
+    background-color: var(--primary-soft) !important;
+    border-color: transparent !important;
+    color: var(--primary) !important;
+    font-weight: 600;
+}
+
 [data-bs-theme="dark"] .sidebar-settings-pill {
-    background-color: rgba(99, 102, 241, 0.12) !important;
-    border-color: rgba(99, 102, 241, 0.28) !important;
-    color: #c7d2fe !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    color: var(--text-secondary) !important;
 }
 
 [data-bs-theme="dark"] .sidebar-settings-pill:hover {
-    background-color: rgba(99, 102, 241, 0.18) !important;
-    border-color: rgba(99, 102, 241, 0.4) !important;
+    background: var(--surface-subtle) !important;
+    border-color: transparent !important;
+    color: var(--text) !important;
 }
 
 [data-bs-theme="dark"] .sidebar-settings-pill .settings-icon {
-    color: #818cf8 !important;
+    color: inherit !important;
 }
 
 /* Sidebar Storage Card */
@@ -1018,18 +1027,15 @@ body {
 /* Active Preview in Split Mode */
 .mail-item-row.active-preview-row {
     background-color: var(--primary-soft) !important;
-    border-left: 3px solid var(--primary);
 }
 
 /* Selected Row in Batch Selection */
 .mail-item-row.selected {
     background-color: var(--primary-soft, #c2dbff) !important;
-    border-left: 3px solid var(--primary, #1a73e8);
 }
 
-[data-theme="dark"] .mail-item-row.selected {
+[data-bs-theme="dark"] .mail-item-row.selected {
     background-color: rgba(26, 115, 232, 0.25) !important;
-    border-left: 3px solid var(--primary, #8ab4f8);
 }
 
 /* Unread Indicator Dot */
@@ -1303,6 +1309,11 @@ body {
     background: transparent;
     border: none;
     color: var(--text-secondary);
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.3rem 0.5rem;
     border-radius: var(--radius-sm);
     transition: all 0.12s ease;
@@ -1333,7 +1344,7 @@ body {
 }
 
 .rich-text-editor blockquote {
-    border-left: 3px solid var(--primary);
+    border-left: 1px solid var(--border-strong);
     padding-left: 0.85rem;
     margin-left: 0;
     color: var(--text-muted);
@@ -1426,7 +1437,7 @@ body {
 }
 
 .reading-pane-body blockquote {
-    border-left: 3px solid var(--primary);
+    border-left: 1px solid var(--border-strong);
     padding-left: 0.85rem;
     color: var(--text-muted);
     margin-left: 0;
@@ -1610,8 +1621,8 @@ body {
 }
 
 .color-swatch-item .swatch-circle {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -1670,8 +1681,8 @@ body {
 }
 
 .org-action-dropdown-btn {
-    width: 30px;
-    height: 30px;
+    width: 44px;
+    height: 44px;
     border-radius: 6px;
     display: inline-flex;
     align-items: center;
@@ -1710,11 +1721,6 @@ body {
     background: var(--surface);
     box-shadow: var(--shadow-sm);
 }
-
-.stat-card-gradient-1 { border-top: 3px solid var(--primary); }
-.stat-card-gradient-2 { border-top: 3px solid var(--success); }
-.stat-card-gradient-3 { border-top: 3px solid var(--warning); }
-.stat-card-gradient-4 { border-top: 3px solid #8B5CF6; }
 
 /* ==========================================================================
    Responsive & Print Styles (Section 20)
@@ -2086,8 +2092,8 @@ body:has(.auth-stage) footer {
 
 /* Password Toggle Button */
 .password-toggle {
-    min-width: 46px;
-    min-height: 46px;
+    min-width: 44px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2098,6 +2104,10 @@ body:has(.auth-stage) footer {
     background: var(--surface-subtle);
     transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
     cursor: pointer;
+}
+
+.input-group:has(.password-toggle) .form-control {
+    min-height: 44px;
 }
 
 .password-toggle:hover {
@@ -2275,11 +2285,11 @@ body:has(.auth-stage) footer {
 }
 
 .mail-item-row:hover {
-    box-shadow: inset 3px 0 0 var(--primary);
+    box-shadow: none;
 }
 
 .mail-item-row.active-preview-row {
-    box-shadow: inset 3px 0 0 var(--primary), 0 0 0 1px var(--primary-soft);
+    box-shadow: none;
 }
 
 .badge {
@@ -2532,8 +2542,6 @@ button.label-chip-remove:hover {
 
 .notification-item.notification-unread {
     background: var(--surface-subtle);
-    border-left: 3px solid var(--primary);
-    padding-left: calc(1.25rem - 3px);
 }
 
 .notification-icon {
@@ -2870,7 +2878,7 @@ body.compose-open.compose-fullscreen::before {
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-[data-theme="dark"] #gmailSnackbar {
+[data-bs-theme="dark"] #gmailSnackbar {
     background-color: #303134;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -2899,37 +2907,39 @@ body.compose-open.compose-fullscreen::before {
 }
 
 /* Mail Item Keyboard Active Focus Indicator */
+.mail-item-row.keyboard-active,
 .mail-item.keyboard-active {
-    box-shadow: inset 4px 0 0 var(--primary) !important;
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
     background-color: var(--surface-subtle) !important;
 }
 
-/* =========================================================================
+/* ==========================================================================
    Gmail Desktop Revamp: Universal Action Bar
-   ========================================================================= */
+   ========================================================================== */
 #gmailActionBar {
     min-height: 48px;
-    background-color: var(--card-bg, #ffffff);
-    border-bottom: 1px solid var(--border, #e5e7eb);
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
     padding: 0.375rem 1rem;
     z-index: 10;
 }
 
 #gmailActionBar .action-bar-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    color: var(--text-muted, #5f6368);
+    color: var(--text-muted);
     transition: background-color 0.15s ease, color 0.15s ease;
     text-decoration: none;
 }
 
 #gmailActionBar .action-bar-btn:hover {
-    background-color: var(--hover-bg, rgba(60, 64, 67, 0.08));
-    color: var(--text-color, #202124);
+    background-color: var(--surface-subtle);
+    color: var(--text);
 }
 
 /* Contextual action buttons with text labels - better spacing */
@@ -2939,7 +2949,7 @@ body.compose-open.compose-fullscreen::before {
 
 .contextual-actions .action-bar-btn {
     width: auto !important;
-    height: 36px;
+    min-height: 44px;
     padding: 0 0.75rem;
     border-radius: 9999px;
     white-space: nowrap;
@@ -2956,13 +2966,13 @@ body.compose-open.compose-fullscreen::before {
 }
 
 .contextual-actions .action-divider {
-    border-color: var(--border, #e5e7eb) !important;
+    border-color: var(--border) !important;
     margin: 0 0.5rem;
 }
 
 .action-bar-pagination .pagination-nav-btn {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2970,13 +2980,13 @@ body.compose-open.compose-fullscreen::before {
 }
 
 .action-bar-pagination .pagination-nav-btn:hover:not(.disabled) {
-    background-color: var(--hover-bg, rgba(60, 64, 67, 0.08));
+    background-color: var(--surface-subtle);
 }
 
 /* Dropdown buttons in action bar */
 #gmailActionBar .dropdown-toggle.action-bar-btn {
     width: auto !important;
-    height: 36px;
+    min-height: 44px;
     padding: 0 0.75rem;
     border-radius: 9999px;
 }
@@ -2985,12 +2995,12 @@ body.compose-open.compose-fullscreen::before {
     margin-right: 0.375rem;
 }
 
-/* =========================================================================
+/* ==========================================================================
    Gmail Desktop Revamp: Category Tabs (Primary, Promotions, Updates)
-   ========================================================================= */
+   ========================================================================== */
 #inboxCategoryTabs {
-    border-bottom: 1px solid var(--border, #e5e7eb) !important;
-    background-color: var(--card-bg, #ffffff);
+    border-bottom: 1px solid var(--border) !important;
+    background-color: var(--surface);
     overflow-x: auto;
 }
 
@@ -3000,7 +3010,7 @@ body.compose-open.compose-fullscreen::before {
     gap: 0.75rem;
     padding: 0.85rem 1.5rem;
     text-decoration: none;
-    color: var(--text-muted, #5f6368);
+    color: var(--text-muted);
     font-size: 0.875rem;
     font-weight: 500;
     position: relative;
@@ -3010,13 +3020,13 @@ body.compose-open.compose-fullscreen::before {
 }
 
 .category-tab-item:hover {
-    background-color: var(--hover-bg, rgba(60, 64, 67, 0.04));
-    color: var(--text-color, #202124);
+    background-color: var(--surface-subtle);
+    color: var(--text);
 }
 
 .category-tab-item.active {
-    color: var(--primary, #1a73e8);
-    border-bottom-color: var(--primary, #1a73e8);
+    color: var(--primary);
+    border-bottom-color: var(--primary);
     font-weight: 600;
 }
 
@@ -3025,15 +3035,15 @@ body.compose-open.compose-fullscreen::before {
 }
 
 .category-tab-item.active .tab-icon {
-    color: var(--primary, #1a73e8);
+    color: var(--primary);
 }
 
-/* =========================================================================
+/* ==========================================================================
    Gmail Desktop Revamp: Google Apps Launcher Grid
-   ========================================================================= */
+   ========================================================================== */
 #googleAppsMenu {
     min-width: 300px;
-    background-color: var(--card-bg, #ffffff);
+    background-color: var(--surface);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -3051,15 +3061,15 @@ body.compose-open.compose-fullscreen::before {
     justify-content: center;
     padding: 0.85rem 0.5rem;
     border-radius: 0.75rem;
-    color: var(--text-color, #202124);
+    color: var(--text);
     transition: background-color 0.15s ease, transform 0.1s ease;
     text-align: center;
 }
 
 .app-launcher-tile:hover {
-    background-color: var(--hover-bg, rgba(60, 64, 67, 0.08));
+    background-color: var(--surface-subtle);
     transform: translateY(-1px);
-    color: var(--primary, #1a73e8);
+    color: var(--primary);
 }
 
 .app-launcher-tile .app-tile-icon {
@@ -3265,5 +3275,76 @@ body.compose-open.compose-fullscreen::before {
 #courivaConfirmSubmitBtn.btn-primary:hover {
     background-color: #4f46e5 !important;
     border-color: #4f46e5 !important;
+}
+
+/* Dark-mode overrides for legacy .table-light and .bg-white surfaces */
+[data-bs-theme="dark"] .table-light,
+[data-bs-theme="dark"] .table-light > th,
+[data-bs-theme="dark"] .table-light > td,
+[data-bs-theme="dark"] thead.table-light th {
+    --bs-table-bg: var(--surface-subtle);
+    --bs-table-color: var(--text-secondary);
+    --bs-table-border-color: var(--border);
+    background-color: var(--surface-subtle) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-bs-theme="dark"] .card-header.bg-white,
+[data-bs-theme="dark"] .card-footer.bg-white {
+    background-color: var(--surface) !important;
+}
+
+/* Touch Targets (>=44x44px) */
+#searchFilterDropdown,
+#selectAllDropdown,
+.sidebar-section-header .btn,
+.sidebar-section-title .btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#moreFoldersToggle {
+    min-height: 44px;
+}
+
+.settings-nav-pills .nav-link,
+.settings-section-tabs .nav-link,
+#toggleCcBtn,
+#toggleBccBtn,
+.btn-sm {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bounded Single-Scroll Modals */
+.modal-dialog {
+    max-height: min(90dvh, calc(100dvh - 2rem));
+}
+
+.modal-content {
+    max-height: min(90dvh, calc(100dvh - 2rem));
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content > form {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    overscroll-behavior: contain;
 }
 

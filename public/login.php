@@ -72,7 +72,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
-                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
                         <button type="button" class="password-toggle" aria-label="Show password" aria-controls="password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
                     </div>
                     <p class="auth-recovery-note">Password resets are managed by a Couriva administrator.</p>
