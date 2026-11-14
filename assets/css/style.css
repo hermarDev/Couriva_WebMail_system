@@ -1733,17 +1733,68 @@ body {
 }
 
 @media (max-width: 767.98px) {
-    .mail-sender {
-        width: 120px;
-        min-width: 100px;
+    .mail-item-row {
+        display: grid;
+        grid-template-columns: auto auto auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "check star dot sender date"
+            ". . . snippet snippet";
+        row-gap: 0.25rem;
+        column-gap: 0.45rem;
+        padding: 0.75rem 0.85rem;
+        align-items: center;
+    }
+
+    .mail-item-row .form-check {
+        grid-area: check;
+        margin-right: 0 !important;
+    }
+
+    .mail-item-row .star-btn {
+        grid-area: star;
+        margin-right: 0 !important;
+    }
+
+    .mail-item-row .unread-dot {
+        grid-area: dot;
+        margin-right: 0 !important;
+    }
+
+    .mail-item-row .mail-sender {
+        grid-area: sender;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding-right: 0.5rem;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mail-item-row .mail-date {
+        grid-area: date;
+        min-width: auto;
+        text-align: right;
+        font-size: 0.78rem;
+        opacity: 1 !important;
+    }
+
+    .mail-item-row .mail-subject-snippet {
+        grid-area: snippet;
+        width: 100%;
+        max-width: 100%;
+        padding-right: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.84rem;
+        display: block;
     }
 
     .mail-quick-actions {
         display: none !important;
-    }
-
-    .mail-item-row:hover .mail-date {
-        opacity: 1;
     }
 
     .chips-label {
@@ -3002,6 +3053,36 @@ body.compose-open.compose-fullscreen::before {
     border-bottom: 1px solid var(--border) !important;
     background-color: var(--surface);
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+}
+
+#inboxCategoryTabs::-webkit-scrollbar {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    #gmailActionBar {
+        padding: 0.35rem 0.5rem;
+        flex-wrap: nowrap;
+        gap: 0.25rem;
+    }
+
+    #gmailActionBar .action-bar-pagination {
+        font-size: 0.78rem !important;
+    }
+
+    .category-tab-item {
+        padding: 0.65rem 0.85rem;
+        gap: 0.4rem;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+    }
+
+    .category-tab-item .tab-icon {
+        font-size: 0.95rem;
+    }
 }
 
 .category-tab-item {

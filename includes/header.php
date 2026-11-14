@@ -227,8 +227,8 @@ $bodyClass = $bodyClass ?? '';
                 <?php endif; ?>
             </a>
 
-            <!-- Quick Settings Button -->
-            <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="btnQuickSettings" data-bs-toggle="offcanvas" data-bs-target="#quickSettingsOffcanvas" aria-controls="quickSettingsOffcanvas" title="Quick settings" aria-label="Quick settings" style="width: 44px; height: 44px;">
+            <!-- Quick Settings Button (Desktop/Tablet) -->
+            <button class="btn btn-sm webmail-header-btn border d-none d-md-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="btnQuickSettings" data-bs-toggle="offcanvas" data-bs-target="#quickSettingsOffcanvas" aria-controls="quickSettingsOffcanvas" title="Quick settings" aria-label="Quick settings" style="width: 44px; height: 44px;">
                 <i class="bi bi-gear fs-6"></i>
             </button>
 
@@ -238,8 +238,8 @@ $bodyClass = $bodyClass ?? '';
                 <span class="visually-hidden" id="themeToggleLabel"><?= $currentTheme === 'dark' ? 'Dark' : 'Light' ?></span>
             </button>
 
-            <!-- Google Apps Launcher Button & Dropdown -->
-            <div class="dropdown">
+            <!-- Google Apps Launcher Button & Dropdown (Desktop/Tablet) -->
+            <div class="dropdown d-none d-md-block">
                 <button class="btn btn-sm webmail-header-btn border d-flex align-items-center justify-content-center rounded-circle shadow-sm" type="button" id="googleAppsLauncherBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Couriva apps" aria-label="Couriva apps" style="width: 44px; height: 44px;">
                     <i class="bi bi-grid-3x3-gap-fill fs-6"></i>
                 </button>
