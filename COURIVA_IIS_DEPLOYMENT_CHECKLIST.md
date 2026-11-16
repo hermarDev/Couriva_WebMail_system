@@ -281,7 +281,10 @@ Write-Host "Scheduled task $TaskName successfully registered." -ForegroundColor 
    ```powershell
    & "C:\Program Files\MariaDB\bin\mysql.exe" -u root -p -e "CREATE DATABASE webmail CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
    & "C:\Program Files\MariaDB\bin\mysql.exe" -u root -p webmail < "C:\inetpub\wwwroot\Web_Mail_System\database\schema.sql"
+   # For existing databases upgrading to immutable AD objectGUID binding, also apply Migration 006:
+   & "C:\Program Files\MariaDB\bin\mysql.exe" -u root -p webmail < "C:\inetpub\wwwroot\Web_Mail_System\database\migrations\006_ad_object_guid.sql"
    ```
+   > **Note:** Fresh imports of `database/schema.sql` already include the `ad_object_guid` column and unique index; run `database/migrations/006_ad_object_guid.sql` when upgrading an existing database.
 
 3. **Provision Initial Administrator:**
    ```powershell
@@ -292,9 +295,94 @@ Write-Host "Scheduled task $TaskName successfully registered." -ForegroundColor 
    & "C:\PHP\php.exe" "C:\inetpub\wwwroot\Web_Mail_System\bin\create-admin.php"
    ```
 
+4. **Emergency Local Admin Provisioning (Offline/AD DS Unavailable):**
+   ```powershell
+   $env:ADMIN_EMAIL = "admin@couriva.local"
+   $env:ADMIN_PASSWORD = "EnterpriseAdminSecurePassword2026!"
+   $env:ADMIN_FIRST_NAME = "System"
+   $env:ADMIN_LAST_NAME = "Administrator"
+   & "C:\PHP\php.exe" "C:\inetpub\wwwroot\Web_Mail_System\bin\create-admin.php"
+   # Run this if AD DS is temporarily unreachable to create a local auth_source='local' admin
+   ```
+   > **Provisioning Policy:** Public self-registration (`public/register.php` -> HTTP 410), admin web UI user creation (`admin/create-user.php` -> HTTP 403, `admin/users.php` `create_user` -> HTTP 403), and `admin/registrations.php` (HTTP 410) are retired/disabled. Only CLI `bin/create-admin.php` provisions a local break-glass administrator.
+
 ---
 
-## 9. Verification & Cutover Checklist
+## 9. Windows Server 2019 AD DS / LDAPS Integration Checklist (couriva.local)
+
+### 9.1 PHP LDAP Extension & System PATH
+- [ ] **Add `C:\PHP` to Windows System `PATH`** (required for `php_ldap.dll` to load `libsasl.dll` under IIS FastCGI).
+  - Open **System Properties → Advanced → Environment Variables → System Variables → Path → Edit → New → `C:\PHP`**.
+  - Restart IIS (`iisreset /restart`) after adding to PATH.
+  - Verify: `php -m | findstr ldap` shows `ldap` as loaded.
+
+### 9.2 FastCGI Environment Variables (IIS)
+Configure the following in IIS FastCGI for the Couriva application pool (via `appcmd` or IIS Manager → FastCGI Settings → `C:\PHP\php-cgi.exe` → Environment Variables):
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `LDAP_ENABLED` | `true` | Enables LDAP authentication in Couriva. |
+| `LDAP_HOST` | `<AD_DC_IP_or_FQDN>` | Domain Controller IP or FQDN (e.g., `dc01.couriva.local`). |
+| `LDAP_PORT` | `636` | LDAPS port (636) or STARTTLS port (389). |
+| `LDAP_USE_SSL` | `true` | Use LDAPS (port 636). |
+| `LDAP_USE_TLS` | `false` | Use STARTTLS on port 389 (alternative to LDAPS). |
+| `LDAP_DOMAIN` | `couriva.local` | NetBIOS / DNS domain name. |
+| `LDAP_BASE_DN` | `dc=couriva,dc=local` | Base DN for user searches. |
+| `LDAP_ALLOWED_OU_DN` | `OU=CourivaUsers,DC=couriva,DC=local` | Restricts AD authentication and mailbox sync to accounts inside this OU. |
+| `LDAP_ALLOWED_GROUP_DN` | *(optional)* | Optional AD security group DN required for mailbox access (omit or leave empty to skip group filtering). |
+| `LDAP_ACCOUNT_SUFFIX` | `@couriva.local` | Configuration value; the current sign-in path binds using the submitted full email address. |
+| `LDAP_BIND_DN` | `CN=svc_couriva,OU=Service Accounts,DC=couriva,DC=local` | Service account DN for directory searches (optional if anonymous bind works). |
+| `LDAP_BIND_PASSWORD` | `<service_account_password>` | Password for the service account. |
+| `LDAP_REQUIRE_TLS` | `true` | Enforces LDAPS or STARTTLS before binding; fails closed if TLS cannot be established. |
+| `LDAP_AUTO_CREATE` | `true` | Auto-provision mailbox on first LDAP sign-in (with immutable `ad_object_guid` binding). |
+| `LDAP_ALLOW_LOCAL_ADMIN_FALLBACK` | `true` | Allows local break-glass `role='admin'` (`auth_source='local'`) login when AD DS is unreachable. |
+| `LDAP_FALLBACK_LOCAL` | `false` | Disables local `users` table fallback for regular accounts when LDAP is enabled. |
+
+Apply via PowerShell:
+```powershell
+$phpPath = "C:\PHP\php-cgi.exe"
+$appcmd = "$env:SystemRoot\system32\inetsrv\appcmd.exe"
+
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_ENABLED',value='true']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_HOST',value='dc01.couriva.local']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_PORT',value='636']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_USE_SSL',value='true']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_DOMAIN',value='couriva.local']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_BASE_DN',value='dc=couriva,dc=local']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_ALLOWED_OU_DN',value='OU=CourivaUsers,DC=couriva,DC=local']" /commit:apphost
+# Optional: restrict login to members of a specific AD group
+# & $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_ALLOWED_GROUP_DN',value='CN=CourivaMailUsers,OU=Groups,DC=couriva,DC=local']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_ACCOUNT_SUFFIX',value='@couriva.local']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_BIND_DN',value='CN=svc_couriva,OU=Service Accounts,DC=couriva,DC=local']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_BIND_PASSWORD',value='<service_account_password>']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_REQUIRE_TLS',value='true']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_AUTO_CREATE',value='true']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_ALLOW_LOCAL_ADMIN_FALLBACK',value='true']" /commit:apphost
+& $appcmd set config /section:system.webServer/fastCGI /+"[fullPath='$phpPath'].environmentVariables.[name='LDAP_FALLBACK_LOCAL',value='false']" /commit:apphost
+```
+
+### 9.3 LDAPS Certificate Trust (`C:\openldap\sysconf\ldap.conf`)
+- [ ] Obtain the AD Domain Controller's CA certificate (`.cer` or `.pem`).
+- [ ] Install it to the Windows Trusted Root Certification Authorities store (MMC → Certificates → Computer Account → Trusted Root Certification Authorities).
+- [ ] Create `C:\openldap\sysconf\ldap.conf` with:
+  ```ini
+  TLS_CACERT C:\openldap\sysconf\couriva_ca.pem
+  TLS_REQCERT demand
+  ```
+- [ ] Verify LDAPS using a real authenticated bind from the IIS host with an authorized disposable domain account. Confirm certificate validation, successful bind, and rejection when the certificate or credentials are invalid. `ldap_connect()` alone does not establish or verify a connection; do not place passwords in command-line arguments or logs.
+
+### 9.4 AD DS User Provisioning (Windows ADUC)
+- [ ] Create user accounts in **Active Directory Users and Computers (ADUC)** under `OU=CourivaUsers,DC=couriva,DC=local` (to satisfy `LDAP_ALLOWED_OU_DN`) with:
+  - `userPrincipalName`: `username@couriva.local`
+  - `mail`: `username@couriva.local`
+  - `givenName`, `sn` populated.
+- [ ] Set **Password never expires** = False (enforce domain policy).
+- [ ] Test: Sign in to Couriva with `username@couriva.local` + AD password → mailbox auto-provisioned with `auth_source='ldap'` and `ad_object_guid` synced.
+- [ ] Confirm web-based provisioning endpoints remain retired/disabled (`public/register.php` -> HTTP 410, `admin/create-user.php` -> HTTP 403, `admin/users.php` `create_user` -> HTTP 403, `admin/registrations.php` -> HTTP 410); only CLI `bin/create-admin.php` provisions a local break-glass admin.
+
+---
+
+## 10. Verification & Cutover Checklist
 
 - [ ] FastCGI handler `*.php` responds with HTTP 200 on `http://localhost/public/login.php`.
 - [ ] Attempting to access `http://localhost/config/database.php` returns **HTTP 404.8** (Hidden Segment).
@@ -305,3 +393,11 @@ Write-Host "Scheduled task $TaskName successfully registered." -ForegroundColor 
 - [ ] Changing password updates `must_change_password = 0` and grants access to `/admin/index.php`.
 - [ ] Sending a scheduled email inserts row into `scheduled_emails`.
 - [ ] Running `schtasks /run /tn "Couriva-ScheduledMailProcessor"` delivers due messages and logs result in `storage/logs/`.
+- [ ] AD DS (In-OU + `ad_object_guid` sync): Sign in with an account inside `OU=CourivaUsers,DC=couriva,DC=local` (`user@couriva.local` + AD password) → mailbox auto-provisioned with `auth_source='ldap'` and `users.ad_object_guid` populated.
+- [ ] AD DS (Out-of-OU rejection): Attempt sign-in with an AD account outside `OU=CourivaUsers,DC=couriva,DC=local` → sign-in rejected and no local user row created.
+- [ ] AD DS: Password change/reset for LDAP users blocked in Couriva UI (`public/change-password.php` and `admin/edit-user.php`) → directed to Windows Domain Controller.
+- [ ] Retired registration: `GET http://localhost/public/register.php` returns **HTTP 410** (self-registration retired).
+- [ ] Disabled web UI user creation: `POST http://localhost/admin/create-user.php` returns **HTTP 403** (and `admin/users.php` `create_user` returns **HTTP 403**; `admin/registrations.php` POST returns **HTTP 410**).
+- [ ] LDAPS: `php -m | findstr ldap` shows `ldap` loaded; `C:\PHP` in System PATH.
+- [ ] FastCGI EnvironmentVariables all present for `LDAP_*` keys (`LDAP_ALLOWED_OU_DN`, optional `LDAP_ALLOWED_GROUP_DN`, `LDAP_REQUIRE_TLS='true'`, `LDAP_ALLOW_LOCAL_ADMIN_FALLBACK='true'`, `LDAP_FALLBACK_LOCAL='false'`, `LDAP_AUTO_CREATE='true'`).
+- [ ] Emergency `bin/create-admin.php` (only supported local admin provisioning path) creates local `auth_source='local'` break-glass admin when AD DS unreachable.

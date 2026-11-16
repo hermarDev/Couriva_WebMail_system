@@ -601,16 +601,33 @@ assertSecurity(
     "HTTP {$res['http_code']}"
 );
 
-// 3.8: admin/create-user.php without CSRF token
-$adminRecord = $userModel->findByEmail('admin@couriva.local');
-$adminSession = auditSession((int)($adminRecord['id'] ?? 1), 'admin@couriva.local', 'admin');
+// 3.8: admin/create-user.php without CSRF token and with CSRF token (disabled web creation)
+$adminAuditEmail = 'audit.admin.' . time() . '@couriva.local';
+$adminAuditId = $userModel->create([
+    'email'      => $adminAuditEmail,
+    'password'   => $testPass,
+    'first_name' => 'Admin',
+    'last_name'  => 'Auditor',
+    'role'       => 'admin',
+    'status'     => 'active',
+    'must_change_password' => 0,
+]);
+$adminSession = auditSession($adminAuditId, $adminAuditEmail, 'admin', 'admin_csrf_token_38');
 $res = invokeEndpoint('admin/create-user.php', 'POST', ['email' => 'csrf.user@couriva.local', 'password' => 'Password123!', 'first_name' => 'Bad', 'last_name' => 'CSRF'], [], $adminSession);
 $csrfCreated = $userModel->findByEmail('csrf.user@couriva.local');
 assertSecurity(
-    $csrfCreated === null,
+    $csrfCreated === null && ($res['http_code'] === 403 || str_contains($res['stdout'], 'Security token')),
     'CSRF',
     'admin/create-user.php rejects POST with missing CSRF token (No user created)',
-    "Created: " . ($csrfCreated ? 'yes' : 'no')
+    "HTTP {$res['http_code']}, Created: " . ($csrfCreated ? 'yes' : 'no')
+);
+$resDisabled = invokeEndpoint('admin/create-user.php', 'POST', ['csrf_token' => 'admin_csrf_token_38', 'email' => 'disabled.user@couriva.local', 'password' => 'Password123!', 'first_name' => 'No', 'last_name' => 'Create'], [], $adminSession);
+$disabledCreated = $userModel->findByEmail('disabled.user@couriva.local');
+assertSecurity(
+    $disabledCreated === null && $resDisabled['http_code'] === 403,
+    'AuthZ',
+    'admin/create-user.php disables web user creation even with valid admin CSRF token (HTTP 403)',
+    "HTTP {$resDisabled['http_code']}, Created: " . ($disabledCreated ? 'yes' : 'no')
 );
 
 // 3.9: admin/edit-user.php without CSRF token
@@ -1002,7 +1019,7 @@ assertSecurity(
 // -----------------------------------------------------------------------------
 // Teardown: Clean up Auditor Test Users
 // -----------------------------------------------------------------------------
-$pdo->prepare("DELETE FROM users WHERE id IN (?, ?, ?)")->execute([$aliceId, $bobId, $eveId]);
+$pdo->prepare("DELETE FROM users WHERE id IN (?, ?, ?, ?)")->execute([$aliceId, $bobId, $eveId, $adminAuditId]);
 
 echo "\n====================================================================\n";
 echo "                      SECURITY AUDIT SUMMARY                        \n";

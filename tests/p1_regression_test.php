@@ -398,20 +398,24 @@ try {
     $sessionUser = $makeUser('session');
 
     // ==================================================================
-    // H1 - Secure registration workflow and role/status validation
+    // H1 - Self-registration and web user creation retired (AD / CLI only)
     // ==================================================================
-    echo "--- H1: Registration and role/status validation ---\n";
+    echo "--- H1: Registration retirement and role/status validation ---\n";
 
     $registerPath = $projectRoot . '/public/register.php';
-    assertP1(is_file($registerPath), 'H1 public/register.php exists for secure account requests');
+    assertP1(is_file($registerPath), 'H1 public/register.php exists as retired AD-guidance endpoint');
     $registerSource = is_file($registerPath) ? (string)file_get_contents($registerPath) : '';
-    assertP1(str_contains($registerSource, "'status' => 'active'"), 'H1 registration creates an active account');
-    assertP1(str_contains($registerSource, 'verify_csrf_token'), 'H1 registration verifies CSRF tokens');
-    assertP1(str_contains($registerSource, 'registration_is_throttled'), 'H1 registration is rate limited');
+    assertP1(!str_contains($registerSource, '->create(') && !str_contains($registerSource, 'User::create'), 'H1 registration never invokes User::create');
+
+    $registerGet = invokeP1Endpoint('public/register.php', 'GET');
+    assertP1($registerGet['status'] === 410, 'H1 GET public/register.php returns HTTP 410', 'status=' . $registerGet['status']);
+    $registerPost = invokeP1Endpoint('public/register.php', 'POST', [], ['username' => 'attacker', 'password' => 'P1-Test-Password-123!']);
+    assertP1($registerPost['status'] === 410, 'H1 POST public/register.php returns HTTP 410', 'status=' . $registerPost['status']);
 
     $loginSource = (string)file_get_contents($projectRoot . '/public/login.php');
-    assertP1(str_contains($loginSource, 'register.php'), 'H1 login page links to account creation');
-    assertP1(str_contains($loginSource, 'Create account'), 'H1 login page offers the create-account action');
+    assertP1(!str_contains($loginSource, 'register.php'), 'H1 login page does not link to register.php');
+    assertP1(!str_contains($loginSource, 'Create account'), 'H1 login page removes Create account action');
+    assertP1(str_contains($loginSource, 'Active Directory'), 'H1 login page provides Active Directory guidance');
     assertP1(!preg_match('/Admin123!|User123!/', $loginSource), 'H1 login page exposes no demo credentials');
 
     $authServiceSource = (string)file_get_contents($projectRoot . '/app/Services/AuthService.php');
@@ -424,63 +428,104 @@ try {
     assertP1(!is_valid_user_status('banned') && !is_valid_user_status(''), 'H1 unknown statuses rejected');
 
     $adminSession = p1Session($admin);
-    $badRoleEmail = 'p1.badrole.' . $suffix . '@couriva.local';
-    $badRole = invokeP1Endpoint('admin/create-user.php', 'POST', [], [
+    $disabledCreateEmail = 'p1.disabledcreate.' . $suffix . '@couriva.local';
+    $disabledCreate = invokeP1Endpoint('admin/create-user.php', 'POST', [], [
         'csrf_token' => $adminSession['csrf_token'],
-        'email'      => $badRoleEmail,
+        'email'      => $disabledCreateEmail,
         'password'   => 'Valid-Password-123!',
-        'first_name' => 'Bad',
-        'last_name'  => 'Role',
-        'role'       => 'superadmin',
+        'first_name' => 'Disabled',
+        'last_name'  => 'Create',
+        'role'       => 'user',
         'status'     => 'active',
         'timezone'   => 'UTC',
     ], $adminSession);
-    assertP1(str_contains($badRole['body'], 'Invalid role or account status selection.'), 'H1 server rejects invalid role on create-user', 'status=' . $badRole['status']);
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE email = ?');
-    $stmt->execute([$badRoleEmail]);
-    assertP1((int)$stmt->fetchColumn() === 0, 'H1 invalid role account was not created');
+    $stmt->execute([$disabledCreateEmail]);
+    assertP1($disabledCreate['status'] === 403, 'H1 admin/create-user.php rejects POST with HTTP 403', 'status=' . $disabledCreate['status']);
+    assertP1((int)$stmt->fetchColumn() === 0, 'H1 admin/create-user.php creates no database user on POST');
+    assertP1(str_contains($disabledCreate['body'], 'Active Directory') && str_contains($disabledCreate['body'], 'bin/create-admin.php'), 'H1 admin/create-user.php explains AD/CLI provisioning policy');
 
-    $badStatusEmail = 'p1.badstatus.' . $suffix . '@couriva.local';
-    $badStatus = invokeP1Endpoint('admin/create-user.php', 'POST', [], [
+    $disabledModalEmail = 'p1.disabledmodal.' . $suffix . '@couriva.local';
+    $disabledModalCreate = invokeP1Endpoint('admin/users.php', 'POST', [], [
         'csrf_token' => $adminSession['csrf_token'],
-        'email'      => $badStatusEmail,
+        'action'     => 'create_user',
+        'email'      => $disabledModalEmail,
         'password'   => 'Valid-Password-123!',
-        'first_name' => 'Bad',
-        'last_name'  => 'Status',
-        'role'       => 'user',
-        'status'     => 'banned',
-        'timezone'   => 'UTC',
-    ], $adminSession);
-    assertP1(str_contains($badStatus['body'], 'Invalid role or account status selection.'), 'H1 server rejects invalid status on create-user', 'status=' . $badStatus['status']);
-    $stmt->execute([$badStatusEmail]);
-    assertP1((int)$stmt->fetchColumn() === 0, 'H1 invalid status account was not created');
-
-    $validEmail = 'p1.valid.' . $suffix . '@couriva.local';
-    $validCreate = invokeP1Endpoint('admin/create-user.php', 'POST', [], [
-        'csrf_token' => $adminSession['csrf_token'],
-        'email'      => $validEmail,
-        'password'   => 'Valid-Password-123!',
-        'first_name' => 'Valid',
-        'last_name'  => 'Created',
+        'first_name' => 'Disabled',
+        'last_name'  => 'Modal',
         'role'       => 'user',
         'status'     => 'active',
         'timezone'   => 'UTC',
     ], $adminSession);
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-    $stmt->execute([$validEmail]);
-    $validUser = $stmt->fetch();
-    if ($validUser) {
-        $createdUserIds[] = (int)$validUser['id'];
-    }
-    assertP1($validUser !== false, 'H1 server accepts a valid role/status combination', 'status=' . $validCreate['status']);
-    assertP1($validUser && (int)$validUser['must_change_password'] === 1, 'H1 admin-created account is forced to change password');
+    $stmt->execute([$disabledModalEmail]);
+    assertP1($disabledModalCreate['status'] === 403, 'H1 admin/users.php rejects action=create_user with HTTP 403', 'status=' . $disabledModalCreate['status']);
+    assertP1((int)$stmt->fetchColumn() === 0, 'H1 admin/users.php creates no database user for action=create_user');
 
     $usersSource = (string)file_get_contents($projectRoot . '/admin/users.php');
     $editUserSource = (string)file_get_contents($projectRoot . '/admin/edit-user.php');
     $createUserSource = (string)file_get_contents($projectRoot . '/admin/create-user.php');
     assertP1(str_contains($usersSource, 'is_valid_user_role') && str_contains($usersSource, 'is_valid_user_status'), 'H1 admin/users.php validates role and status');
     assertP1(str_contains($editUserSource, 'is_valid_user_role') && str_contains($editUserSource, 'is_valid_user_status'), 'H1 admin/edit-user.php validates role and status');
-    assertP1(str_contains($createUserSource, 'is_valid_user_role') && str_contains($createUserSource, 'is_valid_user_status'), 'H1 admin/create-user.php validates role and status');
+    assertP1(str_contains($createUserSource, 'require_admin') && str_contains($createUserSource, 'verify_csrf_token') && !str_contains($createUserSource, '->create('), 'H1 admin/create-user.php enforces auth/CSRF and omits User::create');
+
+    assertP1(
+        str_contains($usersSource, 'findById($targetId)')
+        && str_contains($usersSource, "auth_source'] ?? 'local') === 'local'")
+        && str_contains($usersSource, 'Local users cannot be promoted to administrator via the web UI.'),
+        'H1 admin/users.php blocks local-user-to-admin promotion'
+    );
+    assertP1(
+        str_contains($editUserSource, 'findById($targetId)')
+        && str_contains($editUserSource, "auth_source'] ?? 'local') === 'local'")
+        && str_contains($editUserSource, 'Local users cannot be promoted to administrator via the web UI.'),
+        'H1 admin/edit-user.php blocks local-user-to-admin promotion'
+    );
+
+    $localPromoTarget = $makeUser('localpromo', 'user', ['auth_source' => 'local']);
+    $roleCheckStmt = $pdo->prepare('SELECT role FROM users WHERE id = ?');
+
+    $usersPromoAttempt = invokeP1Endpoint('admin/users.php', 'POST', [], [
+        'csrf_token' => $adminSession['csrf_token'],
+        'action'     => 'update_user',
+        'user_id'    => (int)$localPromoTarget['id'],
+        'first_name' => 'Local',
+        'last_name'  => 'Promo',
+        'role'       => 'admin',
+        'status'     => 'active',
+        'timezone'   => 'UTC',
+    ], $adminSession);
+    $roleCheckStmt->execute([(int)$localPromoTarget['id']]);
+    assertP1($usersPromoAttempt['status'] === 403, 'H1 admin/users.php rejects local-to-admin promotion with HTTP 403', 'status=' . $usersPromoAttempt['status']);
+    assertP1(str_contains($usersPromoAttempt['body'], 'Local users cannot be promoted to administrator via the web UI.'), 'H1 admin/users.php renders local-to-admin rejection message');
+    assertP1($roleCheckStmt->fetchColumn() === 'user', 'H1 admin/users.php preserves local user role on blocked promotion');
+
+    $editPromoAttempt = invokeP1Endpoint('admin/edit-user.php', 'POST', ['id' => (int)$localPromoTarget['id']], [
+        'csrf_token' => $adminSession['csrf_token'],
+        'action'     => 'update_profile',
+        'first_name' => 'Local',
+        'last_name'  => 'Promo',
+        'role'       => 'admin',
+        'status'     => 'active',
+        'timezone'   => 'UTC',
+    ], $adminSession);
+    $roleCheckStmt->execute([(int)$localPromoTarget['id']]);
+    assertP1($editPromoAttempt['status'] === 403, 'H1 admin/edit-user.php rejects local-to-admin promotion with HTTP 403', 'status=' . $editPromoAttempt['status']);
+    assertP1(str_contains($editPromoAttempt['body'], 'Local users cannot be promoted to administrator via the web UI.'), 'H1 admin/edit-user.php renders local-to-admin rejection message');
+    assertP1($roleCheckStmt->fetchColumn() === 'user', 'H1 admin/edit-user.php preserves local user role on blocked promotion');
+
+    $ldapPromoTarget = $makeUser('ldappromo', 'user', ['auth_source' => 'ldap']);
+    invokeP1Endpoint('admin/users.php', 'POST', [], [
+        'csrf_token' => $adminSession['csrf_token'],
+        'action'     => 'update_user',
+        'user_id'    => (int)$ldapPromoTarget['id'],
+        'first_name' => 'Ldap',
+        'last_name'  => 'Promo',
+        'role'       => 'admin',
+        'status'     => 'active',
+        'timezone'   => 'UTC',
+    ], $adminSession);
+    $roleCheckStmt->execute([(int)$ldapPromoTarget['id']]);
+    assertP1($roleCheckStmt->fetchColumn() === 'admin', 'H1 admin/users.php still permits LDAP user promotion to admin');
 
     // ==================================================================
     // H2 - No default credentials; forced first-login password change

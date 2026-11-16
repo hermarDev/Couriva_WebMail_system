@@ -14,45 +14,17 @@ require_admin();
 
 $userModel = new \App\Models\User($pdo);
 
-// Handle POST actions: create_user, update_user, toggle_status, delete
+// Handle POST actions: update_user, toggle_status, delete (create_user disabled)
+$shouldRedirect = true;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (verify_csrf_token()) {
         $action = $_POST['action'] ?? '';
         $targetId = (int)($_POST['user_id'] ?? 0);
 
         if ($action === 'create_user') {
-            $email = trim($_POST['email'] ?? '');
-            $password = $_POST['password'] ?? '';
-            $firstName = trim($_POST['first_name'] ?? '');
-            $lastName = trim($_POST['last_name'] ?? '');
-            $role = $_POST['role'] ?? 'user';
-            $status = $_POST['status'] ?? 'active';
-            $timezone = $_POST['timezone'] ?? 'UTC';
-
-            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                set_flash('danger', 'A valid email address is required.');
-            } elseif (!is_valid_password_complexity($password)) {
-                set_flash('danger', 'Password must be at least 10 characters and include uppercase, lowercase, number, and symbol.');
-            } elseif (empty($firstName) || empty($lastName)) {
-                set_flash('danger', 'First name and last name are required.');
-            } elseif (!is_valid_user_role($role) || !is_valid_user_status($status)) {
-                set_flash('danger', 'Invalid role or account status selection.');
-            } elseif ($userModel->findByEmail($email)) {
-                set_flash('danger', 'A user account with this email address already exists.');
-            } else {
-                $newId = $userModel->create([
-                    'email'      => $email,
-                    'password'   => $password,
-                    'first_name' => $firstName,
-                    'last_name'  => $lastName,
-                    'role'       => $role,
-                    'status'     => $status,
-                    'timezone'   => $timezone,
-                    'must_change_password' => 1,
-                ]);
-                log_activity($_SESSION['user_id'], 'USER_CREATED', 'SUCCESS', "Created new user account: {$email} (ID: {$newId})");
-                set_flash('success', "User account {$email} has been provisioned.");
-            }
+            http_response_code(403);
+            set_flash('danger', 'Web UI user creation is disabled. Provision domain users in Windows Active Directory (OU=CourivaUsers,DC=couriva,DC=local) or run php bin/create-admin.php for emergency local administrator access.');
+            $shouldRedirect = false;
         } elseif ($action === 'update_user' && $targetId > 0) {
             $firstName = trim($_POST['first_name'] ?? '');
             $lastName = trim($_POST['last_name'] ?? '');
@@ -65,15 +37,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (!is_valid_user_role($role) || !is_valid_user_status($status)) {
                 set_flash('danger', 'Invalid role or account status selection.');
             } else {
-                $userModel->update($targetId, [
-                    'first_name' => $firstName,
-                    'last_name'  => $lastName,
-                    'role'       => $role,
-                    'status'     => $status,
-                    'timezone'   => $timezone,
-                ]);
-                log_activity($_SESSION['user_id'], 'USER_UPDATED', 'SUCCESS', "Updated details for user ID {$targetId}");
-                set_flash('success', "User details updated successfully.");
+                $target = $userModel->findById($targetId);
+                if (!$target) {
+                    set_flash('danger', 'User not found.');
+                } elseif (($target['auth_source'] ?? 'local') === 'local' && ($target['role'] ?? 'user') !== 'admin' && $role === 'admin') {
+                    http_response_code(403);
+                    log_activity($_SESSION['user_id'], 'USER_ROLE_PROMOTION_BLOCKED', 'FAILED', "Blocked web UI promotion of local user ID {$targetId} to admin");
+                    set_flash('danger', 'Local users cannot be promoted to administrator via the web UI. Provision break-glass local administrators via php bin/create-admin.php.');
+                    $shouldRedirect = false;
+                } else {
+                    $userModel->update($targetId, [
+                        'first_name' => $firstName,
+                        'last_name'  => $lastName,
+                        'role'       => $role,
+                        'status'     => $status,
+                        'timezone'   => $timezone,
+                    ]);
+                    log_activity($_SESSION['user_id'], 'USER_UPDATED', 'SUCCESS', "Updated details for user ID {$targetId}");
+                    set_flash('success', "User details updated successfully.");
+                }
             }
         } elseif ($targetId > 0 && $targetId !== (int)$_SESSION['user_id']) {
             if ($action === 'toggle_status') {
@@ -91,8 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    header('Location: ' . app_base_url('admin/users.php'));
-    exit;
+    if ($shouldRedirect) {
+        header('Location: ' . app_base_url('admin/users.php'));
+        exit;
+    }
 }
 
 $users = $userModel->getAll(100, 0);
@@ -104,17 +88,20 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
     <div>
         <h4 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>User Governance</h4>
-        <p class="text-muted small mb-0">Create, monitor, edit, and configure system accounts</p>
+        <p class="text-muted small mb-0">Monitor, edit, and configure system accounts</p>
     </div>
     <div class="d-flex gap-2">
         <a href="<?= app_base_url('admin/index.php') ?>" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
             <i class="bi bi-arrow-left"></i>
             <span>Dashboard</span>
         </a>
-        <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#createUserModal">
-            <i class="bi bi-person-plus-fill"></i>
-            <span>Add New User</span>
-        </button>
+    </div>
+</div>
+
+<div class="alert alert-light border d-flex align-items-start gap-2 mb-4" role="note">
+    <i class="bi bi-shield-lock text-primary mt-1"></i>
+    <div class="small text-body-secondary">
+        <strong>Active Directory provisioning:</strong> Normal user accounts are provisioned in Windows Active Directory (<code>OU=CourivaUsers,DC=couriva,DC=local</code>) and sync automatically on sign-in. For emergency break-glass local administrator access, run <code>php bin/create-admin.php</code> on the server CLI.
     </div>
 </div>
 
@@ -221,74 +208,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
-</div>
-
-<!-- Modal: Create New User -->
-<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <form method="POST" action="<?= app_base_url('admin/users.php') ?>" class="modal-content">
-            <?= csrf_field() ?>
-            <input type="hidden" name="action" value="create_user">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel"><i class="bi bi-person-plus text-primary me-2"></i>Provision New Account</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">First Name *</label>
-                        <input type="text" class="form-control" name="first_name" required placeholder="Enter first name">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Last Name *</label>
-                        <input type="text" class="form-control" name="last_name" required placeholder="Enter last name">
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Email Address *</label>
-                        <input type="email" class="form-control" name="email" required placeholder="username@couriva.local">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="modalCreatePassword" class="form-label fw-semibold">Password *</label>
-                        <div class="input-group"><input type="password" class="form-control" id="modalCreatePassword" name="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show password" aria-controls="modalCreatePassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
-                    </div>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Role</label>
-                        <select class="form-select" name="role">
-                            <option value="user" selected>Standard User</option>
-                            <option value="admin">Administrator</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Status</label>
-                        <select class="form-select" name="status">
-                            <option value="active" selected>Active</option>
-                            <option value="disabled">Disabled</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Timezone</label>
-                        <select class="form-select" name="timezone">
-                            <option value="UTC" selected>UTC</option>
-                            <option value="America/New_York">America/New_York</option>
-                            <option value="Europe/London">Europe/London</option>
-                            <option value="Asia/Tokyo">Asia/Tokyo</option>
-                            <option value="Asia/Manila">Asia/Manila</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary px-4">Create Account</button>
-            </div>
-        </form>
     </div>
 </div>
 

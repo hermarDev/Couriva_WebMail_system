@@ -42,18 +42,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (!is_valid_user_role($role) || !is_valid_user_status($status)) {
                 $error = 'Invalid role or account status selection.';
             } else {
-                $userModel->update($targetId, [
-                    'first_name' => $firstName,
-                    'last_name'  => $lastName,
-                    'role'       => $role,
-                    'status'     => $status,
-                    'timezone'   => $timezone,
-                ]);
+                $target = $userModel->findById($targetId);
+                if (!$target) {
+                    $error = 'User not found.';
+                } elseif (($target['auth_source'] ?? 'local') === 'local' && ($target['role'] ?? 'user') !== 'admin' && $role === 'admin') {
+                    http_response_code(403);
+                    log_activity($_SESSION['user_id'], 'USER_ROLE_PROMOTION_BLOCKED', 'FAILED', "Blocked web UI promotion of local user ID {$targetId} to admin");
+                    $error = 'Local users cannot be promoted to administrator via the web UI. Provision break-glass local administrators via php bin/create-admin.php.';
+                } else {
+                    $userModel->update($targetId, [
+                        'first_name' => $firstName,
+                        'last_name'  => $lastName,
+                        'role'       => $role,
+                        'status'     => $status,
+                        'timezone'   => $timezone,
+                    ]);
 
-                log_activity($_SESSION['user_id'], 'USER_UPDATED', 'SUCCESS', "Updated profile for user ID {$targetId}");
-                set_flash('success', "Account details for {$targetUser['email']} updated.");
-                header('Location: ' . app_base_url('admin/users.php'));
-                exit;
+                    log_activity($_SESSION['user_id'], 'USER_UPDATED', 'SUCCESS', "Updated profile for user ID {$targetId}");
+                    set_flash('success', "Account details for {$targetUser['email']} updated.");
+                    header('Location: ' . app_base_url('admin/users.php'));
+                    exit;
+                }
             }
         } elseif ($action === 'reset_password') {
             $newPass = $_POST['new_password'] ?? '';
@@ -149,19 +158,25 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <h6 class="mb-0 fw-bold"><i class="bi bi-key text-warning me-2"></i>Reset User Password</h6>
             </div>
             <div class="card-body p-4">
-                <form method="POST" action="<?= app_base_url('admin/edit-user.php?id=' . $targetUser['id']) ?>">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="action" value="reset_password">
-
-                    <div class="mb-3">
-                        <label for="adminResetPassword" class="form-label fw-semibold">New Password for <?= e($targetUser['email']) ?></label>
-                        <div class="input-group"><input type="password" class="form-control" id="adminResetPassword" name="new_password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="adminResetPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                <?php if (($targetUser['auth_source'] ?? 'local') === 'ldap'): ?>
+                    <div class="alert alert-info mb-0" role="note">
+                        This user is managed by Windows Active Directory. Passwords must be reset in the Windows Domain Controller.
                     </div>
+                <?php else: ?>
+                    <form method="POST" action="<?= app_base_url('admin/edit-user.php?id=' . $targetUser['id']) ?>">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="action" value="reset_password">
 
-                    <button type="submit" class="btn btn-outline-warning fw-semibold">
-                        <i class="bi bi-arrow-repeat me-1"></i> Reset Password
-                    </button>
-                </form>
+                        <div class="mb-3">
+                            <label for="adminResetPassword" class="form-label fw-semibold">New Password for <?= e($targetUser['email']) ?></label>
+                            <div class="input-group"><input type="password" class="form-control" id="adminResetPassword" name="new_password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="adminResetPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show new password</span></button></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-warning fw-semibold">
+                            <i class="bi bi-arrow-repeat me-1"></i> Reset Password
+                        </button>
+                    </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>

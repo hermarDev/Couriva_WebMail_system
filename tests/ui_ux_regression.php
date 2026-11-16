@@ -4,7 +4,7 @@ $root = dirname(__DIR__);
 $login = file_get_contents($root . '/public/login.php');
 $js = file_get_contents($root . '/assets/js/app.js');
 $header = file_get_contents($root . '/includes/header.php');
-$passwordPages = ['public/login.php', 'public/change-password.php', 'public/settings.php', 'admin/create-user.php', 'admin/edit-user.php', 'admin/users.php'];
+$passwordPages = ['public/login.php', 'public/change-password.php', 'public/settings.php', 'admin/edit-user.php'];
 $passwordCoverage = true;
 foreach ($passwordPages as $page) {
     $source = file_get_contents($root . '/' . $page);
