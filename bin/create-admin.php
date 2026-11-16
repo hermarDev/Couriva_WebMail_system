@@ -44,10 +44,15 @@ try {
     $existing = $userModel->findByEmail($email);
 
     if ($existing) {
+        if (($existing['auth_source'] ?? 'local') === 'ldap') {
+            fwrite(STDERR, "Refusing to convert Active Directory account {$email} into a local break-glass administrator.\n");
+            exit(1);
+        }
         $userModel->updatePassword((int)$existing['id'], $password, true);
         $userModel->update((int)$existing['id'], [
-            'role'   => 'admin',
-            'status' => 'active',
+            'role'        => 'admin',
+            'status'      => 'active',
+            'auth_source' => 'local',
         ]);
         fwrite(STDOUT, "Updated administrator {$email}. A password change is required at first login.\n");
         exit(0);
@@ -60,6 +65,7 @@ try {
         'last_name'             => $lastName !== '' ? $lastName : 'Administrator',
         'role'                  => 'admin',
         'status'                => 'active',
+        'auth_source'           => 'local',
         'timezone'              => 'UTC',
         'must_change_password'  => 1,
     ]);

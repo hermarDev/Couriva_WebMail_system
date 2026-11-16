@@ -43,6 +43,18 @@ $userId = $userModel->create([
     'theme'      => 'light',
 ]);
 
+$adminEmail = 'ldap.breakglass.' . time() . '@couriva.local';
+$adminId = $userModel->create([
+    'email'       => $adminEmail,
+    'password'    => $password,
+    'first_name'  => 'BreakGlass',
+    'last_name'   => 'Admin',
+    'role'        => 'admin',
+    'status'      => 'active',
+    'auth_source' => 'local',
+    'theme'       => 'light',
+]);
+
 // 1. LDAP config disabled
 $authServiceDisabled = new \App\Services\AuthService($pdo, ['enabled' => false]);
 $resDisabled = $authServiceDisabled->authenticate($testEmail, $password);
@@ -51,32 +63,44 @@ assertLdapTest(
     "LDAP Disabled: Successfully authenticates against local MariaDB with auth_source = local"
 );
 
-// 2. LDAP config enabled with non-existent server + fallback_to_local = true
+// 2. LDAP Server unreachable + allow_local_admin_fallback = true:
+//    normal role='user' MUST be rejected, while local role='admin' falls back
 $authServiceFallback = new \App\Services\AuthService($pdo, [
-    'enabled'           => true,
-    'host'              => '127.0.0.1',
-    'port'              => 38999, // unreachable port
-    'timeout'           => 1,
-    'fallback_to_local' => true,
+    'enabled'                    => true,
+    'host'                       => '127.0.0.1',
+    'port'                       => 38999, // unreachable port
+    'use_tls'                    => true,
+    'require_tls'                => true,
+    'timeout'                    => 1,
+    'fallback_to_local'          => true,
+    'allow_local_admin_fallback' => true,
 ]);
-$resFallback = $authServiceFallback->authenticate($testEmail, $password);
+$resUserBlocked = $authServiceFallback->authenticate($testEmail, $password);
 assertLdapTest(
-    !empty($resFallback['success']) && $resFallback['auth_source'] === 'local',
-    "LDAP Server unreachable: Gracefully falls back to local MariaDB authentication"
+    empty($resUserBlocked['success']),
+    "LDAP Enabled: Normal local user (role=user) is blocked from local fallback when domain server unreachable"
+);
+$resAdminFallback = $authServiceFallback->authenticate($adminEmail, $password);
+assertLdapTest(
+    !empty($resAdminFallback['success']) && $resAdminFallback['auth_source'] === 'local',
+    "LDAP Server unreachable: Break-glass local admin (role=admin) falls back to local MariaDB authentication"
 );
 
-// 3. LDAP config enabled + fallback_to_local = false
+// 3. LDAP config enabled + fallback disabled (both fallback_to_local and allow_local_admin_fallback = false)
 $authServiceNoFallback = new \App\Services\AuthService($pdo, [
-    'enabled'           => true,
-    'host'              => '127.0.0.1',
-    'port'              => 38999,
-    'timeout'           => 1,
-    'fallback_to_local' => false,
+    'enabled'                    => true,
+    'host'                       => '127.0.0.1',
+    'port'                       => 38999,
+    'use_tls'                    => true,
+    'require_tls'                => true,
+    'timeout'                    => 1,
+    'fallback_to_local'          => false,
+    'allow_local_admin_fallback' => false,
 ]);
-$resNoFallback = $authServiceNoFallback->authenticate($testEmail, $password);
+$resNoFallback = $authServiceNoFallback->authenticate($adminEmail, $password);
 assertLdapTest(
     empty($resNoFallback['success']),
-    "LDAP Enabled without fallback: Rejects authentication when domain server unreachable"
+    "LDAP Enabled without fallback: Rejects even local admin when fallback flags are false"
 );
 
 // 4. Disabled local user check
@@ -88,7 +112,7 @@ assertLdapTest(
 );
 
 // Clean up
-$pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$userId]);
+$pdo->prepare("DELETE FROM users WHERE id IN (?, ?)")->execute([$userId, $adminId]);
 
 echo "\n=== LDAP Test Results: {$passed} passed, {$failed} failed ===\n";
 exit($failed === 0 ? 0 : 1);

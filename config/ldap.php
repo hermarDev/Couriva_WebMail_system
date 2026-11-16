@@ -24,8 +24,8 @@ return [
     */
     'host'    => getenv('LDAP_HOST') !== false ? getenv('LDAP_HOST') : '127.0.0.1',
     'port'    => getenv('LDAP_PORT') !== false ? (int)getenv('LDAP_PORT') : 389,
-    'use_ssl' => getenv('LDAP_USE_SSL') === 'true',
-    'use_tls' => getenv('LDAP_USE_TLS') === 'true',
+    'use_ssl' => getenv('LDAP_USE_SSL') === 'true' || getenv('LDAP_USE_SSL') === '1',
+    'use_tls' => getenv('LDAP_USE_TLS') === 'true' || getenv('LDAP_USE_TLS') === '1',
     'timeout' => getenv('LDAP_TIMEOUT') !== false ? (int)getenv('LDAP_TIMEOUT') : 10,
 
     /*
@@ -53,7 +53,13 @@ return [
     'user_filter'       => getenv('LDAP_USER_FILTER') !== false 
         ? getenv('LDAP_USER_FILTER') 
         : '(&(objectClass=user)(|(mail={email})(userPrincipalName={email})(sAMAccountName={username})))',
-    'fallback_to_local' => getenv('LDAP_FALLBACK_LOCAL') !== 'false',
-    'auto_create_user'  => getenv('LDAP_AUTO_CREATE') !== 'false',
-    'default_role'      => 'user',
+    'allowed_ou_dn'              => trim((string)getenv('LDAP_ALLOWED_OU_DN')) !== ''
+        ? trim((string)getenv('LDAP_ALLOWED_OU_DN'))
+        : 'OU=CourivaUsers,DC=couriva,DC=local',
+    'allowed_group_dn'           => getenv('LDAP_ALLOWED_GROUP_DN') !== false ? getenv('LDAP_ALLOWED_GROUP_DN') : '',
+    'require_tls'                => getenv('LDAP_REQUIRE_TLS') !== 'false',
+    'allow_local_admin_fallback' => getenv('LDAP_ALLOW_LOCAL_ADMIN_FALLBACK') !== 'false',
+    'fallback_to_local'          => getenv('LDAP_FALLBACK_LOCAL') === 'true' || getenv('LDAP_FALLBACK_LOCAL') === '1',
+    'auto_create_user'           => getenv('LDAP_AUTO_CREATE') !== 'false',
+    'default_role'               => 'user',
 ];

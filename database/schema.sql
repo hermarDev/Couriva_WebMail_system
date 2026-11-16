@@ -47,6 +47,7 @@ CREATE TABLE `users` (
     `status` ENUM('active', 'disabled', 'pending', 'rejected', 'suspended') NOT NULL DEFAULT 'active',
     `avatar` VARCHAR(255) NULL DEFAULT NULL,
     `auth_source` ENUM('local', 'ldap') NOT NULL DEFAULT 'local',
+    `ad_object_guid` VARCHAR(36) NULL DEFAULT NULL,
     `signature` TEXT NULL DEFAULT NULL,
     `timezone` VARCHAR(100) NOT NULL DEFAULT 'UTC',
     `theme` VARCHAR(20) NOT NULL DEFAULT 'light',
@@ -62,7 +63,8 @@ CREATE TABLE `users` (
     INDEX `idx_users_email` (`email`),
     INDEX `idx_users_role` (`role`),
     INDEX `idx_users_status` (`status`),
-    INDEX `idx_users_auth_source` (`auth_source`)
+    INDEX `idx_users_auth_source` (`auth_source`),
+    UNIQUE KEY `uq_users_ad_object_guid` (`ad_object_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------

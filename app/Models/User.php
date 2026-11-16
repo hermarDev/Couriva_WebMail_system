@@ -32,11 +32,26 @@ class User
         return $user ?: null;
     }
 
+    public function findByAdObjectGuid(string $guid): ?array
+    {
+        $normalized = trim(strtolower($guid));
+        if ($normalized === '') {
+            return null;
+        }
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE ad_object_guid = ? LIMIT 1");
+        $stmt->execute([$normalized]);
+        $user = $stmt->fetch();
+        return $user ?: null;
+    }
+
     public function create(array $data): int
     {
+        $adGuid = isset($data['ad_object_guid']) && trim((string)$data['ad_object_guid']) !== ''
+            ? trim(strtolower((string)$data['ad_object_guid']))
+            : null;
         $stmt = $this->pdo->prepare("
-            INSERT INTO users (email, password, first_name, last_name, role, status, signature, timezone, theme, must_change_password, session_epoch, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())
+            INSERT INTO users (email, password, first_name, last_name, role, status, auth_source, ad_object_guid, signature, timezone, theme, must_change_password, session_epoch, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())
         ");
         $stmt->execute([
             trim(strtolower($data['email'])),
@@ -45,6 +60,8 @@ class User
             trim($data['last_name']),
             $data['role'] ?? 'user',
             $data['status'] ?? 'active',
+            in_array($data['auth_source'] ?? 'local', ['local', 'ldap'], true) ? ($data['auth_source'] ?? 'local') : 'local',
+            $adGuid,
             $data['signature'] ?? null,
             $data['timezone'] ?? 'UTC',
             $data['theme'] ?? 'light',
@@ -73,6 +90,13 @@ class User
             }
         }
 
+        if (isset($data['email'])) {
+            $email = trim(strtolower((string)$data['email']));
+            if ($email !== '') {
+                $fields[] = "email = ?";
+                $params[] = $email;
+            }
+        }
         if (isset($data['first_name'])) {
             $fields[] = "first_name = ?";
             $params[] = trim($data['first_name']);
@@ -108,6 +132,13 @@ class User
         if (isset($data['auth_source']) && in_array($data['auth_source'], ['local', 'ldap'], true)) {
             $fields[] = "auth_source = ?";
             $params[] = $data['auth_source'];
+        }
+        if (array_key_exists('ad_object_guid', $data)) {
+            $adGuid = $data['ad_object_guid'] !== null && trim((string)$data['ad_object_guid']) !== ''
+                ? trim(strtolower((string)$data['ad_object_guid']))
+                : null;
+            $fields[] = "ad_object_guid = ?";
+            $params[] = $adGuid;
         }
 
         if (empty($fields)) {
