@@ -21,7 +21,10 @@ $checks = [
         && str_contains($login, '>Login</button>'),
     'no segmented nav pills' => !str_contains($login, 'auth-nav-pills'),
     'no Sign in terminology' => !str_contains($login, 'Sign in'),
-    'create account link at bottom' => str_contains($login, "Don't have an account?") && str_contains($login, 'Create account'),
+    'no self-registration or create account link' => !str_contains($login, 'register.php')
+        && !str_contains($login, 'Create account'),
+    'active directory guidance note present' => str_contains($login, 'auth-note')
+        && str_contains($login, 'Accounts and password resets are managed in Windows Active Directory by your administrator.'),
     'administrator-managed recovery note present' => str_contains($login, 'auth-recovery-note')
         && str_contains($login, 'Password resets are managed by a Couriva administrator.'),
     'no forgot or reset endpoint linked' => !preg_match('/href\s*=\s*["\'][^"\']*(forgot|reset\.php)/i', $login),

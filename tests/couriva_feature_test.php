@@ -412,9 +412,13 @@ try {
     // ------------------------------------------------------------------
     echo "\n--- Routes ---\n";
     $projectRoot = dirname(__DIR__);
-    foreach (['public/notifications.php', 'public/scheduled.php', 'public/register.php', 'admin/registrations.php', 'admin/spam-reports.php', 'bin/process_scheduled.php'] as $file) {
+    foreach (['public/notifications.php', 'public/scheduled.php', 'admin/spam-reports.php', 'bin/process_scheduled.php'] as $file) {
         assertCouriva(is_file($projectRoot . '/' . $file), 'Route or worker exists: ' . $file);
     }
+    $registerSource = (string)file_get_contents($projectRoot . '/public/register.php');
+    $registrationsSource = (string)file_get_contents($projectRoot . '/admin/registrations.php');
+    assertCouriva(str_contains($registerSource, 'http_response_code(410)') && str_contains($registerSource, 'Active Directory'), 'Self-registration endpoint is retired (HTTP 410, AD-managed)');
+    assertCouriva(str_contains($registrationsSource, 'http_response_code(410)') && str_contains($registrationsSource, 'Active Directory'), 'Admin registration approval queue is retired (HTTP 410, AD-managed)');
 
     $headerSource = (string)file_get_contents($projectRoot . '/includes/header.php');
     assertCouriva(str_contains($headerSource, 'public/notifications.php'), 'Header exposes the notification center');

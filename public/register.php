@@ -1,210 +1,64 @@
 <?php
 /**
- * Couriva - Account Registration
- * Public signup creates an active Couriva mailbox.
+ * Couriva - Account Registration (Retired)
+ * Mailbox accounts are provisioned in Windows Active Directory.
  */
 
 define('WEBMAIL_INIT', true);
 
 require_once dirname(__DIR__) . '/includes/functions.php';
-require_once dirname(__DIR__) . '/includes/database.php';
-require_once dirname(__DIR__) . '/includes/auth.php';
-require_once dirname(__DIR__) . '/app/Models/User.php';
 
-if (is_authenticated()) {
-    header('Location: ' . app_base_url('public/inbox.php'));
-    exit;
+http_response_code(410);
+if (PHP_SAPI !== 'cli') {
+    send_security_headers();
 }
-
-$userModel = new \App\Models\User($pdo);
-$error = null;
-$form = [
-    'first_name' => '',
-    'last_name' => '',
-    'username' => '',
-    'phone' => '',
-];
-
-/**
- * Database-backed throttle: limit registration attempts per client IP.
- */
-function registration_is_throttled(PDO $pdo): bool
-{
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    try {
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) FROM system_logs
-            WHERE ip_address = ? AND action = 'REGISTRATION_ATTEMPT'
-              AND created_at >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
-        ");
-        $stmt->execute([$ip]);
-        return (int)$stmt->fetchColumn() >= 10;
-    } catch (Throwable $e) {
-        return false;
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verify_csrf_token()) {
-        $error = 'Session security token expired. Please try again.';
-    } elseif (registration_is_throttled($pdo)) {
-        $error = 'Too many registration attempts. Please wait 15 minutes and try again.';
-    } else {
-                $form['first_name'] = trim($_POST['first_name'] ?? '');
-                $form['last_name'] = trim($_POST['last_name'] ?? '');
-                $form['phone'] = trim($_POST['phone'] ?? '');
-                $rawUsername = trim($_POST['username'] ?? '');
-        
-        // Reject full email addresses (e.g., @gmail.com)
-        if (str_contains($rawUsername, '@')) {
-            $error = 'Please enter only the username (local part). External email domains like @gmail.com are not allowed.';
-        } else {
-            $form['username'] = strtolower($rawUsername);
-            $password = $_POST['password'] ?? '';
-            $confirm = $_POST['confirm_password'] ?? '';
-
-            $username = preg_replace('/@.*$/', '', $form['username']) ?? '';
-            $form['username'] = $username;
-            $email = couriva_address($username);
-
-        $passwordPolicy = is_valid_password_complexity($password);
-
-        if (mb_strlen($form['first_name']) < 1 || mb_strlen($form['first_name']) > 100
-            || mb_strlen($form['last_name']) < 1 || mb_strlen($form['last_name']) > 100) {
-            $error = 'Enter your first and last name.';
-        } elseif (!preg_match('/^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$/', $username)) {
-            $error = 'Choose a username of 3–32 characters using letters, numbers, dots, hyphens, or underscores.';
-        } elseif (!$passwordPolicy) {
-            $error = 'Password must be at least 10 characters and include uppercase, lowercase, a number, and a symbol.';
-        } elseif ($password !== $confirm) {
-            $error = 'Password and confirmation do not match.';
-        } elseif ($form['phone'] !== '' && !is_valid_ph_phone($form['phone'])) {
-            $error = 'Phone number must be in Philippine format: 09XXXXXXXXX (11 digits starting with 09).';
-        } elseif ($userModel->findByEmail($email)) {
-                    $error = 'An account or request already exists for ' . $email . '.';
-                } else {
-                    try {
-                        $newId = $userModel->create([
-                            'email' => $email,
-                            'password' => $password,
-                            'first_name' => $form['first_name'],
-                            'last_name' => $form['last_name'],
-                            'role' => 'user',
-                            'status' => 'active',
-                            'signature' => "-- \r\n{$form['first_name']} {$form['last_name']}\r\nCouriva Internal Mail\r\n{$email}",
-                            'timezone' => 'UTC',
-                            'theme' => 'light',
-                            'must_change_password' => 0,
-                        ]);
-
-                        $stmt = $pdo->prepare("UPDATE users SET requested_at = NOW() WHERE id = ?");
-                        $stmt->execute([$newId]);
-
-                        log_activity($newId, 'REGISTRATION_SUCCESS', 'SUCCESS', 'Active mailbox created: ' . $email);
-                        set_flash('success', 'Your Couriva mailbox (' . $email . ') is ready! Login below.');
-                        header('Location: ' . app_base_url('public/login.php?created=' . urlencode($email)));
-                        exit;
-                    } catch (Throwable $e) {
-                        error_log('Registration failed: ' . $e->getMessage());
-                        $error = 'Your request could not be submitted. Please try again later.';
-                    }
-                }
-            }
-
-            if ($error !== null) {
-                @log_activity(null, 'REGISTRATION_ATTEMPT', 'FAILED', 'Registration form validation failed.');
-            }
-        }
-}
-
-$pageTitle = 'Create account';
-$bodyClass = 'auth-page';
-require_once dirname(__DIR__) . '/includes/header.php';
 ?>
-
-<div class="auth-stage">
-    <div class="auth-card auth-card-wide">
-        <div class="auth-card-body">
-            <div class="auth-heading">
-                <div class="auth-wordmark">
-                    <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="24" height="24">
-                    <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="24" height="24">
-                    <span><?= e(app_name()) ?></span>
-                </div>
-                <h1>Create account</h1>
-                <p>Create your @<?= e(app_domain()) ?> email address and set your password.</p>
-            </div>
-
-            <?= render_inline_alert($error) ?>
-
-            <form method="POST" action="<?= app_base_url('public/register.php') ?>">
-                <?= csrf_field() ?>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-sm-6">
-                        <label for="registerFirstName" class="form-label">First name</label>
-                        <input type="text" class="form-control" id="registerFirstName" name="first_name" maxlength="100" placeholder="First name" autocomplete="given-name" required autofocus value="<?= e($form['first_name']) ?>">
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Registration Unavailable — <?= e(app_name()) ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= app_base_url('assets/brand/couriva-favicon.svg') ?>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= app_base_url('assets/css/bootstrap-icons.css') ?>" rel="stylesheet">
+    <link href="<?= app_base_url('assets/css/icon-fallback.css') ?>" rel="stylesheet">
+    <link href="<?= app_base_url('assets/css/style.css') ?>" rel="stylesheet">
+</head>
+<body class="auth-page">
+<div class="container py-4">
+    <div class="auth-stage">
+        <div class="auth-card">
+            <div class="auth-card-body">
+                <div class="auth-heading">
+                    <div class="auth-wordmark">
+                        <div class="brand-monogram-container">
+                            <img src="<?= app_base_url('assets/brand/couriva-logo-black.svg') ?>" class="couriva-logo-symbol couriva-logo-light" alt="Couriva" width="32" height="32">
+                            <img src="<?= app_base_url('assets/brand/couriva-logo-white.svg') ?>" class="couriva-logo-symbol couriva-logo-dark" alt="Couriva" width="32" height="32">
+                        </div>
+                        <span><?= e(app_name()) ?></span>
                     </div>
-                    <div class="col-sm-6">
-                        <label for="registerLastName" class="form-label">Last name</label>
-                        <input type="text" class="form-control" id="registerLastName" name="last_name" maxlength="100" placeholder="Last name" autocomplete="family-name" required value="<?= e($form['last_name']) ?>">
-                    </div>
+                    <h1>Self-registration unavailable</h1>
+                    <p>Public account registration has been retired.</p>
                 </div>
 
-                <div class="mb-3">
-                    <label for="registerUsername" class="form-label">Email address</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="registerUsername" name="username" maxlength="32" autocomplete="username" required pattern="^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$" placeholder="firstname.lastname" value="<?= e($form['username']) ?>">
-                        <span class="input-group-text">@<?= e(app_domain()) ?></span>
-                    </div>
-                    <div class="form-text">3–32 lowercase letters, numbers, dots, hyphens, or underscores.</div>
-                    <div id="usernameWarning" class="text-danger small mt-1 d-none">Enter only the name before @<?= e(app_domain()) ?>.</div>
-                    <div id="usernameCharWarning" class="text-warning small mt-1 d-none">Only letters, numbers, dots, hyphens, and underscores are allowed.</div>
+                <div class="alert alert-info mb-4" role="status">
+                    Couriva accounts are provisioned in Windows Active Directory. Contact your administrator to request mailbox access or reset your domain password.
                 </div>
 
-                <div class="mb-3">
-                    <label for="registerPhone" class="form-label">Phone number <span class="text-muted small fw-normal">(optional)</span></label>
-                    <input type="tel" class="form-control" id="registerPhone" name="phone" maxlength="11" autocomplete="tel" placeholder="09XXXXXXXXX" value="<?= e($form['phone']) ?>" pattern="^09\d{9}$" aria-describedby="phoneHelp">
-                    <div id="phoneHelp" class="form-text">11-digit Philippine mobile number starting with 09.</div>
-                    <div id="phoneError" class="text-danger small mt-1 d-none"></div>
+                <a href="<?= app_base_url('public/login.php') ?>" class="btn btn-primary w-100 fw-semibold auth-submit text-decoration-none">
+                    Return to Login
+                </a>
+
+                <div class="auth-note mt-3">
+                    <span>&copy; <?= date('Y') ?> <?= e(app_name()) ?> &middot; Internal mail for <?= e('@' . app_domain()) ?></span>
                 </div>
-
-                <div class="mb-3">
-                    <label for="registerPassword" class="form-label">Password</label>
-                    <div class="input-group">
-                        <input type="password" class="form-control" id="registerPassword" name="password" placeholder="At least 10 characters" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
-                        <button type="button" class="password-toggle" aria-label="Show password" aria-controls="registerPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="registerConfirmPassword" class="form-label">Confirm password</label>
-                    <div class="input-group">
-                        <input type="password" class="form-control" id="registerConfirmPassword" name="confirm_password" placeholder="Re-enter password" required minlength="10" autocomplete="new-password" aria-describedby="registerPasswordRules">
-                        <button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="registerConfirmPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
-                    </div>
-                </div>
-
-                <ul id="registerPasswordRules" class="auth-password-rules" aria-label="Password requirements">
-                    <li class="auth-password-rule" data-rule="length"><span>At least 10 characters</span><span class="auth-password-rule-status">Not OK</span></li>
-                    <li class="auth-password-rule" data-rule="uppercase"><span>One uppercase letter</span><span class="auth-password-rule-status">Not OK</span></li>
-                    <li class="auth-password-rule" data-rule="lowercase"><span>One lowercase letter</span><span class="auth-password-rule-status">Not OK</span></li>
-                    <li class="auth-password-rule" data-rule="number"><span>One number</span><span class="auth-password-rule-status">Not OK</span></li>
-                    <li class="auth-password-rule" data-rule="symbol"><span>One symbol</span><span class="auth-password-rule-status">Not OK</span></li>
-                    <li class="auth-password-rule" data-rule="match"><span>Passwords match</span><span class="auth-password-rule-status">Not OK</span></li>
-                </ul>
-
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold auth-submit">
-                    <span class="auth-submit-label">Create account</span>
-                </button>
-            </form>
-
-            <div class="auth-note mt-3">
-                <span>Already have an account? <a href="<?= app_base_url('public/login.php') ?>">Login</a></span>
             </div>
         </div>
     </div>
 </div>
-
-<script src="<?= app_base_url('assets/js/auth-registration.js') ?>"></script>
-<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>
+</body>
+</html>

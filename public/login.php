@@ -81,7 +81,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <button type="submit" class="btn btn-primary w-100 fw-semibold auth-submit">Login</button>
 
                 <div class="auth-note">
-                    <span>Don't have an account? <a href="<?= app_base_url('public/register.php') ?>">Create account</a></span>
+                    <span>Accounts and password resets are managed in Windows Active Directory by your administrator.</span>
                 </div>
             </form>
         </div>
