@@ -212,7 +212,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     </div>
 
     <!-- Message Actions Toolbar -->
-    <div class="d-flex flex-wrap gap-2 align-items-center">
+    <div class="d-flex flex-nowrap overflow-x-auto flex-md-wrap gap-2 align-items-center pb-1 pb-md-0" style="scrollbar-width: none; -webkit-overflow-scrolling: touch;">
         <!-- Star Toggle -->
         <button type="button" class="btn btn-light border btn-sm star-toggle-btn <?= $email['is_starred'] ? 'starred text-warning' : 'text-secondary' ?>" data-email-id="<?= $email['id'] ?>" data-starred="<?= $email['is_starred'] ? '1' : '0' ?>" title="<?= $email['is_starred'] ? 'Unstar message' : 'Star message' ?>">
             <i class="bi <?= $email['is_starred'] ? 'bi-star-fill text-warning' : 'bi-star' ?>"></i>
@@ -404,6 +404,18 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="thread-container mb-4">
     <?php
     $lastIndex = count($threadMessages) - 1;
+
+    // Build recipients map by email_id for thread message headers (To/Cc/Bcc)
+    $threadMsgIds = array_column($threadMessages, 'id');
+    $msgRecipientsMap = [];
+    if (!empty($threadMsgIds)) {
+        $_recipPlaceholders = implode(',', array_fill(0, count($threadMsgIds), '?'));
+        $_allRecipStmt = $pdo->prepare("SELECT * FROM email_recipients WHERE email_id IN ({$_recipPlaceholders}) ORDER BY recipient_type ASC, id ASC");
+        $_allRecipStmt->execute($threadMsgIds);
+        foreach ($_allRecipStmt->fetchAll() as $_r) {
+            $msgRecipientsMap[(int)$_r['email_id']][] = $_r;
+        }
+    }
     foreach ($threadMessages as $index => $msg):
         $isCurrent = (int)$msg['id'] === $emailId;
         $isLast = ($index === $lastIndex);
@@ -412,10 +424,12 @@ require_once dirname(__DIR__) . '/includes/header.php';
         $allowRemoteImages = isset($_GET['images']) && $_GET['images'] === '1';
         $sanitizedBody = sanitize_email_html($msg['body'], $allowRemoteImages);
         $hasBlockedImages = str_contains($sanitizedBody, 'data-blocked-src=');
-        $isDarkTheme = (($_SESSION['user_theme'] ?? 'light') === 'dark');
-        $emailBodyDocument = '<!doctype html><html><head><meta charset="utf-8"><base target="_blank"><style>'
+        $userTheme = $_SESSION['user_theme'] ?? 'light';
+        $isDarkTheme = ($userTheme === 'dark');
+        $iframeColorScheme = $userTheme === 'dark' ? 'dark' : ($userTheme === 'system' ? 'light dark' : 'light');
+        $emailBodyDocument = '<!doctype html><html><head><meta charset="utf-8"><meta name="color-scheme" content="' . $iframeColorScheme . '"><base target="_blank"><style>'
             . 'html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.6;background:' . ($isDarkTheme ? '#18181b' : '#ffffff') . ';color:' . ($isDarkTheme ? '#e5e7eb' : '#1f2937') . ';overflow-wrap:anywhere}'
-            . ((($_SESSION['user_theme'] ?? 'light') === 'system') ? '@media (prefers-color-scheme: dark){html,body{color:#e5e7eb;background:#18181b}a{color:#60a5fa}}' : '')
+            . (($userTheme === 'system') ? '@media (prefers-color-scheme: dark){html,body{color:#e5e7eb;background:#18181b}a{color:#60a5fa}}' : '')
             . 'blockquote{border-left:1px solid #cbd5e1;padding-left:12px}'
             . 'img{max-width:100%;height:auto}table{max-width:100%;border-collapse:collapse}'
             . 'a{color:#0d6efd}'
@@ -449,8 +463,23 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <div class="thread-card-body">
             <div class="px-4 py-2 border-bottom bg-body-subtle text-muted small d-flex flex-wrap align-items-center gap-2">
                 <span><strong>From:</strong> <?= e($senderFullName) ?> &lt;<?= e($msg['sender_email']) ?>&gt;</span>
-                <?php if (!empty($msg['recipient_email'])): ?>
-                    <span><strong>To:</strong> <?= e($msg['recipient_email']) ?></span>
+                <?php
+                $_msgRecips = $msgRecipientsMap[(int)$msg['id']] ?? [];
+                $_tos = array_filter($_msgRecips, fn($_r) => $_r['recipient_type'] === 'to');
+                $_ccs = array_filter($_msgRecips, fn($_r) => $_r['recipient_type'] === 'cc');
+                $_bccs = array_filter($_msgRecips, fn($_r) => $_r['recipient_type'] === 'bcc');
+                $_userEmail = strtolower((string)($_SESSION['user_email'] ?? ''));
+                $_isSenderOwned = (int)($msg['sender_id'] ?? 0) === $userId && ($msg['recipient_id'] ?? null) === null;
+                $_isBccRecipient = !empty(array_filter($_bccs, fn($_r) => strtolower((string)$_r['email_address']) === $_userEmail));
+                $_showBcc = $_isSenderOwned || $_isBccRecipient;
+                if (!empty($_tos)): ?>
+                    <span><strong>To:</strong> <?= e(implode(', ', array_column($_tos, 'email_address'))) ?></span>
+                <?php endif; ?>
+                <?php if (!empty($_ccs)): ?>
+                    <span><strong>Cc:</strong> <?= e(implode(', ', array_column($_ccs, 'email_address'))) ?></span>
+                <?php endif; ?>
+                <?php if ($_showBcc && !empty($_bccs)): ?>
+                    <span><strong>Bcc:</strong> <?= e(implode(', ', array_column($_bccs, 'email_address'))) ?></span>
                 <?php endif; ?>
             </div>
 
@@ -472,7 +501,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 sandbox="allow-popups allow-popups-to-escape-sandbox"
                 referrerpolicy="no-referrer"
                 srcdoc="<?= e($emailBodyDocument) ?>"
-                style="min-height: 140px; height: 30vh; font-size: 1.05rem; line-height: 1.65;"></iframe>
+                style="min-height: 140px; height: 30vh; height: 30dvh; font-size: 1.05rem; line-height: 1.65;"></iframe>
 
             <!-- Attachments Section -->
             <?php if (!empty($msgAttachments)): ?>
@@ -515,7 +544,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
             <i class="bi bi-reply-fill"></i>
             <span>Reply</span>
         </a>
-        <a href="<?= app_base_url('public/compose.php?reply_to=' . $emailId . '&reply_all=1') ?>" class="reply-trigger-pill text-decoration-none">
+        <a href="<?= app_base_url('public/compose.php?reply_all=' . $emailId) ?>" class="reply-trigger-pill text-decoration-none">
             <i class="bi bi-reply-all-fill"></i>
             <span>Reply all</span>
         </a>

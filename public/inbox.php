@@ -57,6 +57,12 @@ $pageTitle = match ($activeFolder) {
     default => 'Inbox',
 };
 
+$activeCategory = $_GET['category'] ?? 'primary';
+$validCategories = ['primary', 'promotions', 'updates'];
+if (!in_array($activeCategory, $validCategories, true)) {
+    $activeCategory = 'primary';
+}
+
 // Pagination parameters
 $perPage = 25;
 $page = max(1, (int)($_GET['page'] ?? 1));
@@ -102,13 +108,14 @@ $folderHeading = match ($activeFolder) {
 };
 ?>
 <!-- Advanced Search Filters Panel (Collapsible) -->
-<div class="collapse <?= (!empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'show' : '' ?> mb-3 d-md-none" id="filterPanel">
+<div class="collapse <?= (!empty($criteria['q']) || !empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'show' : '' ?> mb-3 d-md-none" id="filterPanel">
     <div class="card card-body bg-body-tertiary border-0 shadow-sm p-3">
         <form method="GET" action="<?= app_base_url('public/inbox.php') ?>" class="row g-2 align-items-center">
             <?php if (in_array($criteria['is_starred'], ['0', '1'], true)): ?><input type="hidden" name="is_starred" value="<?= e($criteria['is_starred']) ?>"><?php endif; ?>
             <?php if ($activeFolder !== 'inbox'): ?>
                 <input type="hidden" name="folder" value="<?= e($activeFolder) ?>">
             <?php endif; ?>
+            <input type="hidden" name="category" value="<?= e($activeCategory) ?>">
             <?php if ($activeFolder === 'label'): ?>
                 <input type="hidden" name="label" value="<?= (int)$activeLabelId ?>">
             <?php endif; ?>
@@ -239,7 +246,7 @@ $folderHeading = match ($activeFolder) {
 
                 <!-- Right: Pagination & View Modes -->
                 <div class="d-flex align-items-center gap-2 action-bar-right">
-                    <button class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-controls="filterPanel" aria-expanded="<?= (!empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'true' : 'false' ?>" title="Search filters" aria-label="Toggle search filters"><i class="bi bi-sliders2 fs-6"></i></button>
+                    <button class="btn btn-sm btn-link text-muted p-1 border-0 action-bar-btn d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-controls="filterPanel" aria-expanded="<?= (!empty($criteria['q']) || !empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'true' : 'false' ?>" title="Search filters" aria-label="Toggle search filters"><i class="bi bi-sliders2 fs-6"></i></button>
                     <div class="action-bar-pagination d-flex align-items-center text-muted small" style="font-size: 0.85rem;">
                         <?php
                         $startCount = $totalEmails > 0 ? (($page - 1) * $perPage) + 1 : 0;
@@ -247,10 +254,10 @@ $folderHeading = match ($activeFolder) {
                         ?>
                         <span class="me-2"><?= $startCount ?>–<?= $endCount ?> of <?= $totalEmails ?></span>
                         <div class="btn-group btn-group-sm">
-                            <a href="?<?= e(mail_pagination_query(max(1, $page - 1), $criteria, $activeFolder)) ?>" class="btn btn-sm btn-link text-muted p-1 border-0 pagination-nav-btn <?= $page <= 1 ? 'disabled' : '' ?>" aria-label="Older" title="Older">
+                            <a href="?<?= e(mail_pagination_query(max(1, $page - 1), $criteria, $activeFolder)) ?>" class="btn btn-sm btn-link text-muted p-1 border-0 pagination-nav-btn <?= $page <= 1 ? 'disabled' : '' ?>" aria-label="Newer" title="Newer">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
-                            <a href="?<?= e(mail_pagination_query(min($totalPages, $page + 1), $criteria, $activeFolder)) ?>" class="btn btn-sm btn-link text-muted p-1 border-0 pagination-nav-btn <?= $page >= $totalPages ? 'disabled' : '' ?>" aria-label="Newer" title="Newer">
+                            <a href="?<?= e(mail_pagination_query(min($totalPages, $page + 1), $criteria, $activeFolder)) ?>" class="btn btn-sm btn-link text-muted p-1 border-0 pagination-nav-btn <?= $page >= $totalPages ? 'disabled' : '' ?>" aria-label="Older" title="Older">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </div>
@@ -259,13 +266,6 @@ $folderHeading = match ($activeFolder) {
             </div>
 
             <?php if ($activeFolder === 'inbox'): ?>
-                <?php
-                $activeCategory = $_GET['category'] ?? 'primary';
-                $validCategories = ['primary', 'promotions', 'updates'];
-                if (!in_array($activeCategory, $validCategories, true)) {
-                    $activeCategory = 'primary';
-                }
-                ?>
                 <!-- Material 3 Category Tabs -->
                 <div id="inboxCategoryTabs" class="inbox-category-tabs d-flex border-bottom bg-body" role="tablist">
                     <a href="?category=primary" id="tabPrimary" class="category-tab-item <?= $activeCategory === 'primary' ? 'active' : '' ?>" role="tab" aria-selected="<?= $activeCategory === 'primary' ? 'true' : 'false' ?>">
@@ -386,7 +386,7 @@ $folderHeading = match ($activeFolder) {
 
                             <!-- Attachment Icon -->
                             <?php if (($mail['attachment_count'] ?? 0) > 0): ?>
-                                <span class="text-muted me-3" title="<?= $mail['attachment_count'] ?> attachment(s)">
+                                <span class="text-muted mail-attachment-icon me-3" title="<?= $mail['attachment_count'] ?> attachment(s)">
                                     <i class="bi bi-paperclip"></i>
                                 </span>
                             <?php endif; ?>
@@ -440,7 +440,7 @@ $folderHeading = match ($activeFolder) {
 
     <!-- Reading Pane Column (Split View) -->
     <div class="col-lg-6 d-none" id="readingPaneCol">
-        <div class="card shadow-sm border-0 sticky-top reading-pane-card" style="top: 75px; max-height: calc(100vh - 100px); overflow-y: auto;" id="readingPaneCard">
+        <div class="card shadow-sm border-0 sticky-top reading-pane-card" style="top: 75px; max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); overflow-y: auto;" id="readingPaneCard">
             <div class="card-body p-4 text-center text-muted py-5" id="readingPaneContent">
                 <i class="bi bi-envelope-open display-4 d-block mb-3 text-secondary opacity-50"></i>
                 <h5 class="fw-semibold">Select an email to read</h5>

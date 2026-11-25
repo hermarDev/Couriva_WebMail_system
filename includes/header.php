@@ -106,6 +106,23 @@ $bodyClass = $bodyClass ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="<?= ($currentTheme === 'system' || $currentTheme === '') ? 'light dark' : e($resolvedTheme) ?>">
+    <script>
+        (function () {
+            var pref = <?= json_encode($currentTheme !== '' ? $currentTheme : 'system') ?>;
+            try {
+                var stored = localStorage.getItem('webmail_theme');
+                if (stored === 'light' || stored === 'dark' || stored === 'system') pref = stored;
+            } catch (e) {}
+            var resolved = (pref === 'system')
+                ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : (pref === 'dark' ? 'dark' : 'light');
+            var meta = document.querySelector('meta[name="color-scheme"]');
+            if (meta) meta.setAttribute('content', pref === 'system' ? 'light dark' : resolved);
+            document.documentElement.setAttribute('data-bs-theme', resolved);
+            document.documentElement.setAttribute('data-theme-preference', pref);
+        })();
+    </script>
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <title><?= isset($pageTitle) ? e($pageTitle) . ' — ' . e(app_name()) : e(app_name()) ?></title>
     <!-- Brand Favicons & App Icons -->
@@ -115,12 +132,8 @@ $bodyClass = $bodyClass ?? '';
     <link rel="apple-touch-icon" sizes="180x180" href="<?= app_base_url('assets/brand/apple-touch-icon.png') ?>">
     <link rel="shortcut icon" href="<?= app_base_url('assets/brand/favicon.ico') ?>">
     <link rel="manifest" href="<?= app_base_url('public/manifest.json') ?>">
-    <!-- Inter Font Family -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Locally bundled Bootstrap 5 CSS -->
+    <link href="<?= app_base_url('assets/css/bootstrap.min.css') ?>" rel="stylesheet">
     <!-- Locally bundled Bootstrap Icons -->
     <link href="<?= app_base_url('assets/css/bootstrap-icons.css') ?>" rel="stylesheet">
     <!-- Font-independent local SVG icon fallback -->
@@ -157,8 +170,8 @@ $bodyClass = $bodyClass ?? '';
         </div>
 
         <!-- Center: Gmail-Style Centered Pill Search Bar with Floating Advanced Filter Popover -->
-        <div class="d-none d-md-flex flex-grow-1 justify-content-center px-3 position-relative">
-            <div style="max-width: 720px; width: 100%;">
+        <div class="d-flex flex-grow-1 justify-content-center px-1 px-md-3 position-relative header-search-container">
+            <search class="header-search-wrapper" style="max-width: 720px; width: 100%;">
                 <form class="w-100 d-flex align-items-center gmail-search-bar rounded-pill px-3 py-1 position-relative" id="gmailSearchBar" action="<?= app_base_url('public/inbox.php') ?>" method="GET">
                     <?php if (in_array($activeFolder, ['starred', 'archive', 'snoozed', 'label', 'custom'], true)): ?>
                         <input type="hidden" name="folder" value="<?= e($activeFolder) ?>">
@@ -171,7 +184,7 @@ $bodyClass = $bodyClass ?? '';
                     </button>
                     <input type="text" name="q" id="headerSearchInput" class="form-control border-0 bg-transparent shadow-none p-0 gmail-search-input" aria-label="Search in mail" placeholder="Search in mail" value="<?= e($_GET['q'] ?? '') ?>">
                     <?php if (!empty($_GET['q'])): ?>
-                        <a href="<?= app_base_url('public/inbox.php') ?>" class="text-muted text-decoration-none me-2" title="Clear search" aria-label="Clear search"><i class="bi bi-x-lg"></i></a>
+                        <a href="<?= app_base_url('public/inbox.php') ?>" class="text-muted text-decoration-none me-2 search-clear-btn" title="Clear search" aria-label="Clear search"><i class="bi bi-x-lg"></i></a>
                     <?php endif; ?>
                     <!-- Advanced Search Tune/Sliders Icon -->
                     <button type="button" class="btn btn-sm btn-link p-1 text-muted border-0 search-filter-btn rounded-circle" id="searchFilterDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Show search options" aria-label="Show search options">
@@ -214,11 +227,11 @@ $bodyClass = $bodyClass ?? '';
                         </div>
                     </div>
                 </form>
-            </div>
+            </search>
         </div>
 
         <!-- Right: Actions, Theme Switcher & Dynamic Profile -->
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 header-actions-zone">
             <!-- Notifications -->
             <a href="<?= app_base_url('public/notifications.php') ?>" class="btn btn-sm webmail-header-btn border position-relative d-flex align-items-center justify-content-center rounded-circle px-2 py-1 shadow-sm" title="Notifications" aria-label="Notifications<?= $unreadNotifications > 0 ? ' (' . $unreadNotifications . ' unread)' : '' ?>" style="width: 44px; height: 44px;">
                 <i class="bi bi-bell<?= $unreadNotifications > 0 ? '-fill text-primary' : '' ?>"></i>
@@ -287,9 +300,6 @@ $bodyClass = $bodyClass ?? '';
                         </div>
                         <div class="fw-bold text-body text-truncate fs-6"><?= e($userFullName) ?></div>
                         <div class="text-muted small text-truncate mb-2"><?= e($userEmail) ?></div>
-                        <a href="<?= app_base_url('public/settings.php') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-medium">
-                            Account settings
-                        </a>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex flex-column gap-1">
@@ -407,14 +417,6 @@ $bodyClass = $bodyClass ?? '';
             </div>
         </div>
 
-        <hr class="my-3 opacity-25">
-
-        <div class="pt-1">
-            <a href="<?= app_base_url('public/settings.php') ?>" class="d-flex align-items-center justify-content-between text-decoration-none fw-medium text-body px-1 py-1">
-                <span>Account settings</span>
-                <i class="bi bi-arrow-right fs-5 text-muted"></i>
-            </a>
-        </div>
     </div>
 </div>
     </div>
@@ -426,9 +428,10 @@ $bodyClass = $bodyClass ?? '';
         <!-- Sidebar Navigation (Section 13, 14, 39) -->
         <nav class="col-md-3 col-lg-2 d-md-block webmail-sidebar collapse" id="sidebarMenu">
             <!-- Sidebar Navigation Header & Chevron Edge Toggle (Option 1 - Mockup Parity) -->
-            <div class="sidebar-edge-toggle-container d-none d-md-flex align-items-center justify-content-between mb-2 px-1">
+            <div class="sidebar-edge-toggle-container d-flex align-items-center justify-content-between mb-2 px-1">
                 <span class="sidebar-nav-heading text-uppercase text-muted fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Navigation</span>
-                <button type="button" class="sidebar-edge-toggle btn btn-sm border-0 text-muted p-1" id="sidebarMiniToggle" title="Collapse sidebar" aria-label="Collapse sidebar">
+                <button type="button" class="btn-close d-md-none" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close navigation"></button>
+                <button type="button" class="sidebar-edge-toggle btn btn-sm border-0 text-muted p-1 d-none d-md-inline-flex" id="sidebarMiniToggle" title="Collapse sidebar" aria-label="Collapse sidebar">
                     <i class="bi bi-chevron-left sidebar-icon-expanded"></i>
                     <i class="bi bi-chevron-right sidebar-icon-collapsed"></i>
                 </button>

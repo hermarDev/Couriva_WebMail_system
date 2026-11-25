@@ -238,7 +238,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 </div>
                 <div class="mb-3">
                     <label for="editContactEmail" class="form-label fw-semibold">Email Address *</label>
-                    <input type="email" class="form-control" name="contact_email" id="editContactEmail" placeholder="name@couriva.local" required>
+                    <input type="email" class="form-control" name="contact_email" id="editContactEmail" placeholder="name@<?= e(app_domain()) ?>" required>
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-sm-6 col-md-6">

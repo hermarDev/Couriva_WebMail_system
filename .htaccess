@@ -22,6 +22,7 @@ DirectoryIndex index.php public/index.php
     # Enforce HTTPS for real hostnames, including TLS-terminating proxies.
     # Loopback hosts remain available over plain HTTP for local LAMPP work.
     RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$ [NC]
+    RewriteCond %{HTTP_HOST} !^172\.20\.10\. [NC]
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]

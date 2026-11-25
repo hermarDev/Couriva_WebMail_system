@@ -986,7 +986,7 @@ try {
     $loginHeaders = $loginResponse['headers'];
     $headerBlob = implode("\n", $loginHeaders);
 
-    assertP1(p1HttpStatus($loginHeaders) === 200 && str_contains($loginResponse['body'], 'Sign In'), 'H7 login page responds over HTTP', 'status=' . p1HttpStatus($loginHeaders));
+    assertP1(p1HttpStatus($loginHeaders) === 200 && str_contains($loginResponse['body'], '<h1>Login to your Couriva workspace</h1>'), 'H7 login page responds over HTTP', 'status=' . p1HttpStatus($loginHeaders));
     assertP1(stripos($headerBlob, "Content-Security-Policy:") !== false, 'H7 CSP header is sent');
     assertP1(stripos(p1HeaderLine($loginHeaders, 'Content-Security-Policy'), "frame-ancestors 'self'") !== false, 'H7 CSP frame-ancestors is sent');
     assertP1(stripos(p1HeaderLine($loginHeaders, 'Content-Security-Policy'), "script-src 'self'") !== false, 'H7 CSP script-src is sent');

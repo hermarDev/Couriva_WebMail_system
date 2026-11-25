@@ -72,7 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newPass = $_POST['new_password'] ?? '';
             $confirmPass = $_POST['confirm_password'] ?? '';
 
-            if (!password_verify($currentPass, $user['password'])) {
+            if (($user['auth_source'] ?? 'local') === 'ldap') {
+                $error = 'Your account is managed by Windows Active Directory. Change your password through your domain controller or Windows sign-in.';
+            } elseif (!password_verify($currentPass, $user['password'])) {
                 $error = 'Current password is incorrect.';
             } elseif (!is_valid_password_complexity($newPass)) {
                 $error = 'Password must be at least 10 characters and include uppercase, lowercase, number, and symbol.';
@@ -142,13 +144,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
 <div class="settings-container settings-wrapper">
     <!-- Page Header (Left-aligned with settings cards) -->
-    <div class="mb-4">
+    <div class="mb-3">
         <h4 class="fw-bold mb-1"><i class="bi bi-gear-fill text-primary me-2"></i>Account Settings</h4>
         <p class="text-muted small">Manage your user profile, email signature, and security credentials</p>
     </div>
 
     <!-- Settings Section Tabs -->
-    <ul class="nav nav-pills settings-section-tabs gap-2 mb-4" id="settingsSectionTabs" role="tablist">
+    <ul class="nav nav-pills settings-section-tabs gap-2 mb-3" id="settingsSectionTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="tab-profile-btn" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab" aria-controls="tab-profile" aria-selected="true">
                 <i class="bi bi-person-circle me-1"></i> Profile
@@ -169,28 +171,30 @@ require_once dirname(__DIR__) . '/includes/header.php';
     <div class="tab-content" id="settingsSectionTabsContent">
         <!-- Profile Tab -->
         <div class="tab-pane fade show active" id="tab-profile" role="tabpanel" aria-labelledby="tab-profile-btn">
-            <div class="row g-4">
+            <div class="row g-3">
                 <!-- User Profile & Avatar Summary -->
                 <div class="col-12">
-                    <div class="card shadow-sm border-0 bg-body-tertiary">
-                        <div class="card-body p-2 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fw-bold shadow-sm" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                    <div class="card shadow-sm border-0 bg-body-tertiary" id="profileSummaryCard">
+                        <div class="card-body d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+                            <div class="d-flex align-items-start align-items-sm-center gap-3 w-100 min-w-0">
+                                <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fw-bold shadow-sm flex-shrink-0" style="width: 40px; height: 40px; font-size: 1.1rem;">
                                     <?= strtoupper(substr($user['first_name'] ?: $user['email'], 0, 1)) ?>
                                 </div>
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-body fs-6"><?= e($user['first_name'] . ' ' . $user['last_name']) ?></h6>
-                                    <div class="text-muted small"><?= e($user['email']) ?></div>
-                                </div>
-                                <div class="d-flex gap-2 ms-2">
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-uppercase"><?= e($user['role']) ?></span>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle text-capitalize"><?= e($user['status']) ?></span>
+                                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3 flex-grow-1 min-w-0">
+                                    <div class="min-w-0">
+                                        <h6 class="fw-bold mb-0 text-body fs-6 text-break"><?= e($user['first_name'] . ' ' . $user['last_name']) ?></h6>
+                                        <div class="text-muted small text-break"><?= e($user['email']) ?></div>
+                                    </div>
+                                    <div class="d-flex flex-wrap align-items-center gap-2 flex-shrink-0">
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-uppercase"><?= e($user['role']) ?></span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle text-capitalize"><?= e($user['status']) ?></span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="text-muted small d-flex gap-4">
-                                <div><i class="bi bi-globe me-1"></i> Timezone: <strong><?= e($user['timezone']) ?></strong></div>
-                                <div><i class="bi bi-clock-history me-1"></i> Member since: <strong><?= date('M d, Y', strtotime($user['created_at'])) ?></strong></div>
+                            <div class="profile-summary-meta text-muted small d-flex flex-wrap align-items-center gap-2 gap-sm-4 flex-shrink-0">
+                                <div class="text-nowrap"><i class="bi bi-globe me-1"></i> Timezone: <strong><?= e($user['timezone']) ?></strong></div>
+                                <div class="text-nowrap"><i class="bi bi-clock-history me-1"></i> Member since: <strong><?= date('M d, Y', strtotime($user['created_at'])) ?></strong></div>
                             </div>
                         </div>
                     </div>
@@ -199,17 +203,17 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <!-- Profile & Signature Settings -->
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header bg-body py-3 border-bottom">
+                        <div class="card-header bg-body py-2 border-bottom">
                             <h5 class="mb-0 fw-bold"><i class="bi bi-person-circle text-primary me-2"></i>Profile Information</h5>
                         </div>
-                        <div class="card-body p-4">
+                        <div class="card-body p-2">
                             <form method="POST" action="<?= app_base_url('public/settings.php') ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="profile">
 
                                 <?= render_inline_alert($error) ?>
 
-                                <div class="row g-3 mb-3">
+                                <div class="row g-3 mb-2">
                                     <div class="col-md-6">
                                         <label for="profileFirstName" class="form-label fw-semibold">First Name *</label>
                                         <input id="profileFirstName" type="text" class="form-control" name="first_name" required value="<?= e($user['first_name']) ?>">
@@ -220,13 +224,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="profileEmail" class="form-label fw-semibold">Email Address</label>
                                     <input id="profileEmail" type="email" class="form-control bg-body-tertiary" value="<?= e($user['email']) ?>" readonly>
                                     <span class="text-muted small" style="font-size: 0.8rem;">Email address changes require administrative assistance.</span>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="profileTimezone" class="form-label fw-semibold">Timezone</label>
                                     <select id="profileTimezone" class="form-select" name="timezone">
                                         <?php
@@ -238,7 +242,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                 </div>
 
                                 <!-- Email Signature with Live Preview -->
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="signatureInput" class="form-label fw-semibold d-flex justify-content-between">
                                         <span>Email Signature</span>
                                         <span class="badge bg-secondary-subtle text-secondary fw-normal">Auto-appended on compose</span>
@@ -261,9 +265,9 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                 </div>
 
                                 <!-- Theme Switcher -->
-                                <div class="mb-4">
+                                <div class="mb-2">
                                     <label class="form-label fw-semibold">Theme Preference</label>
-                                    <div class="d-flex gap-4 p-3 rounded bg-body-tertiary border">
+                                    <div class="d-flex flex-column flex-md-row gap-3 p-3 rounded bg-body-tertiary border">
                                         <div class="form-check">
                                             <input class="form-check-input settings-theme-radio" type="radio" name="theme" id="themeLight" value="light" <?= ($user['theme'] ?? 'light') === 'light' ? 'checked' : '' ?>>
                                             <label class="form-check-label fw-medium cursor-pointer" for="themeLight">
@@ -285,9 +289,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm">
-                                    <i class="bi bi-check-circle me-1"></i> Save Profile & Settings
-                                </button>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm">
+                                        <i class="bi bi-check-circle me-1"></i> Save Profile & Settings
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -301,31 +307,36 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <div class="card-header bg-body py-3 border-bottom">
                     <h5 class="mb-0 fw-bold"><i class="bi bi-shield-lock text-primary me-2"></i>Change Password</h5>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-2">
+                    <?php if (($user['auth_source'] ?? 'local') === 'ldap'): ?>
+                    <?= render_inline_alert($error) ?>
+                    <div class="alert alert-info mb-0" role="note">
+                        <i class="bi bi-microsoft me-1" aria-hidden="true"></i>
+                        Your password is managed by Windows Active Directory. Change it through your domain controller or Windows sign-in.
+                    </div>
+                    <?php else: ?>
                     <form method="POST" action="<?= app_base_url('public/settings.php') ?>" id="passwordChangeForm">
                         <?= csrf_field() ?>
                         <input type="hidden" name="action" value="password">
 
                         <?= render_inline_alert($error) ?>
 
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="settingsCurrentPassword" class="form-label fw-semibold">Current Password *</label>
-                            <div class="input-group"><input type="password" class="form-control" id="settingsCurrentPassword" name="current_password" required autocomplete="current-password" placeholder="Enter current password"><button type="button" class="password-toggle" aria-label="Show current password" aria-controls="settingsCurrentPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                            <div class="input-group"><input type="password" class="form-control" id="settingsCurrentPassword" name="current_password" required autocomplete="current-password" placeholder="Enter current password"><button type="button" class="password-toggle" aria-label="Show current password" aria-controls="settingsCurrentPassword" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show current password</span></button></div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="newPasswordInput" class="form-label fw-semibold">New Password *</label>
-                            <div class="input-group"><input type="password" class="form-control" name="new_password" id="newPasswordInput" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="newPasswordInput" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                            <div class="input-group"><input type="password" class="form-control" name="new_password" id="newPasswordInput" required minlength="10" autocomplete="new-password" aria-describedby="passwordStrengthLabel passwordRulesPills" placeholder="At least 10 characters"><button type="button" class="password-toggle" aria-label="Show new password" aria-controls="newPasswordInput" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show new password</span></button></div>
 
                             <!-- Password Strength Meter -->
-                            <div class="mt-2">
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar" id="passwordStrengthBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
+                            <div class="mt-1">
+                                <progress class="password-strength-progress w-100" id="passwordStrengthBar" value="0" max="100" aria-label="Password strength"></progress>
                                 <div class="d-flex justify-content-between align-items-center mt-1">
                                     <span id="passwordStrengthLabel" class="small text-muted" style="font-size: 0.78rem;">Strength: Enter password</span>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2 mt-2" id="passwordRulesPills" style="font-size: 0.8125rem;">
+                                <div class="d-flex flex-wrap gap-2 mt-1" id="passwordRulesPills" style="font-size: 0.8125rem;">
                                     <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleLength">10+ chars</span>
                                     <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleUpper">Uppercase</span>
                                     <span class="badge bg-secondary-subtle text-secondary border rule-pill py-1 px-2" id="ruleNumber">Number</span>
@@ -334,16 +345,19 @@ require_once dirname(__DIR__) . '/includes/header.php';
                             </div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-2">
                             <label for="confirmPasswordInput" class="form-label fw-semibold">Confirm New Password *</label>
-                            <div class="input-group"><input type="password" class="form-control" name="confirm_password" id="confirmPasswordInput" required autocomplete="new-password" placeholder="Confirm new password"><button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="confirmPasswordInput" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+                            <div class="input-group"><input type="password" class="form-control" name="confirm_password" id="confirmPasswordInput" required autocomplete="new-password" placeholder="Confirm new password"><button type="button" class="password-toggle" aria-label="Show confirmation password" aria-controls="confirmPasswordInput" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show confirmation password</span></button></div>
                             <div id="passwordMatchLabel" class="small mt-1" style="font-size: 0.8rem;"></div>
                         </div>
 
-                        <button type="submit" class="btn btn-outline-primary fw-semibold w-100 shadow-sm" id="submitPasswordBtn">
-                            <i class="bi bi-key me-1"></i> Update Password
-                        </button>
+                        <div class="d-flex justify-content-end mt-2">
+                            <button type="submit" class="btn btn-outline-primary fw-semibold px-4 shadow-sm" id="submitPasswordBtn">
+                                <i class="bi bi-key me-1"></i> Update Password
+                            </button>
+                        </div>
                     </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -351,13 +365,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <!-- Organization Tab -->
         <div class="tab-pane fade" id="tab-organization" role="tabpanel" aria-labelledby="tab-organization-btn">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-body py-3 border-bottom">
+                <div class="card-header bg-body py-2 border-bottom">
                     <h5 class="mb-0 fw-bold text-body">Labels & folders</h5>
                     <div class="text-muted small" style="font-size: 0.8rem;">Organize how your messages are grouped.</div>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-2">
                     <!-- Organization Selector Tabs (Mockup Parity) -->
-                    <ul class="nav nav-pills org-nav-pills gap-2 mb-4" id="orgTabs" role="tablist">
+                    <ul class="nav nav-pills org-nav-pills gap-2 mb-3" id="orgTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="tab-labels-btn" data-bs-toggle="pill" data-bs-target="#tab-labels" type="button" role="tab" aria-controls="tab-labels" aria-selected="true">Labels</button>
                         </li>

@@ -64,7 +64,7 @@ class User
             $adGuid,
             $data['signature'] ?? null,
             $data['timezone'] ?? 'UTC',
-            $data['theme'] ?? 'light',
+            in_array($data['theme'] ?? 'light', ['light', 'dark', 'system'], true) ? ($data['theme'] ?? 'light') : 'light',
             ($data['must_change_password'] ?? true) ? 1 : 0,
         ]);
         return (int)$this->pdo->lastInsertId();
@@ -123,7 +123,7 @@ class User
         }
         if (isset($data['theme'])) {
             $fields[] = "theme = ?";
-            $params[] = in_array($data['theme'], ['light', 'dark'], true) ? $data['theme'] : 'light';
+            $params[] = in_array($data['theme'], ['light', 'dark', 'system'], true) ? $data['theme'] : 'light';
         }
         if (isset($data['avatar'])) {
             $fields[] = "avatar = ?";

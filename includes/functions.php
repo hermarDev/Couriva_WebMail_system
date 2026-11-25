@@ -222,6 +222,45 @@ function set_flash(string $type, string $message): void
 }
 
 /**
+ * Map internal auth/LDAP failure details to default user-facing login messages.
+ */
+function normalize_login_error_message(?string $message): string
+{
+    $msg = trim((string)$message);
+    if ($msg === '') {
+        return 'Invalid email or password.';
+    }
+
+    $preservedMessages = [
+        'Please enter a valid email address.',
+        'Please enter both email and password.',
+        'Your account is awaiting administrator approval.',
+        'Your account request was not approved. Contact an administrator for help.',
+        'Your account is suspended. Contact an administrator for help.',
+        'Your account is disabled. Contact system administrator.',
+    ];
+    if (in_array($msg, $preservedMessages, true)) {
+        return $msg;
+    }
+
+    $unavailableMessages = [
+        'Could not connect to authentication server.',
+        'Failed to initiate STARTTLS with authentication server.',
+        'LDAP module not available on server.',
+        'Invalid LDAP server configuration.',
+        'LDAP TLS/LDAPS transport is required by policy.',
+        'Active Directory OU boundary is required by policy.',
+        'Active Directory directory lookup failed.',
+        'Active Directory lookup returned invalid results.',
+    ];
+    if (in_array($msg, $unavailableMessages, true)) {
+        return 'Authentication service is temporarily unavailable. Please try again later.';
+    }
+
+    return 'Invalid email or password.';
+}
+
+/**
  * Render an inline alert with dismiss button for server-side errors.
  * Returns HTML string or empty string if no error.
  *

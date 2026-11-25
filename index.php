@@ -23,5 +23,10 @@ if (!empty($_SERVER['QUERY_STRING'])) {
 }
 
 // Perform redirect to front controller
+// Strip the PHP version banner before responding (this entry point never
+// loads includes/functions.php, where send_security_headers() would do it).
+if (function_exists('header_remove')) {
+    header_remove('X-Powered-By');
+}
 header('Location: ' . $targetUrl, true, 302);
 exit;

@@ -59,6 +59,10 @@
                     use.setAttribute('href', use.getAttribute('href').replace(/#.*$/, isVisible ? '#eye' : '#eye-slash'));
                 }
             }
+            var visuallyHidden = button.querySelector('.visually-hidden');
+            if (visuallyHidden) {
+                visuallyHidden.textContent = isVisible ? 'Show password' : 'Hide password';
+            }
         }, true);
     }
 

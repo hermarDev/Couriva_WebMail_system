@@ -20,6 +20,9 @@ $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf_token()) {
         $error = 'Session security token expired. Please try again.';
+    } elseif (login_is_throttled($pdo)) {
+        http_response_code(429);
+        $error = 'Too many failed login attempts. Please wait 15 minutes and try again.';
     } else {
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
@@ -66,14 +69,14 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="email" name="email" required autofocus value="<?= e($_POST['email'] ?? '') ?>" placeholder="name@couriva.local" autocomplete="email">
+                    <input type="email" class="form-control" id="email" name="email" required autofocus value="<?= e($_POST['email'] ?? '') ?>" placeholder="name@<?= e(app_domain()) ?>" autocomplete="email" spellcheck="false" autocapitalize="none">
                 </div>
 
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
                         <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
-                        <button type="button" class="password-toggle" aria-label="Show password" aria-controls="password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                        <button type="button" class="password-toggle" aria-label="Show password" aria-controls="password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show password</span></button>
                     </div>
                     <p class="auth-recovery-note">Password resets are managed by a Couriva administrator.</p>
                 </div>

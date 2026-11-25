@@ -78,9 +78,10 @@ try {
         'updated_at' => date('Y-m-d H:i:s'),
     ]);
 } catch (Throwable $e) {
+    error_log('Autosave draft failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error'   => 'Failed to save draft: ' . $e->getMessage(),
+        'error'   => 'Unable to save draft. Please try again.',
     ]);
 }

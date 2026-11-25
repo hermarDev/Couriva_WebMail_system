@@ -10,9 +10,15 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 $loginPath = $root . '/public/login.php';
 $scriptPath = $root . '/assets/js/auth-signin.js';
+$appJsPath = $root . '/assets/js/app.js';
+
+define('WEBMAIL_INIT', true);
+require_once $root . '/includes/functions.php';
 
 $login = (string)file_get_contents($loginPath);
 $script = is_file($scriptPath) ? (string)file_get_contents($scriptPath) : '';
+$appJs = is_file($appJsPath) ? (string)file_get_contents($appJsPath) : '';
+$authHelper = (string)file_get_contents($root . '/includes/auth.php');
 
 $checks = [
     'login heading says Login' => str_contains($login, '<h1>Login to your Couriva workspace</h1>'),
@@ -33,7 +39,11 @@ $checks = [
         && str_contains($login, 'autocomplete="email"')
         && str_contains($login, 'for="email"')
         && str_contains($login, '>Email address</label>'),
-    'email placeholder is neutral' => str_contains($login, 'placeholder="name@couriva.local"'),
+    'email placeholder is neutral' => (
+        str_contains($login, 'placeholder="name@<?= e(app_domain()) ?>"')
+        || str_contains($login, 'placeholder="name@couriva.com"')
+        || str_contains($login, 'placeholder="name@couriva.local"')
+    ) && !stripos($login, 'juan'),
     'email input group keeps no decorative @ addon' => !str_contains($login, 'bi-at'),
     'password field keeps type, name, autocomplete and label' => preg_match('/<input\b[^>]*type="password"[^>]*>/i', $login)
         && str_contains($login, 'name="password"')
@@ -53,6 +63,12 @@ $checks = [
         && str_contains($script, 'aria-busy')
         && str_contains($script, 'Signing in')
         && str_contains($script, 'pageshow'),
+    'login error normalizes LDAP rejection to default message' => str_contains($authHelper, 'normalize_login_error_message(')
+        && normalize_login_error_message('LDAP credentials rejected.') === 'Invalid email or password.'
+        && normalize_login_error_message('Account is outside the authorized Active Directory OU.') === 'Invalid email or password.'
+        && normalize_login_error_message('Could not connect to authentication server.') === 'Authentication service is temporarily unavailable. Please try again later.'
+        && normalize_login_error_message('Your account is disabled. Contact system administrator.') === 'Your account is disabled. Contact system administrator.',
+    'alerts auto-dismiss after 3 seconds' => str_contains($appJs, 'ALERT_AUTO_DISMISS_MS = 3000'),
 ];
 
 $failed = 0;

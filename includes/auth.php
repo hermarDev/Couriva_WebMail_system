@@ -73,6 +73,7 @@ function attempt_login(string $email, string $password): array
 
     if (!$result['success']) {
         log_activity(null, 'FAILED_LOGIN', 'FAILED', ($result['message'] ?? 'Login failed') . ": {$email}");
+        $result['message'] = normalize_login_error_message($result['message'] ?? null);
         return $result;
     }
 
@@ -99,6 +100,31 @@ function attempt_login(string $email, string $password): array
     log_activity($user['id'], 'USER_LOGIN', 'SUCCESS', "User successfully authenticated ({$_SESSION['auth_source']}): {$email}");
 
     return ['success' => true, 'user' => $user];
+}
+
+/**
+ * Database-backed throttle: limit failed login attempts per client IP.
+ *
+ * Counts FAILED_LOGIN audit rows (written by attempt_login via log_activity,
+ * which stamps ip_address and MySQL NOW()) inside a 15-minute window,
+ * mirroring registration_is_throttled() in public/register.php.
+ *
+ * @return bool True when 10 or more failures are logged for this IP in the window.
+ */
+function login_is_throttled(PDO $pdo): bool
+{
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    try {
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM system_logs
+            WHERE ip_address = ? AND action = 'FAILED_LOGIN'
+              AND created_at >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+        ");
+        $stmt->execute([$ip]);
+        return (int)$stmt->fetchColumn() >= 10;
+    } catch (Throwable $e) {
+        return false;
+    }
 }
 
 /**

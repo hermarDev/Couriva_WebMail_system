@@ -68,6 +68,15 @@ class MailService
         $cleanSubject = preg_replace('/^((Re|Fwd|Fw):\s*)+/i', '', trim($base['subject']));
         $rootId = (int)($base['parent_email_id'] ?: $base['id']);
 
+        // Match only the exact subject or its Re:/Fwd:/Fw: variants, never a substring
+        $subjectClause = '';
+        $params = [$rootId, $rootId, $emailId];
+        if ($cleanSubject !== '') {
+            $subjectClause = ' OR TRIM(e.subject) IN (?, ?, ?, ?)';
+            array_push($params, $cleanSubject, 'Re: ' . $cleanSubject, 'Fwd: ' . $cleanSubject, 'Fw: ' . $cleanSubject);
+        }
+        array_push($params, $userId, $userId);
+
         // 2. Fetch all messages in this thread visible to the user
         $threadStmt = $this->pdo->prepare("
             SELECT e.*,
@@ -80,12 +89,12 @@ class MailService
             FROM emails e
             LEFT JOIN users s ON e.sender_id = s.id
             LEFT JOIN users r ON e.recipient_id = r.id
-            WHERE (e.id = ? OR e.parent_email_id = ? OR e.id = ? OR e.subject LIKE ?)
+            WHERE (e.id = ? OR e.parent_email_id = ? OR e.id = ?{$subjectClause})
               AND (e.recipient_id = ? OR (e.sender_id = ? AND e.recipient_id IS NULL))
               AND e.deleted_at IS NULL
             ORDER BY e.created_at ASC, e.id ASC
         ");
-        $threadStmt->execute([$rootId, $rootId, $emailId, '%' . $cleanSubject . '%', $userId, $userId]);
+        $threadStmt->execute($params);
         $messages = $threadStmt->fetchAll();
 
         if (empty($messages)) {
@@ -291,7 +300,7 @@ class MailService
                 $localUser = $this->userModel->findByEmail($recipientEmail);
 
                 // If an approved local user exists, place it in their inbox or spam folder.
-                if ($localUser && ($localUser['status'] ?? '') === 'active' && (int)$localUser['id'] !== $senderId) {
+                if ($localUser && ($localUser['status'] ?? '') === 'active') {
                     $blockStmt->execute([(int)$localUser['id'], strtolower((string)$sender['email'])]);
                     $isBlocked = (bool)$blockStmt->fetchColumn();
                     $targetFolder = $isBlocked ? 'spam' : 'inbox';
@@ -616,6 +625,19 @@ class MailService
                   AND (recipient_id = ? OR (sender_id = ? AND recipient_id IS NULL))
             ";
             $params = array_merge($validIds, [$userId, $userId]);
+        } elseif ($targetFolder === 'inbox') {
+            // Restore: sender-owned sent copies (recipient_id IS NULL, not draft)
+            // go back to 'sent' so they remain visible in the Sent folder.
+            $sql = "
+                UPDATE emails 
+                SET folder = CASE 
+                    WHEN recipient_id IS NULL AND is_draft = 0 THEN 'sent' 
+                    ELSE 'inbox' 
+                END, deleted_at = NULL, updated_at = NOW() 
+                WHERE id IN ({$placeholders}) 
+                  AND (recipient_id = ? OR (sender_id = ? AND recipient_id IS NULL))
+            ";
+            $params = array_merge($validIds, [$userId, $userId]);
         } else {
             $sql = "
                 UPDATE emails 
@@ -913,7 +935,10 @@ class MailService
 
         // 2. Keyword Filter (q)
         if (!empty($criteria['q'])) {
-            $keyword = '%' . trim($criteria['q']) . '%';
+            $raw = trim($criteria['q']);
+            // Escape LIKE metacharacters so % / _ / \ match literally, not as wildcards.
+            $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $raw);
+            $keyword = '%' . $escaped . '%';
             $where[] = "(
                 e.subject LIKE ? 
                 OR e.body LIKE ? 

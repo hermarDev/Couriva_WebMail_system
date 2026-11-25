@@ -40,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $target = $userModel->findById($targetId);
                 if (!$target) {
                     set_flash('danger', 'User not found.');
+                } elseif (($target['role'] ?? 'user') === 'admin') {
+                    http_response_code(403);
+                    log_activity($_SESSION['user_id'], 'ADMIN_MODIFICATION_BLOCKED', 'FAILED', "Blocked web UI modification of administrator account ID {$targetId}");
+                    set_flash('danger', 'Administrator accounts cannot be modified via the web UI.');
+                    $shouldRedirect = false;
                 } elseif (($target['auth_source'] ?? 'local') === 'local' && ($target['role'] ?? 'user') !== 'admin' && $role === 'admin') {
                     http_response_code(403);
                     log_activity($_SESSION['user_id'], 'USER_ROLE_PROMOTION_BLOCKED', 'FAILED', "Blocked web UI promotion of local user ID {$targetId} to admin");
@@ -57,19 +62,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     set_flash('success', "User details updated successfully.");
                 }
             }
-        } elseif ($targetId > 0 && $targetId !== (int)$_SESSION['user_id']) {
-            if ($action === 'toggle_status') {
-                $target = $userModel->findById($targetId);
-                if ($target) {
+        } elseif ($targetId > 0 && in_array($action, ['toggle_status', 'delete'], true)) {
+            $target = $userModel->findById($targetId);
+            if ($target && ($target['role'] ?? 'user') === 'admin') {
+                http_response_code(403);
+                log_activity($_SESSION['user_id'], 'ADMIN_MODIFICATION_BLOCKED', 'FAILED', "Blocked {$action} on administrator account ID {$targetId}");
+                set_flash('danger', 'Administrator accounts cannot be modified via the web UI.');
+                $shouldRedirect = false;
+            } elseif ($target && $targetId !== (int)$_SESSION['user_id']) {
+                if ($action === 'toggle_status') {
                     $newStatus = $target['status'] === 'active' ? 'disabled' : 'active';
                     $userModel->update($targetId, ['status' => $newStatus]);
                     log_activity($_SESSION['user_id'], 'USER_STATUS_CHANGED', 'SUCCESS', "User ID {$targetId} status changed to {$newStatus}");
                     set_flash('success', "User account {$target['email']} is now {$newStatus}.");
+                } elseif ($action === 'delete') {
+                    $userModel->delete($targetId);
+                    log_activity($_SESSION['user_id'], 'USER_DELETED', 'SUCCESS', "User ID {$targetId} deleted");
+                    set_flash('success', "User account permanently deleted.");
                 }
-            } elseif ($action === 'delete') {
-                $userModel->delete($targetId);
-                log_activity($_SESSION['user_id'], 'USER_DELETED', 'SUCCESS', "User ID {$targetId} deleted");
-                set_flash('success', "User account permanently deleted.");
             }
         }
     }
@@ -155,54 +165,60 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         <td class="small text-muted"><?= e($u['timezone']) ?></td>
                         <td class="small text-muted"><?= date('Y-m-d', strtotime($u['created_at'])) ?></td>
                         <td class="text-end text-nowrap">
-                            <div class="dropdown d-inline-block">
-                                <button class="btn btn-sm btn-light border dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Actions
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                    <li>
-                                        <button type="button" class="dropdown-item edit-user-modal-btn"
-                                            data-id="<?= $u['id'] ?>"
-                                            data-firstname="<?= e($u['first_name']) ?>"
-                                            data-lastname="<?= e($u['last_name']) ?>"
-                                            data-email="<?= e($u['email']) ?>"
-                                            data-role="<?= e($u['role']) ?>"
-                                            data-status="<?= e($u['status']) ?>"
-                                            data-timezone="<?= e($u['timezone']) ?>">
-                                            <i class="bi bi-pencil me-2 text-primary"></i> Edit in Modal
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="<?= app_base_url('admin/edit-user.php?id=' . $u['id']) ?>">
-                                            <i class="bi bi-box-arrow-up-right me-2 text-secondary"></i> Dedicated Edit Page
-                                        </a>
-                                    </li>
-                                    <?php if ($u['id'] != $_SESSION['user_id']): ?>
-                                        <li><hr class="dropdown-divider"></li>
+                            <?php if (($u['role'] ?? 'user') === 'admin'): ?>
+                                <span class="badge bg-body-tertiary text-body-secondary border py-1 px-2" title="Administrator accounts are protected and cannot be modified in the web UI.">
+                                    <i class="bi bi-shield-lock me-1"></i>Protected
+                                </span>
+                            <?php else: ?>
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm btn-light border dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                         <li>
-                                            <form method="POST" action="<?= app_base_url('admin/users.php') ?>">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="action" value="toggle_status">
-                                                <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                                                <button type="submit" class="dropdown-item <?= $u['status'] === 'active' ? 'text-warning' : 'text-success' ?>">
-                                                    <i class="bi <?= $u['status'] === 'active' ? 'bi-person-slash' : 'bi-person-check' ?> me-2"></i>
-                                                    <?= $u['status'] === 'active' ? 'Disable Account' : 'Activate Account' ?>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="dropdown-item edit-user-modal-btn"
+                                                data-id="<?= $u['id'] ?>"
+                                                data-firstname="<?= e($u['first_name']) ?>"
+                                                data-lastname="<?= e($u['last_name']) ?>"
+                                                data-email="<?= e($u['email']) ?>"
+                                                data-role="<?= e($u['role']) ?>"
+                                                data-status="<?= e($u['status']) ?>"
+                                                data-timezone="<?= e($u['timezone']) ?>">
+                                                <i class="bi bi-pencil me-2 text-primary"></i> Edit in Modal
+                                            </button>
                                         </li>
                                         <li>
-                                            <form method="POST" action="<?= app_base_url('admin/users.php') ?>" data-confirm="Permanently delete this user account?">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="bi bi-trash me-2"></i> Delete Account
-                                                </button>
-                                            </form>
+                                            <a class="dropdown-item" href="<?= app_base_url('admin/edit-user.php?id=' . $u['id']) ?>">
+                                                <i class="bi bi-box-arrow-up-right me-2 text-secondary"></i> Dedicated Edit Page
+                                            </a>
                                         </li>
-                                    <?php endif; ?>
-                                </ul>
-                            </div>
+                                        <?php if ($u['id'] != $_SESSION['user_id']): ?>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form method="POST" action="<?= app_base_url('admin/users.php') ?>">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="action" value="toggle_status">
+                                                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                                                    <button type="submit" class="dropdown-item <?= $u['status'] === 'active' ? 'text-warning' : 'text-success' ?>">
+                                                        <i class="bi <?= $u['status'] === 'active' ? 'bi-person-slash' : 'bi-person-check' ?> me-2"></i>
+                                                        <?= $u['status'] === 'active' ? 'Disable Account' : 'Activate Account' ?>
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form method="POST" action="<?= app_base_url('admin/users.php') ?>" data-confirm="Permanently delete this user account?">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="bi bi-trash me-2"></i> Delete Account
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

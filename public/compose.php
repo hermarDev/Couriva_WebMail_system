@@ -34,6 +34,8 @@ $subject = $_GET['subject'] ?? '';
 $body = '';
 $parentEmailId = null;
 $draftId = !empty($_GET['draft_id']) ? (int)$_GET['draft_id'] : null;
+$forwardEmailId = null;
+$forwardAttachmentCount = 0;
 
 // Load existing draft if draft_id is provided
 if ($draftId > 0) {
@@ -73,11 +75,7 @@ if (empty($draftId) && (!empty($_GET['reply_to']) || !empty($_GET['reply']) || !
         $refSenderLabel = $refSenderName !== '' ? $refSenderName : ($refEmail['sender_email'] ?? '');
         $bodyPrefix = "\n\n--- Original Message ---\nFrom: {$refSenderLabel}\nDate: {$refEmail['created_at']}\nSubject: {$refEmail['subject']}\n\n" . $refEmail['body'];
 
-        if (!empty($_GET['reply_to']) || !empty($_GET['reply'])) {
-            $to = $refEmail['sender_email'];
-            $subject = (str_starts_with($refEmail['subject'], 'Re:') ? '' : 'Re: ') . $refEmail['subject'];
-            $body = $bodyPrefix;
-        } elseif (!empty($_GET['reply_all'])) {
+        if (!empty($_GET['reply_all'])) {
             $to = $refEmail['sender_email'];
             $subject = (str_starts_with($refEmail['subject'], 'Re:') ? '' : 'Re: ') . $refEmail['subject'];
             $body = $bodyPrefix;
@@ -90,7 +88,13 @@ if (empty($draftId) && (!empty($_GET['reply_to']) || !empty($_GET['reply']) || !
                 }
             }
             $cc = implode(', ', $ccList);
+        } elseif (!empty($_GET['reply_to']) || !empty($_GET['reply'])) {
+            $to = $refEmail['sender_email'];
+            $subject = (str_starts_with($refEmail['subject'], 'Re:') ? '' : 'Re: ') . $refEmail['subject'];
+            $body = $bodyPrefix;
         } elseif (!empty($_GET['forward'])) {
+            $forwardEmailId = $refId;
+            $forwardAttachmentCount = count((new \App\Models\Attachment($pdo))->getByEmailId($refId));
             $subject = (str_starts_with($refEmail['subject'], 'Fwd:') ? '' : 'Fwd: ') . $refEmail['subject'];
             $body = "\n\n--- Forwarded Message ---\n" . $refEmail['body'];
         }
@@ -117,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $subjectInput = trim($_POST['subject'] ?? '');
         $bodyInput = sanitize_email_html($_POST['body'] ?? '');
         $parentEmailId = !empty($_POST['parent_email_id']) ? (int)$_POST['parent_email_id'] : null;
+        $forwardEmailId = !empty($_POST['forward_email_id']) ? (int)$_POST['forward_email_id'] : null;
 
         $parseEmails = function(string $raw): array {
             $list = array_filter(array_map('trim', explode(',', $raw)));
@@ -126,6 +131,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $toEmails = $parseEmails($toInput);
         $ccEmails = $parseEmails($ccInput);
         $bccEmails = $parseEmails($bccInput);
+        $uploadedFiles = $_FILES['attachments'] ?? [];
+        $validatedUploads = [];
+        $attachmentValidationError = null;
+        if ($action !== 'draft') {
+            try {
+                $validatedUploads = $attachmentService->validateUploadedFiles($uploadedFiles);
+            } catch (Throwable $e) {
+                $attachmentValidationError = $e->getMessage();
+            }
+        }
+
+        $effectiveRecipients = [
+            'to' => $toEmails,
+            'cc' => $ccEmails,
+            'bcc' => $bccEmails,
+        ];
+        if (empty($effectiveRecipients['to'])) {
+            if (!empty($effectiveRecipients['cc'])) {
+                $effectiveRecipients['to'][] = array_shift($effectiveRecipients['cc']);
+            } elseif (!empty($effectiveRecipients['bcc'])) {
+                $effectiveRecipients['to'][] = array_shift($effectiveRecipients['bcc']);
+            }
+        }
 
         if ($action === 'draft') {
             try {
@@ -153,8 +181,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'schedule') {
             $scheduledAt = trim($_POST['scheduled_at'] ?? '');
 
-            if (empty($toEmails)) {
+            if (empty($toEmails) && empty($ccEmails) && empty($bccEmails)) {
                 $error = 'Please specify at least one valid recipient before scheduling.';
+            } elseif ($attachmentValidationError !== null) {
+                $error = $attachmentValidationError;
             } elseif ($scheduledAt === '') {
                 $error = 'Choose the date and time for the scheduled message.';
             } else {
@@ -165,9 +195,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         [
                             'subject'         => $subjectInput ?: '(Untitled Draft)',
                             'body'            => $bodyInput,
-                            'to'              => $toEmails,
-                            'cc'              => $ccEmails,
-                            'bcc'             => $bccEmails,
+                            'to'              => $effectiveRecipients['to'],
+                            'cc'              => $effectiveRecipients['cc'],
+                            'bcc'             => $effectiveRecipients['bcc'],
                             'parent_email_id' => $parentEmailId,
                         ],
                         $_FILES['attachments'] ?? []
@@ -193,16 +223,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             // Send action
-            if (empty($toEmails)) {
-                $error = 'Please specify at least one valid recipient in the "To" field.';
+            if (empty($toEmails) && empty($ccEmails) && empty($bccEmails)) {
+                $error = 'Please specify at least one valid recipient in the "To", "Cc", or "Bcc" field.';
+            } elseif ($attachmentValidationError !== null) {
+                $error = $attachmentValidationError;
             } else {
-                $sendResult = $mailService->sendEmail(
-                    $userId,
-                    ['to' => $toEmails, 'cc' => $ccEmails, 'bcc' => $bccEmails],
-                    $subjectInput ?: '(No Subject)',
-                    $bodyInput,
-                    $parentEmailId
-                );
+                try {
+                    $sendResult = $mailService->sendEmail(
+                        $userId,
+                        $effectiveRecipients,
+                        $subjectInput ?: '(No Subject)',
+                        $bodyInput,
+                        $parentEmailId
+                    );
+                } catch (Throwable $e) {
+                    error_log('Email send failed: ' . $e->getMessage());
+                    $sendResult = ['success' => false, 'error' => 'Unable to send the message. Please try again later.'];
+                }
 
                 if ($sendResult['success']) {
                     $sentEmailId = $sendResult['sent_email_id'];
@@ -210,29 +247,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $attachmentModel = new \App\Models\Attachment($pdo);
 
                     // Attach files to sent email and recipient inbox copies
-                    if (!empty($_FILES['attachments']['name'][0])) {
-                        $fileCount = count($_FILES['attachments']['name']);
-                        for ($i = 0; $i < $fileCount; $i++) {
-                            if ($_FILES['attachments']['error'][$i] === UPLOAD_ERR_OK) {
-                                $file = [
-                                    'name'     => $_FILES['attachments']['name'][$i],
-                                    'type'     => $_FILES['attachments']['type'][$i],
-                                    'tmp_name' => $_FILES['attachments']['tmp_name'][$i],
-                                    'error'    => $_FILES['attachments']['error'][$i],
-                                    'size'     => $_FILES['attachments']['size'][$i],
-                                ];
-                                $storedResult = $attachmentService->storeUploadedFile($sentEmailId, $file);
-                                foreach ($inboxEmailIds as $inboxId) {
-                                    $attachmentModel->create([
-                                        'email_id'          => $inboxId,
-                                        'original_filename' => $storedResult['original_filename'],
-                                        'stored_filename'   => $storedResult['stored_filename'],
-                                        'filepath'          => $storedResult['filepath'],
-                                        'mime_type'         => $storedResult['mime_type'],
-                                        'filesize'          => $storedResult['filesize'],
-                                    ]);
-                                }
+                    try {
+                        foreach ($validatedUploads as $file) {
+                            $storedResult = $attachmentService->storeUploadedFile($sentEmailId, $file);
+                            foreach ($inboxEmailIds as $inboxId) {
+                                $attachmentModel->create([
+                                    'email_id'          => $inboxId,
+                                    'original_filename' => $storedResult['original_filename'],
+                                    'stored_filename'   => $storedResult['stored_filename'],
+                                    'filepath'          => $storedResult['filepath'],
+                                    'mime_type'         => $storedResult['mime_type'],
+                                    'filesize'          => $storedResult['filesize'],
+                                ]);
                             }
+                        }
+                    } catch (Throwable $attachmentError) {
+                        error_log('Attachment storage failed after send: ' . $attachmentError->getMessage());
+                        $error = 'The message was sent, but an attachment could not be stored. Please contact support.';
+                    }
+
+                    if ($forwardEmailId > 0) {
+                        try {
+                            if ($emailModel->findVisibleById($forwardEmailId, $userId)) {
+                                $attachmentService->copyAttachments($forwardEmailId, $sentEmailId, $inboxEmailIds);
+                            }
+                        } catch (Throwable $forwardError) {
+                            error_log('Forward attachment copy failed: ' . $forwardError->getMessage());
+                            $error = 'The message was sent, but a forwarded attachment could not be copied.';
                         }
                     }
 
@@ -264,10 +305,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         set_flash('warning', 'Message queued for delivery, but SMTP outcome is uncertain for some recipients. Will retry automatically.');
                     }
 
-                    log_activity($userId, 'EMAIL_SENT', 'SUCCESS', "Subject: {$subjectInput} to: " . implode(', ', $toEmails));
-                    set_flash('success', 'Your message has been sent successfully.');
-                    header('Location: ' . app_base_url('public/sent.php'));
-                    exit;
+                    if ($error === null) {
+                        $recipientSummary = implode(', ', array_merge($toEmails, $ccEmails, $bccEmails));
+                        log_activity($userId, 'EMAIL_SENT', 'SUCCESS', "Subject: {$subjectInput} to: " . $recipientSummary);
+                        set_flash('success', 'Your message has been sent successfully.');
+                        header('Location: ' . app_base_url('public/sent.php'));
+                        exit;
+                    }
                 } else {
                     $error = 'Failed to deliver message: ' . ($sendResult['error'] ?? 'Unknown error');
                 }
@@ -312,6 +356,9 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <form method="POST" action="<?= app_base_url('public/compose.php') ?>" enctype="multipart/form-data" id="composeForm">
             <?= csrf_field() ?>
             <input type="hidden" name="draft_id" id="draftId" value="<?= e($draftId ?? '') ?>">
+            <?php if ($forwardEmailId): ?>
+                <input type="hidden" name="forward_email_id" value="<?= $forwardEmailId ?>">
+            <?php endif; ?>
             <?php if ($parentEmailId): ?>
                 <input type="hidden" name="parent_email_id" value="<?= $parentEmailId ?>">
             <?php endif; ?>
@@ -372,7 +419,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
             <!-- Rich Text Formatting Toolbar & Editor Container -->
             <div class="editor-wrapper mb-3 border rounded shadow-sm">
                 <!-- Formatting Toolbar -->
-                <div class="editor-toolbar p-2 bg-body-tertiary border-bottom d-flex flex-wrap align-items-center gap-1 flex-column flex-md-row">
+                <div class="editor-toolbar p-2 bg-body-tertiary border-bottom d-flex align-items-center gap-1 flex-nowrap overflow-x-auto" style="scrollbar-width: none;">
                     <div class="btn-group btn-group-sm me-2" role="group" aria-label="Text Formatting">
                         <button type="button" class="btn btn-light border editor-btn" data-cmd="bold" title="Bold (Ctrl+B)">
                             <i class="bi bi-type-bold"></i>
@@ -427,13 +474,16 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <input type="file" id="attachmentInput" name="attachments[]" multiple class="d-none">
                     <div class="dropzone-prompt cursor-pointer small">
                         <i class="bi bi-paperclip fs-5 text-primary align-middle me-1"></i>
-                        <span class="fw-semibold">Attach files: </span><button type="button" id="browseAttachments" class="btn btn-link p-0 align-baseline small">browse</button> or drag &amp; drop here <span class="text-muted">(up to 25MB each)</span>
+                        <span class="fw-semibold">Attach files: </span><button type="button" id="browseAttachments" class="btn btn-link p-0 align-baseline small">browse</button> or drag &amp; drop here <span class="text-muted">(up to <?= e(number_format($attachmentService->getEffectiveMaxFileSize() / 1048576, 1)) ?>MB each)</span>
                     </div>
                 </div>
 
                 <!-- Attachment Staging List / Cards -->
                 <div class="attachment-previews d-flex flex-wrap gap-2 mt-3" id="attachmentPreviews"></div>
                 <div class="small text-muted mt-2 d-none" id="attachmentSummary"></div>
+                <?php if ($forwardAttachmentCount > 0): ?>
+                    <div class="small text-muted mt-2"><i class="bi bi-paperclip me-1"></i><?= $forwardAttachmentCount ?> original attachment<?= $forwardAttachmentCount === 1 ? '' : 's' ?> will be included when this message is sent.</div>
+                <?php endif; ?>
             </div>
 
             <!-- Submit Buttons & Actions -->

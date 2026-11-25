@@ -22,6 +22,7 @@ if (!$targetUser) {
     exit;
 }
 
+$isProtectedAdmin = (($targetUser['role'] ?? 'user') === 'admin');
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -30,7 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $action = $_POST['action'] ?? '';
 
-        if ($action === 'update_profile') {
+        if ($isProtectedAdmin && in_array($action, ['update_profile', 'reset_password'], true)) {
+            http_response_code(403);
+            log_activity($_SESSION['user_id'], 'ADMIN_MODIFICATION_BLOCKED', 'FAILED', "Blocked web UI {$action} on administrator account ID {$targetId}");
+            $error = 'Administrator accounts cannot be modified via the web UI.';
+        } elseif ($action === 'update_profile') {
             $firstName = trim($_POST['first_name'] ?? '');
             $lastName = trim($_POST['last_name'] ?? '');
             $role = $_POST['role'] ?? 'user';
@@ -97,6 +102,15 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
         <?= render_inline_alert($error, ['margin' => 'mb-4']) ?>
 
+        <?php if ($isProtectedAdmin): ?>
+            <div class="alert alert-light border d-flex align-items-start gap-2 mb-4" role="note">
+                <i class="bi bi-shield-lock text-primary mt-1"></i>
+                <div class="small text-body-secondary">
+                    <strong>Protected account:</strong> Administrator accounts cannot be modified via the web UI. Manage your own profile in <a href="<?= app_base_url('public/settings.php') ?>">Account Settings</a> or use <code>php bin/create-admin.php</code> on the server CLI.
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Edit Profile Card -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-body py-3 border-bottom">
@@ -110,32 +124,32 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">First Name</label>
-                            <input type="text" class="form-control" name="first_name" required value="<?= e($targetUser['first_name']) ?>">
+                            <input type="text" class="form-control" name="first_name" required value="<?= e($targetUser['first_name']) ?>" <?= $isProtectedAdmin ? 'disabled' : '' ?>>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Last Name</label>
-                            <input type="text" class="form-control" name="last_name" required value="<?= e($targetUser['last_name']) ?>">
+                            <input type="text" class="form-control" name="last_name" required value="<?= e($targetUser['last_name']) ?>" <?= $isProtectedAdmin ? 'disabled' : '' ?>>
                         </div>
                     </div>
 
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Role</label>
-                            <select class="form-select" name="role">
+                            <select class="form-select" name="role" <?= $isProtectedAdmin ? 'disabled' : '' ?>>
                                 <option value="user" <?= $targetUser['role'] === 'user' ? 'selected' : '' ?>>Standard User</option>
                                 <option value="admin" <?= $targetUser['role'] === 'admin' ? 'selected' : '' ?>>Administrator</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Status</label>
-                            <select class="form-select" name="status">
+                            <select class="form-select" name="status" <?= $isProtectedAdmin ? 'disabled' : '' ?>>
                                 <option value="active" <?= $targetUser['status'] === 'active' ? 'selected' : '' ?>>Active</option>
                                 <option value="disabled" <?= $targetUser['status'] === 'disabled' ? 'selected' : '' ?>>Disabled</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Timezone</label>
-                            <select class="form-select" name="timezone">
+                            <select class="form-select" name="timezone" <?= $isProtectedAdmin ? 'disabled' : '' ?>>
                                 <?php 
                                 $timezones = ['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Manila'];
                                 foreach ($timezones as $tz): ?>
@@ -145,9 +159,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary fw-semibold px-4">
-                        <i class="bi bi-check-circle me-1"></i> Update User Details
-                    </button>
+                    <?php if (!$isProtectedAdmin): ?>
+                        <button type="submit" class="btn btn-primary fw-semibold px-4">
+                            <i class="bi bi-check-circle me-1"></i> Update User Details
+                        </button>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
@@ -158,7 +174,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <h6 class="mb-0 fw-bold"><i class="bi bi-key text-warning me-2"></i>Reset User Password</h6>
             </div>
             <div class="card-body p-4">
-                <?php if (($targetUser['auth_source'] ?? 'local') === 'ldap'): ?>
+                <?php if ($isProtectedAdmin): ?>
+                    <div class="alert alert-light border mb-0" role="note">
+                        Administrator passwords cannot be reset from User Governance. Use <a href="<?= app_base_url('public/change-password.php') ?>">Change Password</a> for your own account or <code>php bin/create-admin.php</code> on the server CLI.
+                    </div>
+                <?php elseif (($targetUser['auth_source'] ?? 'local') === 'ldap'): ?>
                     <div class="alert alert-info mb-0" role="note">
                         This user is managed by Windows Active Directory. Passwords must be reset in the Windows Domain Controller.
                     </div>

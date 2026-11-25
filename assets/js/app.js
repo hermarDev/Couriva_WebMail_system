@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const use = icon.querySelector('use');
                 if (use) use.setAttribute('href', use.getAttribute('href').replace(/#.*$/, visible ? '#eye-slash' : '#eye'));
             }
+            const visuallyHidden = button.querySelector('.visually-hidden');
+            if (visuallyHidden) {
+                visuallyHidden.textContent = visible ? 'Hide ' + action : 'Show ' + action;
+            }
         });
     });
 
@@ -42,16 +46,41 @@ document.addEventListener('DOMContentLoaded', function () {
     const baseUrl = baseUrlMeta ? (baseUrlMeta.getAttribute('content') || '') : '';
 
     // =========================================================================
-    // 0. Auto-Dismiss Alerts
+    // 0. Auto-Dismiss Alerts (3 seconds)
     // =========================================================================
+    const ALERT_AUTO_DISMISS_MS = 3000;
     const autoAlerts = document.querySelectorAll('.alert.alert-dismissible:not(#attachmentAlert)');
     autoAlerts.forEach(function (alert) {
         setTimeout(function () {
             if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
                 const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-                if (bsAlert) bsAlert.close();
+                if (bsAlert) {
+                    bsAlert.close();
+                    return;
+                }
             }
-        }, 5000);
+            alert.remove();
+        }, ALERT_AUTO_DISMISS_MS);
+    });
+
+    // Auto-hide dynamic inline alerts that toggle visibility via `d-none`
+    ['attachmentAlert', 'createLabelAlert', 'createFolderAlert'].forEach(function (alertId) {
+        const dynamicAlert = document.getElementById(alertId);
+        if (!dynamicAlert || typeof MutationObserver === 'undefined') return;
+        let hideTimer = null;
+        const scheduleHide = function () {
+            if (hideTimer) clearTimeout(hideTimer);
+            if (!dynamicAlert.classList.contains('d-none')) {
+                hideTimer = setTimeout(function () {
+                    dynamicAlert.classList.add('d-none');
+                }, ALERT_AUTO_DISMISS_MS);
+            }
+        };
+        new MutationObserver(scheduleHide).observe(dynamicAlert, {
+            attributes: true,
+            attributeFilter: ['class'],
+        });
+        scheduleHide();
     });
 
     // =========================================================================
@@ -108,7 +137,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const updateSidebarFocusableElements = function () {
             sidebarFocusableElements = Array.from(sidebarMenu.querySelectorAll(
                 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-            )).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0);
+            )).filter(el => {
+                const style = getComputedStyle(el);
+                return (el.offsetWidth > 0 || el.offsetHeight > 0) && style.display !== 'none' && style.visibility !== 'hidden';
+            });
             sidebarFirstFocusable = sidebarFocusableElements[0];
             sidebarLastFocusable = sidebarFocusableElements[sidebarFocusableElements.length - 1];
         };
@@ -626,6 +658,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function applyTheme(theme, persist = false) {
         const preference = (theme === 'system' || theme === 'dark') ? theme : 'light';
         const resolved = resolveTheme(preference);
+        const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+        if (colorSchemeMeta) {
+            colorSchemeMeta.setAttribute('content', preference === 'system' ? 'light dark' : resolved);
+        }
         document.documentElement.setAttribute('data-bs-theme', resolved);
         document.documentElement.setAttribute('data-theme-preference', preference);
         try { localStorage.setItem('webmail_theme', preference); } catch (_) { /* Storage may be blocked. */ }
@@ -681,6 +717,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const doc = iframe.contentDocument || iframe.contentWindow?.document;
                 if (doc && doc.body) {
                     doc.documentElement.setAttribute('data-bs-theme', resolved);
+                    doc.documentElement.style.colorScheme = resolved;
+                    const iframeMeta = doc.querySelector('meta[name="color-scheme"]');
+                    if (iframeMeta) {
+                        iframeMeta.setAttribute('content', preference === 'system' ? 'light dark' : resolved);
+                    }
                     if (resolved === 'dark') {
                         doc.body.style.backgroundColor = '#18181b';
                         doc.body.style.color = '#f8fafc';
@@ -840,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         renderList() {
-            this.list.innerHTML = '';
+            this.list.replaceChildren();
             this.chips.forEach(email => {
                 const chipEl = document.createElement('span');
                 chipEl.className = 'chip-badge';
@@ -887,7 +928,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            this.dropdown.innerHTML = '';
+            this.dropdown.replaceChildren();
             matches.slice(0, 6).forEach(contact => {
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
@@ -911,6 +952,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         handleKeyDown(e) {
+            if (e.isComposing || e.keyCode === 229) return;
             const val = this.input.value.trim();
 
             if (e.key === 'Enter' || e.key === ',' || e.key === ';' || e.key === 'Tab') {
@@ -934,7 +976,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideDropdown() {
             if (this.dropdown) {
                 this.dropdown.style.display = 'none';
-                this.dropdown.innerHTML = '';
+                this.dropdown.replaceChildren();
             }
         }
 
@@ -1195,7 +1237,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function renderAttachmentPreviews() {
-            attachmentPreviews.innerHTML = '';
+            attachmentPreviews.replaceChildren();
 
             if (stagedFiles.length === 0) {
                 if (attachmentSummary) attachmentSummary.classList.add('d-none');
@@ -1935,6 +1977,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Load email via AJAX
                     loadReadingPaneEmail(emailId);
+                } else if (window.innerWidth < 768) {
+                    if (e.target.closest('.label-chip')) {
+                        e.preventDefault();
+                    } else if (!e.target.closest('a') && this.dataset.emailId) {
+                        window.location.href = baseUrl + '/public/read.php?id=' + encodeURIComponent(this.dataset.emailId);
+                    }
                 }
             });
         });
@@ -1959,7 +2007,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         readingPaneContent.innerHTML = `
                             <div class="alert alert-danger m-3">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                ${data.error || 'Failed to load email preview.'}
+                                ${escapeHtml(data.error || 'Failed to load email preview.')}
                             </div>
                         `;
                     }
@@ -2061,7 +2109,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         title="Email message preview"
                         sandbox="allow-popups allow-popups-to-escape-sandbox"
                         referrerpolicy="no-referrer"
-                        style="min-height: 320px; height: 60vh; border: 0;"
+                        style="min-height: 320px; height: 60vh; height: 60dvh; border: 0;"
                         srcdoc="${escapeHtml(buildEmailDocument(email.sanitized_body_html || email.body_html || '<span class=&quot;text-muted fst-italic&quot;>No message content</span>'))}">
                     </iframe>
 
@@ -2079,8 +2127,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function buildEmailDocument(bodyHtml) {
+            const pref = document.documentElement.getAttribute('data-theme-preference') || 'light';
             const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-            return '<!doctype html><html><head><meta charset="utf-8"><style>'
+            const colorSchemeContent = pref === 'system' ? 'light dark' : (isDark ? 'dark' : 'light');
+            return `<!doctype html><html><head><meta charset="utf-8"><meta name="color-scheme" content="${colorSchemeContent}"><style>`
                 + `html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.6;color:${isDark ? '#e5e7eb' : '#1f2937'};background:${isDark ? '#18181b' : '#ffffff'};overflow-wrap:anywhere}`
                 + `blockquote{margin:0 0 1em;padding-left:12px;border-left:1px solid ${isDark ? '#3f3f46' : '#cbd5e1'};color:${isDark ? '#9ca3af' : '#475569'};}`
                 + 'img{max-width:100%;height:auto}table{max-width:100%;border-collapse:collapse}'
@@ -2264,8 +2314,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 labelText = 'Strong';
             }
 
-            passwordStrengthBar.style.width = percent + '%';
-            passwordStrengthBar.className = barClass;
+            if (passwordStrengthBar.tagName === 'PROGRESS') {
+                passwordStrengthBar.value = percent;
+                passwordStrengthBar.className = 'password-strength-progress w-100 ' + barClass;
+            } else {
+                passwordStrengthBar.style.width = percent + '%';
+                passwordStrengthBar.className = barClass;
+            }
             if (passwordStrengthLabel) {
                 passwordStrengthLabel.textContent = 'Strength: ' + labelText;
             }
@@ -2384,6 +2439,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const dockedBody = document.getElementById('dockedBody');
         const dockedDraftId = document.getElementById('dockedDraftId');
         const dockedSaveStatus = document.getElementById('dockedSaveStatus');
+        const btnDockedAttach = document.getElementById('btnDockedAttach');
+        const dockedAttachmentInput = document.getElementById('dockedAttachmentInput');
+        const dockedAttachmentPreviews = document.getElementById('dockedAttachmentPreviews');
+        const dockedAttachmentAlert = document.getElementById('dockedAttachmentAlert');
+        const dockedAttachmentAlertMsg = document.getElementById('dockedAttachmentAlertMsg');
+        const btnDismissDockedAttachmentAlert = document.getElementById('btnDismissDockedAttachmentAlert');
         const btnDockedDiscard = document.getElementById('btnDockedDiscard');
 
         let dockedAutosaveTimer = null;
@@ -2391,6 +2452,165 @@ document.addEventListener('DOMContentLoaded', function () {
         let isDockedSaving = false;
         let dockedNeedsResave = false;
         let dockedAutosaveSeq = 0;
+        let dockedStagedFiles = [];
+
+        const DOCKED_MAX_FILE_SIZE = 25 * 1024 * 1024;
+        const DOCKED_MAX_TOTAL_SIZE = 50 * 1024 * 1024;
+        const DOCKED_ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'txt', 'csv', 'zip'];
+        const DOCKED_DISALLOWED_EXTENSIONS = ['php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'phar', 'exe', 'bat', 'cmd', 'sh', 'bash', 'vbs', 'js', 'jar', 'py', 'pl', 'msi', 'dll', 'com', 'scr', 'bin', 'cpl', 'gadget', 'ins', 'jse', 'svg', 'htaccess'];
+
+        const formatDockedBytes = function (bytes) {
+            if (!bytes) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        };
+
+        const getDockedFileIconClass = function (filename) {
+            const ext = filename.includes('.') ? filename.split('.').pop().toLowerCase() : '';
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return 'bi bi-file-earmark-image text-success';
+            if (ext === 'pdf') return 'bi bi-file-earmark-pdf text-danger';
+            if (['doc', 'docx'].includes(ext)) return 'bi bi-file-earmark-word text-primary';
+            if (['xls', 'xlsx', 'csv'].includes(ext)) return 'bi bi-file-earmark-excel text-success';
+            if (['zip', 'tar', 'gz', '7z', 'rar'].includes(ext)) return 'bi bi-file-earmark-zip text-warning';
+            return 'bi bi-file-earmark-text text-secondary';
+        };
+
+        const showDockedAttachmentAlert = function (msg) {
+            if (dockedAttachmentAlert && dockedAttachmentAlertMsg) {
+                dockedAttachmentAlertMsg.textContent = msg;
+                dockedAttachmentAlert.classList.remove('d-none');
+            }
+        };
+
+        const hideDockedAttachmentAlert = function () {
+            if (dockedAttachmentAlert) {
+                dockedAttachmentAlert.classList.add('d-none');
+            }
+            if (dockedAttachmentAlertMsg) {
+                dockedAttachmentAlertMsg.textContent = '';
+            }
+        };
+
+        const renderDockedAttachmentPreviews = function () {
+            if (btnDockedAttach) {
+                btnDockedAttach.setAttribute(
+                    'aria-label',
+                    dockedStagedFiles.length > 0
+                        ? `Attach files (${dockedStagedFiles.length} attached)`
+                        : 'Attach files'
+                );
+            }
+            if (!dockedAttachmentPreviews) return;
+
+            dockedAttachmentPreviews.replaceChildren();
+            if (dockedStagedFiles.length === 0) {
+                dockedAttachmentPreviews.classList.add('d-none');
+                return;
+            }
+
+            dockedAttachmentPreviews.classList.remove('d-none');
+            dockedStagedFiles.forEach(function (file, index) {
+                const card = document.createElement('div');
+                card.className = 'attachment-card';
+                card.innerHTML = `
+                    <i class="${getDockedFileIconClass(file.name)} file-icon"></i>
+                    <div class="d-flex flex-column min-w-0">
+                        <span class="file-name"></span>
+                        <span class="file-size">${formatDockedBytes(file.size)}</span>
+                    </div>
+                    <button type="button" class="file-remove-btn" title="Remove attachment">&times;</button>
+                `;
+
+                const fileNameEl = card.querySelector('.file-name');
+                if (fileNameEl) {
+                    fileNameEl.textContent = file.name;
+                    fileNameEl.title = file.name;
+                }
+                const removeBtn = card.querySelector('.file-remove-btn');
+                if (removeBtn) {
+                    removeBtn.setAttribute('aria-label', 'Remove attachment ' + file.name);
+                    removeBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        dockedStagedFiles.splice(index, 1);
+                        syncDockedInputFiles();
+                    });
+                }
+
+                dockedAttachmentPreviews.appendChild(card);
+            });
+        };
+
+        const syncDockedInputFiles = function () {
+            if (dockedAttachmentInput) {
+                if (typeof DataTransfer === 'function') {
+                    const dt = new DataTransfer();
+                    dockedStagedFiles.forEach(function (file) { dt.items.add(file); });
+                    dockedAttachmentInput.files = dt.files;
+                }
+                if (dockedStagedFiles.length === 0) {
+                    dockedAttachmentInput.value = '';
+                }
+            }
+            renderDockedAttachmentPreviews();
+        };
+
+        const processDockedFiles = function (files) {
+            let hasError = false;
+            let runningTotal = dockedStagedFiles.reduce(function (sum, f) { return sum + (f.size || 0); }, 0);
+
+            Array.from(files || []).forEach(function (file) {
+                const ext = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : '';
+                if (!ext || DOCKED_DISALLOWED_EXTENSIONS.includes(ext)) {
+                    showDockedAttachmentAlert(`"${file.name}" has a prohibited file type.`);
+                    hasError = true;
+                    return;
+                }
+                if (!DOCKED_ALLOWED_EXTENSIONS.includes(ext)) {
+                    showDockedAttachmentAlert(`"${file.name}" (.${ext}) is not a permitted attachment format.`);
+                    hasError = true;
+                    return;
+                }
+                if (file.size > DOCKED_MAX_FILE_SIZE) {
+                    showDockedAttachmentAlert(`"${file.name}" exceeds the 25 MB per-file attachment limit.`);
+                    hasError = true;
+                    return;
+                }
+                const exists = dockedStagedFiles.some(function (f) { return f.name === file.name && f.size === file.size; });
+                if (!exists) {
+                    if (runningTotal + file.size > DOCKED_MAX_TOTAL_SIZE) {
+                        showDockedAttachmentAlert('Total attachment size exceeds the 50 MB limit.');
+                        hasError = true;
+                        return;
+                    }
+                    dockedStagedFiles.push(file);
+                    runningTotal += file.size;
+                }
+            });
+
+            if (!hasError) {
+                hideDockedAttachmentAlert();
+            }
+            syncDockedInputFiles();
+        };
+
+        if (btnDockedAttach && dockedAttachmentInput) {
+            btnDockedAttach.addEventListener('click', function (e) {
+                e.preventDefault();
+                dockedAttachmentInput.click();
+            });
+
+            dockedAttachmentInput.addEventListener('change', function () {
+                if (dockedAttachmentInput.files && dockedAttachmentInput.files.length > 0) {
+                    processDockedFiles(dockedAttachmentInput.files);
+                }
+            });
+        }
+
+        if (btnDismissDockedAttachmentAlert) {
+            btnDismissDockedAttachmentAlert.addEventListener('click', hideDockedAttachmentAlert);
+        }
 
         const openDockedCompose = function (draftData = null) {
             dockedComposeContainer.classList.remove('d-none');
@@ -2434,6 +2654,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        const mobileComposeFab = document.getElementById('mobileComposeFab');
+        if (mobileComposeFab && !window.location.pathname.endsWith('/compose.php')) {
+            mobileComposeFab.addEventListener('click', function (e) {
+                e.preventDefault();
+                openDockedCompose();
+            });
+        }
+
         if (minimizeBtn) {
             minimizeBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
@@ -2464,7 +2692,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 dockedAutosaveTimer = null;
                 dockedNeedsResave = false;
 
-                const hasContent = Boolean(dockedTo?.value.trim() || dockedSubject?.value.trim() || (dockedBody?.value || dockedBody?.innerText || '').trim());
+                const hasContent = Boolean(dockedTo?.value.trim() || dockedSubject?.value.trim() || (dockedBody?.value || dockedBody?.innerText || '').trim() || dockedStagedFiles.length > 0);
                 if (hasContent) {
                     const ok = window.CourivaDialog ? await window.CourivaDialog.confirm({ title: 'Discard draft?', message: 'Unsaved changes in this draft will be lost.', confirmText: 'Discard draft', variant: 'danger' }) : confirm('Discard this draft?');
                     if (!ok) return;
@@ -2482,6 +2710,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (dockedBody) dockedBody.value = '';
                 if (dockedDraftId) dockedDraftId.value = '';
                 if (dockedSaveStatus) dockedSaveStatus.textContent = '';
+                dockedStagedFiles = [];
+                syncDockedInputFiles();
+                hideDockedAttachmentAlert();
                 closeDockedCompose();
             });
         }
@@ -2614,6 +2845,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const dockedObserver = new MutationObserver(function () {
             const isFullscreen = dockedComposeContainer.classList.contains('docked-fullscreen');
             const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+            dockedComposeContainer.setAttribute('aria-modal', (isFullscreen && isMobile) ? 'true' : 'false');
 
             if (isFullscreen && isMobile) {
                 dockedPreviouslyFocused = document.activeElement;
@@ -2656,6 +2888,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         header.addEventListener('keydown', function (e) {
+            if (e.isComposing || e.keyCode === 229) return;
             if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('a, button')) {
                 e.preventDefault();
                 header.click();
@@ -2705,6 +2938,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentKeyboardIndex = -1;
 
     document.addEventListener('keydown', function (e) {
+        if (e.isComposing || e.keyCode === 229) return;
         // Ignore if user is currently focused on an input, textarea, select, or contenteditable
         const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
         const isEditable = document.activeElement && (document.activeElement.isContentEditable || ['input', 'textarea', 'select'].includes(activeTag));
@@ -2964,10 +3198,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     newLink.className = 'webmail-nav-link';
                     newLink.href = result.data.item.url;
                     newLink.title = result.data.item.name;
-                    newLink.innerHTML = `
-                        <span class="label-dot nav-icon" style="background-color: ${result.data.item.color};"></span>
-                        <span class="nav-text text-truncate">${result.data.item.name}</span>
-                    `;
+                    const dot = document.createElement('span');
+                    dot.className = 'label-dot nav-icon';
+                    dot.style.backgroundColor = result.data.item.color || '#64748b';
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'nav-text text-truncate';
+                    textSpan.textContent = result.data.item.name;
+                    newLink.append(dot, textSpan);
                     sidebarGroup.appendChild(newLink);
                 }
 
@@ -3041,10 +3278,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     newLink.className = 'webmail-nav-link';
                     newLink.href = result.data.item.url;
                     newLink.title = result.data.item.name;
-                    newLink.innerHTML = `
-                        <i class="bi bi-folder2 nav-icon" style="color: ${result.data.item.color};"></i>
-                        <span class="nav-text text-truncate">${result.data.item.name}</span>
-                    `;
+                    const folderIcon = document.createElement('i');
+                    folderIcon.className = 'bi bi-folder2 nav-icon';
+                    folderIcon.style.color = result.data.item.color || '#64748b';
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'nav-text text-truncate';
+                    textSpan.textContent = result.data.item.name;
+                    newLink.append(folderIcon, textSpan);
                     sidebarGroup.appendChild(newLink);
                 }
 
@@ -3094,4 +3334,62 @@ document.addEventListener('DOMContentLoaded', function () {
             if (swatch) swatch.checked = true;
         });
     });
+
+    // =========================================================================
+    // 18. Accessible Form Validation Sync (:user-invalid + aria-invalid)
+    // =========================================================================
+    (function initValidationSync() {
+        const supportsUserInvalid = typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('selector(:user-invalid)');
+        const stateByControl = new WeakMap();
+
+        function isFieldValid(field) {
+            return typeof field.checkValidity === 'function' ? field.checkValidity() : true;
+        }
+
+        function syncControl(field, forceInteracted = false) {
+            if (!field || !field.matches('input, select, textarea') || field.type === 'hidden' || field.disabled) return;
+            let state = stateByControl.get(field);
+            if (!state) {
+                state = { interacted: false };
+                stateByControl.set(field, state);
+            }
+            if (forceInteracted) state.interacted = true;
+
+            const invalid = supportsUserInvalid
+                ? field.matches(':user-invalid')
+                : (state.interacted && !isFieldValid(field));
+            field.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+
+            if (!supportsUserInvalid) {
+                field.classList.toggle('user-invalid-fallback', invalid);
+                field.classList.toggle('user-valid-fallback', state.interacted && !invalid);
+            }
+        }
+
+        document.querySelectorAll('form').forEach(form => {
+            form.querySelectorAll('input, select, textarea').forEach(field => {
+                if (field.type !== 'hidden' && !field.disabled && !field.hasAttribute('aria-invalid')) {
+                    field.setAttribute('aria-invalid', field.classList.contains('is-invalid') ? 'true' : 'false');
+                }
+            });
+            form.addEventListener('blur', e => syncControl(e.target, true), true);
+            form.addEventListener('change', e => syncControl(e.target, true), true);
+            form.addEventListener('input', e => {
+                const state = stateByControl.get(e.target);
+                if (supportsUserInvalid || (state && state.interacted)) syncControl(e.target, false);
+            }, true);
+            form.addEventListener('invalid', e => syncControl(e.target, true), true);
+            form.addEventListener('reset', () => {
+                queueMicrotask(() => {
+                    form.querySelectorAll('input, select, textarea').forEach(field => {
+                        stateByControl.set(field, { interacted: false });
+                        syncControl(field, false);
+                        if (!supportsUserInvalid) {
+                            field.classList.remove('user-invalid-fallback', 'user-valid-fallback');
+                        }
+                    });
+                });
+            });
+        });
+    })();
 });

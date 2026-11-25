@@ -63,9 +63,11 @@ Install-WindowsFeature -Name Web-Server, `
 ```
 
 ### Required External Dependencies
+
 1. **Microsoft Visual C++ 2015–2022 Redistributable (x64):**
    - Download: `https://aka.ms/vs/17/release/vc_redist.x64.exe`
    - Install silently: `Start-Process vc_redist.x64.exe -ArgumentList '/quiet /norestart' -Wait`
+
 2. **IIS URL Rewrite Module 2.1 (x64):**
    - Download: `https://www.iis.net/downloads/microsoft/url-rewrite`
    - Install: `msiexec /i rewrite_amd64_en-US.msi /qn`
@@ -76,6 +78,7 @@ Install-WindowsFeature -Name Web-Server, `
 
 1. **Extract PHP:**
    Download the latest stable **PHP 8.2+ x64 Non-Thread Safe (NTS)** zip archive from `https://windows.php.net/download/` and extract to `C:\PHP`.
+
 2. **Configure `C:\PHP\php.ini`:**
    Copy `php.ini-production` to `php.ini` and enforce the following directives:
 
@@ -191,6 +194,12 @@ if (-not (Test-Path "IIS:\Sites\$siteName")) {
 
 Start-WebSite -Name $siteName
 ```
+
+### 5.1 iPhone Hotspot Quick Setup (172.20.10.2)
+When accessing the Windows Server VM from an iPhone Personal Hotspot (`172.20.10.x`):
+- Run `bin\configure-hotspot-ip.bat` as Administrator (or execute `bin\configure-hotspot-ip.ps1`).
+- This sets the server adapter to static IP `172.20.10.2` (Subnet: `255.255.255.240` / `/28`, Gateway: `172.20.10.1`), switches the network profile to `Private`, opens Firewall ports 80/443, and confirms IIS bindings.
+- Open Safari on iPhone and browse: `http://172.20.10.2/public/login.php`
 
 ---
 

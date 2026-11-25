@@ -13,7 +13,7 @@ if (!defined('WEBMAIL_INIT')) {
 </div>
 
 <!-- Gmail-Style Floating Docked Compose Window -->
-<div id="dockedComposeContainer" class="docked-compose-window shadow-lg border d-none" role="dialog" aria-labelledby="dockedComposeTitle" tabindex="-1" aria-modal="true">
+<div id="dockedComposeContainer" class="docked-compose-window shadow-lg border d-none" role="dialog" aria-labelledby="dockedComposeTitle" tabindex="-1" aria-modal="false">
     <!-- Window Header -->
     <div id="dockedComposeHeader" class="docked-compose-header d-flex align-items-center justify-content-between px-3 py-2">
         <span class="fw-semibold small text-truncate" id="dockedComposeTitle">New Message</span>
@@ -51,6 +51,13 @@ if (!defined('WEBMAIL_INIT')) {
             <div class="docked-editor-container p-3 flex-grow-1">
                 <textarea name="body" id="dockedBody" class="form-control border-0 shadow-none p-0" rows="10" placeholder="Write your message here..."></textarea>
             </div>
+
+            <input type="file" id="dockedAttachmentInput" name="attachments[]" multiple class="d-none">
+            <div id="dockedAttachmentAlert" class="alert alert-danger py-1 px-3 mb-2 mx-3 small d-none d-flex align-items-center justify-content-between gap-2" role="alert">
+                <span id="dockedAttachmentAlertMsg"></span>
+                <button type="button" class="btn-close btn-close-sm flex-shrink-0" id="btnDismissDockedAttachmentAlert" aria-label="Dismiss attachment error"></button>
+            </div>
+            <div id="dockedAttachmentPreviews" class="docked-attachment-previews d-none px-3 pb-2 d-flex flex-wrap gap-2"></div>
 
             <!-- Docked Compose Footer -->
             <div class="docked-compose-footer border-top px-3 py-2 d-flex align-items-center justify-content-between bg-body">
@@ -273,34 +280,12 @@ if (!defined('WEBMAIL_INIT')) {
 </div>
 <?php endif; ?>
 
-<!-- Custom System-Wide Confirmation & Action Dialog (Mockup Parity) -->
-<div class="modal fade" id="courivaConfirmModal" tabindex="-1" aria-labelledby="courivaConfirmTitle" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
-        <div class="modal-content shadow-lg border couriva-dialog-card">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex align-items-start justify-content-between">
-                <div class="couriva-dialog-icon-badge danger" id="courivaConfirmBadge">
-                    <i class="bi bi-trash3" id="courivaConfirmIcon"></i>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="courivaConfirmCloseBtn"></button>
-            </div>
-            <div class="modal-body px-4 pt-3 pb-2">
-                <h5 class="modal-title fw-bold text-body mb-2" id="courivaConfirmTitle">Confirm</h5>
-                <p class="text-muted small mb-0 lh-base" id="courivaConfirmMessage"></p>
-                <div id="courivaConfirmInputContainer" class="d-none mt-3">
-                    <input type="text" class="form-control" id="courivaConfirmInput" placeholder="" autocomplete="off">
-                    <div id="courivaConfirmInputError" class="text-danger small mt-1 d-none"></div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 px-4 pb-4 pt-3 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-outline-secondary btn-sm px-3 fw-medium" id="courivaConfirmCancelBtn" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger btn-sm px-3 fw-semibold d-inline-flex align-items-center gap-1" id="courivaConfirmSubmitBtn">
-                    <i class="bi bi-trash3" id="courivaConfirmSubmitIcon"></i>
-                    <span id="courivaConfirmSubmitText">Confirm</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Mobile Floating Compose FAB (Authenticated) -->
+<?php if (is_authenticated()): ?>
+<button type="button" class="btn btn-primary rounded-circle shadow-lg d-md-none btn-compose-fab position-fixed" id="mobileComposeFab" aria-label="Compose email" title="Compose email" style="bottom: 20px; right: 20px; width: 56px; height: 56px; z-index: 1040;">
+    <i class="bi bi-pencil-fill fs-5"></i>
+</button>
+<?php endif; ?>
 
 <footer class="text-center py-3 text-muted small border-top mt-auto">
     <div class="container">
@@ -308,8 +293,8 @@ if (!defined('WEBMAIL_INIT')) {
     </div>
 </footer>
 
-<!-- Bootstrap 5 JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Locally bundled Bootstrap 5 JS Bundle -->
+<script src="<?= app_base_url('assets/js/bootstrap.bundle.min.js') ?>"></script>
 <!-- Local SVG icon fallback -->
 <script src="<?= app_base_url('assets/js/icons.js') ?>"></script>
 <!-- Application Script -->
