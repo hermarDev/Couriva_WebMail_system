@@ -656,6 +656,84 @@ namespace {
         'message=' . var_export($failMsg, true)
     );
 
+    // 16. admin_ou_dn grants admin role on provision and syncs role when moved out
+    $adminOuConfig = array_merge($baseConfig, [
+        'admin_ou_dn' => 'OU=CourivaAdmins,OU=CourivaUsers,DC=couriva,DC=local',
+    ]);
+    $adminOuSvc = new \App\Services\AuthService($pdo, $adminOuConfig);
+    $spareGuid = hex2bin('33333333333333333333333333333333');
+    resetLdapState([
+        'bind_ok' => ['spare.admin@couriva.local', 'CN=Spare Admin,OU=CourivaAdmins,OU=CourivaUsers,DC=couriva,DC=local'],
+        'entries' => [
+            'count' => 1,
+            0 => [
+                'dn' => 'CN=Spare Admin,OU=CourivaAdmins,OU=CourivaUsers,DC=couriva,DC=local',
+                'mail' => ['spare.admin@couriva.local'],
+                'givenname' => ['Spare'],
+                'sn' => ['Admin'],
+                'objectguid' => [$spareGuid],
+                'useraccountcontrol' => ['512'],
+            ],
+        ],
+    ]);
+    $resAdminOu = $adminOuSvc->attemptLdapAuth('spare.admin@couriva.local', 'DomainPass!1');
+    assertPolicy(
+        !empty($resAdminOu['success']) && ($resAdminOu['user']['role'] ?? '') === 'admin',
+        '16a. User in admin_ou_dn is provisioned with role=admin',
+        json_encode($resAdminOu)
+    );
+
+    resetLdapState([
+        'bind_ok' => ['spare.admin@couriva.local', 'CN=Spare Admin,OU=CourivaUsers,DC=couriva,DC=local'],
+        'entries' => [
+            'count' => 1,
+            0 => [
+                'dn' => 'CN=Spare Admin,OU=CourivaUsers,DC=couriva,DC=local',
+                'mail' => ['spare.admin@couriva.local'],
+                'givenname' => ['Spare'],
+                'sn' => ['Admin'],
+                'objectguid' => [$spareGuid],
+                'useraccountcontrol' => ['512'],
+            ],
+        ],
+    ]);
+    $resDemotedOu = $adminOuSvc->attemptLdapAuth('spare.admin@couriva.local', 'DomainPass!1');
+    assertPolicy(
+        !empty($resDemotedOu['success']) && ($resDemotedOu['user']['role'] ?? '') === 'user',
+        '16b. User moved out of admin_ou_dn reverts to role=user on next login',
+        json_encode($resDemotedOu)
+    );
+
+    // 17. Reject foreign email domain (e.g. @gmail.com) and prefer userPrincipalName when mail is empty
+    resetLdapState([]);
+    $resForeignDomain = $adminOuSvc->attemptLdapAuth('spare.admin@gmail.com', 'DomainPass!1');
+    assertPolicy(
+        empty($resForeignDomain['success']) && count($GLOBALS['ad_test_state']['connect_calls']) === 0,
+        '17a. Foreign email domain (@gmail.com) is rejected before ldap_connect',
+        json_encode($resForeignDomain)
+    );
+
+    resetLdapState([
+        'bind_ok' => ['upn.only@couriva.local', 'CN=UPN Only,OU=CourivaUsers,DC=couriva,DC=local'],
+        'entries' => [
+            'count' => 1,
+            0 => [
+                'dn' => 'CN=UPN Only,OU=CourivaUsers,DC=couriva,DC=local',
+                'userprincipalname' => ['upn.only@couriva.local'],
+                'givenname' => ['Upn'],
+                'sn' => ['Only'],
+                'objectguid' => [hex2bin('44444444444444444444444444444444')],
+                'useraccountcontrol' => ['512'],
+            ],
+        ],
+    ]);
+    $resUpnFallback = $adminOuSvc->attemptLdapAuth('upn.only', 'DomainPass!1');
+    assertPolicy(
+        !empty($resUpnFallback['success']) && ($resUpnFallback['user']['email'] ?? '') === 'upn.only@couriva.local',
+        '17b. Empty AD mail falls back to userPrincipalName within allowed domain',
+        json_encode($resUpnFallback)
+    );
+
     echo "\n=== AD OU Policy Test Results: {$passed} passed, {$failed} failed ===\n";
     exit($failed === 0 ? 0 : 1);
 }

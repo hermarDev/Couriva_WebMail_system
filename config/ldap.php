@@ -56,6 +56,7 @@ return [
     'allowed_ou_dn'              => trim((string)getenv('LDAP_ALLOWED_OU_DN')) !== ''
         ? trim((string)getenv('LDAP_ALLOWED_OU_DN'))
         : 'OU=CourivaUsers,DC=couriva,DC=local',
+    'admin_ou_dn'                => trim((string)getenv('LDAP_ADMIN_OU_DN')),
     'allowed_group_dn'           => getenv('LDAP_ALLOWED_GROUP_DN') !== false ? getenv('LDAP_ALLOWED_GROUP_DN') : '',
     'require_tls'                => getenv('LDAP_REQUIRE_TLS') !== 'false',
     'allow_local_admin_fallback' => getenv('LDAP_ALLOW_LOCAL_ADMIN_FALLBACK') !== 'false',

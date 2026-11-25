@@ -2413,6 +2413,12 @@ body:has(.auth-stage) footer {
     min-height: 44px;
 }
 
+/* Hide Edge/IE native password reveal & clear icons when custom toggle is present */
+.input-group:has(.password-toggle) .form-control::-ms-reveal,
+.input-group:has(.password-toggle) .form-control::-ms-clear {
+    display: none;
+}
+
 .password-toggle:hover {
     color: var(--text);
     background: var(--border);

@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Couriva WebMail System — Defense-Day System Guide</title>
+<meta name="description" content="Couriva WebMail System complete defense-day reference, verified 2026-11-25.">
+<style>
+:root{--ink:#0f172a;--muted:#475569;--brand:#1a73e8;--line:#e2e8f0;--soft:#f8fafc}
+*{box-sizing:border-box}
+body{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);line-height:1.5;font-size:11pt;margin:0}
+.book{max-width:1050px;margin:0 auto;padding:32px 42px}
+nav.toc-top{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:18px 26px;margin:22px 0 40px}
+nav.toc-top h2{margin-top:0;font-size:15pt}
+nav.toc-top ul{list-style:none;padding-left:16px}
+nav.toc-top>ul>li{margin:4px 0;font-weight:600}
+nav.toc-top ul ul{font-weight:400}
+a{color:var(--brand);text-decoration:none}
+h1,h2,h3,h4{color:var(--ink);break-after:avoid-page}
+h2.part{font-size:20pt;border-bottom:3px solid var(--brand);padding-bottom:8px;margin-top:44px}
+h3{font-size:14pt;margin-top:28px;color:#1e293b}
+h1{font-size:30pt}
+code{font-family:"Cascadia Code",Consolas,monospace;font-size:9pt;background:#f1f5f9;padding:1px 4px;border-radius:3px}
+pre{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;overflow:auto;font-size:9pt;white-space:pre-wrap}
+pre code{background:none;color:inherit;padding:0}
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:9.5pt;break-inside:avoid}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#eef2ff}
+figure,img{max-width:100%}
+img{display:block;margin:18px auto;border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 8px #0f172a1a}
+em.caption{display:block;text-align:center;color:var(--muted);font-size:9pt;margin:-8px 0 22px}
+hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+.cover{text-align:center;padding:120px 0 80px}
+.cover h1{font-size:42pt;letter-spacing:.06em;color:var(--brand);margin-bottom:8px}
+.cover .sub{font-size:18pt;color:var(--muted)}
+@media print{
+ body{font-size:10pt}
+ .book{max-width:none;padding:0 14mm}
+ nav.toc-top{break-after:page}
+ h2.part{break-before:page}
+ img{break-inside:avoid;max-height:150mm;object-fit:contain}
+ pre,table{break-inside:avoid}
+ a{color:inherit}
+}
+@page{size:A4;margin:16mm}
+</style></head>
+<body><div class="book">
+<nav class="toc-top" id="clickable-toc"><h2>Clickable table of contents</h2><div class="toc">
+<ul>
+<li><a href="#front-matter">Front matter</a><ul>
+<li><a href="#cover">Cover</a></li>
+<li><a href="#title-page">Title page</a></li>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#inside-front-cover-if-asked">Inside front cover — IF ASKED...</a></li>
+</ul>
+</li>
+<li><a href="#table-of-contents">Table of contents</a></li>
+<li><a href="#list-of-figures">List of figures</a></li>
+<li><a href="#list-of-tables">List of tables</a></li>
+<li><a href="#part-1-system-overview">Part 1 — System overview</a><ul>
+<li><a href="#11-what-the-user-sees">1.1 What the user sees</a></li>
+<li><a href="#12-what-the-system-does">1.2 What the system does</a></li>
+</ul>
+</li>
+<li><a href="#part-2-system-flow">Part 2 — System flow</a><ul>
+<li><a href="#21-request-pipeline">2.1 Request pipeline</a></li>
+<li><a href="#22-login-flow">2.2 Login flow</a></li>
+<li><a href="#23-send-flow">2.3 Send flow</a></li>
+<li><a href="#24-scheduler-flow">2.4 Scheduler flow</a></li>
+</ul>
+</li>
+<li><a href="#part-3-files-and-locations">Part 3 — Files and locations</a><ul>
+<li><a href="#31-application-root-tree-live-windows-path">3.1 Application root tree (live Windows path)</a></li>
+<li><a href="#32-sensitive-paths-never-web-reachable">3.2 Sensitive paths — never web-reachable</a></li>
+</ul>
+</li>
+<li><a href="#part-4-windows-server-build">Part 4 — Windows Server build</a><ul>
+<li><a href="#41-roles-and-features">4.1 Roles and features</a></li>
+<li><a href="#42-iis-10-site-pool-fastcgi">4.2 IIS 10 site, pool, FastCGI</a></li>
+<li><a href="#43-dns">4.3 DNS</a></li>
+<li><a href="#44-ad-ds">4.4 AD DS</a></li>
+<li><a href="#45-php">4.5 PHP</a></li>
+<li><a href="#46-mariadb">4.6 MariaDB</a></li>
+<li><a href="#47-url-rewrite-and-headers">4.7 URL Rewrite and headers</a></li>
+<li><a href="#48-certificates-acls-task-scheduler-event-viewer">4.8 Certificates, ACLs, Task Scheduler, Event Viewer</a></li>
+<li><a href="#49-hotspot-runbook-17220102">4.9 Hotspot runbook — 172.20.10.2</a></li>
+<li><a href="#410-rollback">4.10 Rollback</a></li>
+</ul>
+</li>
+<li><a href="#part-5-identity-and-ldap">Part 5 — Identity and LDAP</a></li>
+<li><a href="#part-6-database">Part 6 — Database</a><ul>
+<li><a href="#61-connection">6.1 Connection</a></li>
+<li><a href="#62-tables-live-show-tables-14-rows">6.2 Tables (live SHOW TABLES, 14 rows)</a></li>
+<li><a href="#63-schema-and-migrations">6.3 Schema and migrations</a></li>
+<li><a href="#64-cli-logs-backup">6.4 CLI, logs, backup</a></li>
+</ul>
+</li>
+<li><a href="#part-7-member-demo-click-path">Part 7 — Member demo click-path</a></li>
+<li><a href="#part-8-administrator-operator">Part 8 — Administrator / operator</a></li>
+<li><a href="#part-9-testing-and-acceptance">Part 9 — Testing and acceptance</a></li>
+<li><a href="#part-10-troubleshooting-and-drift">Part 10 — Troubleshooting and drift</a><ul>
+<li><a href="#101-login-loop-forced-password-change">10.1 Login loop / forced password change</a></li>
+<li><a href="#102-5000-fastcgi">10.2 500.0 FastCGI</a></li>
+<li><a href="#103-4048-on-docs-or-storage">10.3 404.8 on docs/ or storage/</a></li>
+<li><a href="#104-duplicate-csp-blocked-inline-scripts">10.4 Duplicate CSP / blocked inline scripts</a></li>
+<li><a href="#105-scheduled-mail-not-sending">10.5 Scheduled mail not sending</a></li>
+<li><a href="#106-drift-ledger-read-this-before-answering">10.6 Drift ledger (read this before answering)</a></li>
+<li><a href="#107-redaction-rule">10.7 Redaction rule</a></li>
+</ul>
+</li>
+<li><a href="#appendix-a-command-quick-reference">Appendix A — Command quick reference</a></li>
+<li><a href="#appendix-b-environment-variables">Appendix B — Environment variables</a></li>
+<li><a href="#appendix-c-file-map">Appendix C — File map</a></li>
+<li><a href="#appendix-d-glossary">Appendix D — Glossary</a></li>
+<li><a href="#appendix-e-full-qa">Appendix E — Full Q&amp;A</a></li>
+<li><a href="#figure-plates">Figure plates</a></li>
+<li><a href="#index">Index</a></li>
+</ul>
+</div>
+</nav>
+<h1 id="couriva-webmail-system-defense-day-system-guide">Couriva WebMail System — Defense-Day System Guide</h1>
+<p><strong>Edition:</strong> 1.0 — Field reference for oral defense, walkthrough, and live demonstration.
+<strong>Last verified:</strong> 2026-11-25 / lab <code>192.168.1.178</code> / hotspot <code>172.20.10.2</code> documented and captured (host joined hotspot as <code>172.20.10.3/28</code>).
+<strong>Source of truth:</strong> live Windows Server 2022 VM + repo audit documents. Where they disagree, the live VM wins and the drift is recorded in §10.6.
+<strong>Scope:</strong> no application code was changed to produce this guide.</p>
+<hr />
+<h2 id="front-matter">Front matter</h2>
+<h3 id="cover">Cover</h3>
+<blockquote>
+<p>COURIVA
+<strong>WebMail System</strong>
+Complete System Guide
+Architecture · Build · Identity · Database · Operations · Defense</p>
+<p>Live reference — verified 25 November 2026
+Lab: <code>http://192.168.1.178/public/login.php</code>
+Defense hotspot: <code>http://172.20.10.2/public/login.php</code>
+Hosted on Windows Server 2022 / IIS 10 / MariaDB 10.11 / PHP 8.x</p>
+</blockquote>
+<h3 id="title-page">Title page</h3>
+<p>Couriva WebMail System — Defense-Day System Guide.
+Prepared from the live VMware Workstation guest and the repository audit set:
+<code>COURIVA_IIS_DEPLOYMENT_CHECKLIST.md</code>, <code>README.md</code>, <code>docs/SYSTEM_COMPREHENSIVE_AUDIT.md</code>,
+<code>COURIVA_TESTING_AND_ACCEPTANCE.md</code>, <code>COURIVA_WINDOWS_IIS_AUDIT.md</code>, <code>web.config</code>,
+<code>config/database.php</code>, <code>config/mail.php</code>, <code>config/ldap.php</code>, <code>database/schema.sql</code>,
+<code>database/migrations/*.sql</code>.</p>
+<p>Evidence convention: every claim carries an <strong>Open this to prove it</strong> line — a path, a command, or a figure.</p>
+<h3 id="preface">Preface</h3>
+<p>This book is a defense aid, not a marketing brochure and not a patch log. It answers three questions a panel will ask: <em>what is the system</em>, <em>where does it live</em>, and <em>how do I prove it right now</em>. Read Part 1–3 for the narrative, Part 4–6 for the platform, Part 7–9 for operation and evidence, Part 10 for failure and drift.</p>
+<p>Two disciplines govern the text:</p>
+<ol>
+<li><strong>No guessing.</strong> Values observed live are stamped with the observation. The database data directory was obtained with <code>SELECT @@datadir;</code> — never inferred.</li>
+<li><strong>No secrets.</strong> Passwords, bind credentials, tokens and session IDs are redacted or absent. Do not paste credentials into documentation or chat; type them live into the disposable account created for the demo.</li>
+</ol>
+<h3 id="inside-front-cover-if-asked">Inside front cover — IF ASKED...</h3>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Answer (say this first)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What is Couriva?</td>
+<td>Browser-based mail system, PHP 8 + PDO, MariaDB, AD/LDAP identity, IIS 10 on Windows Server 2022.</td>
+</tr>
+<tr>
+<td>Where do I log in?</td>
+<td>Lab <code>http://192.168.1.178/public/login.php</code>; hotspot <code>http://172.20.10.2/public/login.php</code>.</td>
+</tr>
+<tr>
+<td>Which server OS?</td>
+<td>Live VM is Windows Server 2022 (build <code>10.0.20348.1</code>). Repo docs still say 2019 — recorded drift, §10.6.</td>
+</tr>
+<tr>
+<td>Which DB?</td>
+<td><code>webmail</code> on <code>127.0.0.1:3306</code>, MariaDB <code>10.11.20-MariaDB</code>, 14 live tables.</td>
+</tr>
+<tr>
+<td>Where is the data directory?</td>
+<td><code>C:\Program Files\MariaDB 10.11\data\</code> — verified with <code>SELECT @@datadir;</code>.</td>
+</tr>
+<tr>
+<td>How does login work?</td>
+<td>CSRF check → AD/LDCS bind over LDAPS 636 (<code>OU=CourivaUsers</code>) → local fallback only for break-glass admin → session regenerate → forced password gate.</td>
+</tr>
+<tr>
+<td>What if AD is down?</td>
+<td><code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code> permits a local <code>auth_source='local'</code> admin created by <code>bin/create-admin.php</code>.</td>
+</tr>
+<tr>
+<td>Why two CSP headers?</td>
+<td>IIS <code>web.config:129</code> static CSP has no nonce; PHP emits a nonce CSP. Live response contains both; noted in §10.6.</td>
+</tr>
+<tr>
+<td>Can I reach hotspot IP from the lab host?</td>
+<td>No. <code>172.20.10.2</code> is documented and configured on the guest, but the lab host is not on the iPhone hotspot.</td>
+</tr>
+<tr>
+<td>How do I change to hotspot?</td>
+<td>Run <code>bin\configure-hotspot-ip.bat</code> as Administrator; §4.9 runbook. Rollback in §4.10.</td>
+</tr>
+<tr>
+<td>Is there public signup?</td>
+<td>No. <code>public/register.php</code> → HTTP 410; web user creation → HTTP 403. Only CLI <code>bin/create-admin.php</code>.</td>
+</tr>
+<tr>
+<td>How do scheduled mails run?</td>
+<td><code>Couriva-ScheduledMailProcessor</code>, every 1 minute, runs <code>C:\PHP\php.exe -f ...\bin\process_scheduled.php</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li>Part 1 — System overview</li>
+<li>Part 2 — System flow</li>
+<li>Part 3 — Files and locations</li>
+<li>Part 4 — Windows Server build</li>
+<li>Part 5 — Identity and LDAP</li>
+<li>Part 6 — Database</li>
+<li>Part 7 — Member demo click-path</li>
+<li>Part 8 — Administrator / operator</li>
+<li>Part 9 — Testing and acceptance</li>
+<li>Part 10 — Troubleshooting and drift</li>
+<li>Appendices A–E — Commands, environment variables, file map, glossary, full Q&amp;A</li>
+<li>Index</li>
+</ul>
+<h2 id="list-of-figures">List of figures</h2>
+<ol>
+<li>Server Manager — installed roles (IIS, AD DS, DNS, File and Storage Services)</li>
+<li>DNS Manager — <code>couriva.com</code> forward zone</li>
+<li>ADUC — <code>CourivaUsers</code> organizational unit</li>
+<li>IIS Manager — CourivaWebMail site and features</li>
+<li>IIS Manager — CourivaPool application pool</li>
+<li>IIS Manager — FastCGI settings</li>
+<li>IIS Manager — Request Filtering</li>
+<li>IIS Manager — site bindings</li>
+<li>File Explorer — application root tree</li>
+<li><code>C:\PHP\php.ini</code> in Notepad</li>
+<li><code>C:\openldap\sysconf\ldap.conf</code> in Notepad</li>
+<li><code>storage\logs</code> in File Explorer</li>
+<li>Certificates MMC</li>
+<li>Task Scheduler</li>
+<li>Event Viewer</li>
+<li>MariaDB CLI — <code>SHOW TABLES;</code> and <code>SELECT @@datadir;</code></li>
+<li><code>ipconfig</code> — adapter addresses</li>
+<li><code>configure-hotspot-ip.ps1</code> in Notepad</li>
+<li>Login page — desktop</li>
+<li>Login page — mobile (430×932)</li>
+<li>Forced password change — sign-in form before gate</li>
+<li>Forced password change gate — current/new/confirm</li>
+<li>Inbox — member mailbox</li>
+<li>Compose — new message form</li>
+<li>Contacts — address book</li>
+<li>Notifications — activity feed</li>
+<li>Settings — account settings and theme</li>
+<li>Drafts — saved drafts</li>
+<li>Sent — sent mail</li>
+<li>Spam — quarantine</li>
+<li>Admin dashboard — metrics and activity</li>
+<li>Admin users — user governance</li>
+<li>Admin logs — audit trail</li>
+<li>Compose with attachment — <code>demo-attachment.txt</code> attached</li>
+<li>Diagram — request pipeline</li>
+<li>Diagram — login flow</li>
+<li>Diagram — send flow</li>
+<li>Diagram — scheduler flow</li>
+<li>Hotspot login — <code>http://172.20.10.2/public/login.php</code> desktop</li>
+<li>Hotspot login — <code>http://172.20.10.2/public/login.php</code> mobile viewport</li>
+</ol>
+<h2 id="list-of-tables">List of tables</h2>
+<ol>
+<li>Defense card (front)</li>
+<li>Runtime stack</li>
+<li>Request pipeline</li>
+<li>Application root tree</li>
+<li>IIS role feature set</li>
+<li>NTFS ACL matrix</li>
+<li>LDAP / FastCGI environment variables</li>
+<li>Password and session policy</li>
+<li>Database tables (live)</li>
+<li>Migration ledger</li>
+<li>Acceptance matrix</li>
+<li>Drift ledger</li>
+<li>Hotspot runbook</li>
+<li>Rollback matrix</li>
+<li>Command quick reference</li>
+<li>Environment variable reference</li>
+<li>Glossary</li>
+<li>Q&amp;A index</li>
+</ol>
+<hr />
+<h2 id="part-1-system-overview">Part 1 — System overview</h2>
+<p>Couriva is a self-contained web mail application: PHP 8.x + PDO over MariaDB, with a browser UI that behaves like a modern mailbox and an identity plane anchored in Windows Active Directory. It runs on two platforms from one codebase: Linux/LAMPP/Apache for development, Windows Server + IIS 10 FastCGI for production.</p>
+<p><strong>Runtime stack</strong></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Live value</th>
+<th>Proof</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Guest OS</td>
+<td>Windows Server 2022, build <code>10.0.20348.1</code></td>
+<td>Figure 1; <code>winver</code></td>
+</tr>
+<tr>
+<td>Web server</td>
+<td>IIS 10.0</td>
+<td><code>curl -sI http://192.168.1.178/public/login.php</code> → <code>Server: Microsoft-IIS/10.0</code></td>
+</tr>
+<tr>
+<td>PHP</td>
+<td>8.x NTS, <code>C:\PHP\php-cgi.exe</code></td>
+<td>Figure 6; <code>C:\PHP\php.ini</code></td>
+</tr>
+<tr>
+<td>Database</td>
+<td>MariaDB <code>10.11.20-MariaDB</code>, <code>webmail</code>, <code>127.0.0.1:3306</code></td>
+<td>Figure 16</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>AD DS domain <code>couriva.com</code> (docs say <code>couriva.local</code>), LDAPS 636</td>
+<td>Figures 2–3, <code>config/ldap.php</code></td>
+</tr>
+<tr>
+<td>Site</td>
+<td><code>CourivaWebMail</code>, physical path <code>C:\inetpub\wwwroot\Web_Mail_System</code></td>
+<td>Figure 8</td>
+</tr>
+<tr>
+<td>App pool</td>
+<td><code>CourivaPool</code>, <code>ApplicationPoolIdentity</code>, Integrated, no managed code</td>
+<td>Figure 5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Open this to prove it:</strong> <code>http://192.168.1.178/public/login.php</code> returns HTTP 200 and the Couriva sign-in card (Figure 19). From the host: <code>curl -s -o /dev/null -w "%{http_code}\n" http://192.168.1.178/public/login.php</code> → <code>200</code>.</p>
+<h3 id="11-what-the-user-sees">1.1 What the user sees</h3>
+<p>Sign-in card → forced password change (if flagged) → mailbox with Inbox, Sent, Drafts, Scheduled, Spam, Trash, Archive, custom folders and labels → compose with attachments, To/Cc/Bcc, auto-save, scheduling → contacts, notifications, settings/theme → admin dashboard, users, spam reports, audit logs.</p>
+<h3 id="12-what-the-system-does">1.2 What the system does</h3>
+<ol>
+<li>Validates CSRF token, then authenticates against AD first; local database fallback is narrow and deliberate.</li>
+<li>Regenerates the session id, sets <code>HttpOnly</code> + <code>SameSite=Strict</code> cookies, records <code>USER_LOGIN</code> in <code>system_logs</code>.</li>
+<li>Forces <code>must_change_password</code> users through <code>public/change-password.php</code>; all JSON APIs return HTTP 403 until changed.</li>
+<li>Stores mail as rows in <code>emails</code> with normalized recipients and metadata; attachments live in <code>storage\attachments</code> under randomized names.</li>
+<li>Tracks delivery per recipient in <code>delivery_status</code> with idempotency keys and capped retries.</li>
+<li>Runs future sends through a scheduled queue drained by a Windows Task Scheduler task every minute.</li>
+</ol>
+<hr />
+<h2 id="part-2-system-flow">Part 2 — System flow</h2>
+<h3 id="21-request-pipeline">2.1 Request pipeline</h3>
+<p>Browser → IIS 10 → URL Rewrite (root → <code>public/index.php</code>, static allow-list, HTTP→HTTPS except lab/hotspot hosts) → Request Filtering (hidden segments and denied extensions) → FastCGI <code>*.php</code> handler → PHP application → PDO → MariaDB / LDAPS → response with security headers.</p>
+<p><strong>Open this to prove it:</strong> Figure 7 (denied extensions), Figure 8 (bindings), and <code>web.config:26-136</code>.</p>
+<h3 id="22-login-flow">2.2 Login flow</h3>
+<pre><code class="language-mermaid">flowchart TD
+    A[POST login.php] --&gt; B{CSRF token valid?}
+    B -- no --&gt; Z[Reject: token expired]
+    B -- yes --&gt; C[Lowercase email / resolve bare username]
+    C --&gt; D{LDAP enabled?}
+    D -- yes --&gt; E[Bind ldaps:// :636, OU=CourivaUsers]
+    E -- success --&gt; F[Sync user: auth_source=ldap, ad_object_guid]
+    E -- fail --&gt; G{Local fallback allowed?}
+    G -- no --&gt; Z
+    G -- yes --&gt; H[Local users table]
+    D -- no --&gt; H
+    F --&gt; I[session_regenerate_id + session_epoch]
+    H --&gt; I
+    I --&gt; J{must_change_password?}
+    J -- yes --&gt; K[change-password.php; APIs 403]
+    J -- no --&gt; L[Inbox]
+</code></pre>
+<p><strong>Open this to prove it:</strong> Figure 19 shows the entry form; Figures 35–38 render the request, login, send and scheduler pipelines; <code>app/Services/AuthService.php</code>, <code>config/ldap.php</code>, <code>public/login.php</code>, <code>public/change-password.php</code>.</p>
+<h3 id="23-send-flow">2.3 Send flow</h3>
+<p>Compose (<code>public/compose.php</code>) → validate recipients → <code>AttachmentService</code> MIME + extension checks → persist <code>emails</code> + <code>email_recipients</code> + <code>attachments</code> → create <code>delivery_status</code> rows (<code>queued</code>) → SMTP transport or database delivery → update status (<code>delivered</code>/<code>sent</code>/<code>failed</code>/<code>bounced</code>/<code>unknown</code>) → retry with <code>next_retry_at</code> (max 3). Fail-closed: a declared attachment missing on disk stops before any SMTP connection.</p>
+<h3 id="24-scheduler-flow">2.4 Scheduler flow</h3>
+<p><code>public/scheduled.php</code> queues a future dispatch in <code>scheduled_emails</code> linked to the draft. <code>bin/process_scheduled.php</code> (Task Scheduler, every minute) claims due rows (<code>status='processing'</code>), delivers, marks <code>sent</code>, reclaims rows stuck &gt;10 minutes, and exits quietly if another instance holds the lock.</p>
+<p><strong>Open this to prove it:</strong> Figure 14; <code>schtasks /query /tn "Couriva-ScheduledMailProcessor" /v /fo list</code>; <code>database/migrations/004_delivery_status.sql</code>.</p>
+<hr />
+<h2 id="part-3-files-and-locations">Part 3 — Files and locations</h2>
+<h3 id="31-application-root-tree-live-windows-path">3.1 Application root tree (live Windows path)</h3>
+<pre><code class="language-text">C:\inetpub\wwwroot\Web_Mail_System\
+├─ admin\            dashboard, users, edit-user, create-user, logs, spam-reports, registrations
+├─ app\
+│  ├─ Controllers\   AdminController, AuthController, ContactController, EmailController
+│  ├─ Models\        Attachment, Contact, Email, User
+│  └─ Services\      AuthService, MailService, AttachmentService, AccountService,
+│                    OrganizationService, ScheduledMailService, SmtpTransport, SpamService
+├─ assets\           css (style, tailwind, bootstrap-icons), icons, brand, js
+├─ bin\              create-admin.php, process_scheduled.php,
+│                    configure-hotspot-ip.bat, configure-hotspot-ip.ps1
+├─ config\           database.php, mail.php, auth.php, ldap.php
+├─ database\         schema.sql, seed.sql, migrations\001..006
+├─ docs\             SYSTEM_COMPREHENSIVE_AUDIT.md, flowcharts\, screenshots\, this guide
+├─ includes\         auth.php, database.php, functions.php, header.php, footer.php
+├─ public\           login, change-password, inbox, read, compose, drafts, sent,
+│                    scheduled, spam, trash, contacts, notifications, settings,
+│                    download, logout, index + api\ (theme, toggle_star, contacts, ...)
+├─ storage\          attachments\, logs\, cache\   &lt;-- ONLY writable app dirs
+├─ tests\            13 automated suites + unified runner
+├─ .htaccess         Apache parity hardening
+├─ web.config        IIS handler, request filtering, rewrite, headers
+└─ index.php         root dispatcher
+</code></pre>
+<p><strong>Open this to prove it:</strong> Figure 9; on the guest <code>dir C:\inetpub\wwwroot\Web_Mail_System</code>.</p>
+<h3 id="32-sensitive-paths-never-web-reachable">3.2 Sensitive paths — never web-reachable</h3>
+<p><code>config\</code>, <code>app\</code>, <code>includes\</code>, <code>database\</code>, <code>tests\</code>, <code>bin\</code>, <code>storage\</code>, <code>docs\</code>, <code>.git</code>, <code>.env</code> are hidden segments in <code>web.config:38-52</code>; <code>.sql</code>, <code>.log</code>, <code>.env</code>, <code>.ini</code>, <code>.bak</code>, <code>.md</code>, <code>.yml</code>, <code>.sh</code>, <code>.bat</code>, <code>.json</code>, <code>.lock</code>, <code>.drawio</code>, <code>.txt</code> are denied extensions in <code>web.config:55-72</code>.</p>
+<p><strong>Open this to prove it:</strong> <code>curl -s -o /dev/null -w "%{http_code}\n" http://192.168.1.178/config/database.php</code> → <code>404.8</code>-class denial (hidden segment). Figure 7 shows the same rules in IIS Manager.</p>
+<hr />
+<h2 id="part-4-windows-server-build">Part 4 — Windows Server build</h2>
+<h3 id="41-roles-and-features">4.1 Roles and features</h3>
+<p>Installed on the live guest: <strong>AD DS, DNS, IIS, File and Storage Services</strong> (Figure 1). Server Manager dashboard reports <code>Roles: 4</code>, <code>Server groups: 1</code>.</p>
+<pre><code class="language-powershell">Install-WindowsFeature -Name Web-Server,Web-WebServer,Web-Common-Http,Web-Default-Doc,
+  Web-Http-Errors,Web-Static-Content,Web-Http-Redirect,Web-Http-Logging,Web-Filtering,
+  Web-Basic-Auth,Web-Windows-Auth,Web-CGI,Web-Mgmt-Tools,Web-Mgmt-Console -IncludeManagementTools
+</code></pre>
+<p><strong>Open this to prove it:</strong> Figure 1; <code>Get-WindowsFeature | Where Installed</code>.</p>
+<h3 id="42-iis-10-site-pool-fastcgi">4.2 IIS 10 site, pool, FastCGI</h3>
+<ul>
+<li>Site <code>CourivaWebMail</code>, bindings <code>http *:80</code> and <code>https *:443</code> (Figure 8).</li>
+<li>Pool <code>CourivaPool</code>: no managed code, Integrated, <code>ApplicationPoolIdentity</code>, no idle timeout, periodic restart disabled, 50,000 request recycle (Figure 5).</li>
+<li>FastCGI: <code>C:\PHP\php-cgi.exe</code>, <code>maxInstances=0</code>, <code>instanceMaxRequests=10000</code>, <code>PHP_FCGI_MAX_REQUESTS=10000</code> (Figure 6). Handler <code>*.php</code> is declared <strong>before</strong> <code>StaticFile</code> in <code>web.config:26-32</code>.</li>
+</ul>
+<h3 id="43-dns">4.3 DNS</h3>
+<p>Live DNS Manager shows forward zones <code>_msdes.couriva.com</code> and <code>couriva.com</code>; the <code>couriva.com</code> zone holds SOA, NS (<code>couriva.couriva.com</code>), and CNAME records (Figure 2). The hotspot script updates A records <code>@</code>, <code>www</code>, <code>mail</code>, <code>couriva</code> to <code>172.20.10.2</code>.</p>
+<p><strong>Drift:</strong> repo and LDAP defaults reference <code>couriva.local</code>; live DNS AD domain is <code>couriva.com</code>.</p>
+<h3 id="44-ad-ds">4.4 AD DS</h3>
+<p>ADUC shows OU <code>CourivaUsers</code> under <code>couriva.com</code> with demo domain users (edrich B. Bardilas, hrmar L. Centillas, John Doe, ryle P. pogi). <code>LDAP_ALLOWED_OU_DN</code> defaults to <code>OU=CourivaUsers,DC=couriva,DC=local</code>; on this host the equivalent live OU is <code>OU=CourivaUsers,DC=couriva,DC=com</code>. Figure 3.</p>
+<h3 id="45-php">4.5 PHP</h3>
+<p><code>C:\PHP\php.ini</code> (Figure 10): <code>expose_php=Off</code>, <code>display_errors=Off</code>, <code>log_errors=On</code>, <code>error_log=...\storage\logs\php_errors.log</code>, <code>upload_max_filesize=64M</code>, <code>post_max_size=64M</code>, <code>extension_dir=C:\PHP\ext</code>, extensions <code>curl,fileinfo,mbstring,openssl,pdo_mysql,ldap</code>, session name <code>COURIVASESSID</code>, <code>cookie_httponly=1</code>, <code>cookie_samesite=Strict</code>, <code>gc_maxlifetime=28800</code>. Session directory <code>C:\PHP\sessions</code>.</p>
+<h3 id="46-mariadb">4.6 MariaDB</h3>
+<p>MariaDB 10.11.20; service on <code>:3306</code>; <code>webmail</code> database; <code>@@datadir = C:\Program Files\MariaDB 10.11\data\</code> (Figure 16). <code>my.ini</code> sets <code>utf8mb4</code>, InnoDB, <code>max_allowed_packet=64M</code>.</p>
+<h3 id="47-url-rewrite-and-headers">4.7 URL Rewrite and headers</h3>
+<p><code>web.config:80-118</code>: HTTP→HTTPS (exempts <code>localhost</code>, <code>127.0.0.1</code>, <code>172.20.10.</code>, <code>192.168.</code>, <code>10.</code>), root→<code>public/index.php</code>, static allow-list for <code>assets|public|admin</code>, front-controller fallback. Headers at <code>web.config:120-130</code>: <code>nosniff</code>, <code>SAMEORIGIN</code>, Referrer-Policy, Permissions-Policy, HSTS, CSP. <strong>Live duplication documented in §10.6.</strong></p>
+<h3 id="48-certificates-acls-task-scheduler-event-viewer">4.8 Certificates, ACLs, Task Scheduler, Event Viewer</h3>
+<ul>
+<li>Trusted Root CA for LDAPS installed in Certificates MMC (Figure 13); <code>C:\openldap\sysconf\ldap.conf</code> pins <code>TLS_CACERT</code> and <code>TLS_REQCERT demand</code> (Figure 11).</li>
+<li>NTFS ACL matrix:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Rights</th>
+<th>Account</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>app\, config\, includes\, public\, admin\, database\, assets\, bin\</td>
+<td>Read &amp; Execute</td>
+<td>IUSR, IIS AppPool\CourivaPool</td>
+</tr>
+<tr>
+<td>storage\attachments\, storage\logs\, storage\cache\</td>
+<td>Modify</td>
+<td>IIS AppPool\CourivaPool only</td>
+</tr>
+<tr>
+<td>C:\PHP\sessions</td>
+<td>Modify</td>
+<td>IIS AppPool\CourivaPool; Full for Administrators/SYSTEM</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Open this to prove it:</strong> <code>icacls "C:\inetpub\wwwroot\Web_Mail_System\storage\attachments"</code>.</p>
+<ul>
+<li>Task <code>Couriva-ScheduledMailProcessor</code> (Figure 14): action <code>C:\PHP\php.exe -f ...\bin\process_scheduled.php</code>, trigger every 1 minute, <code>MultipleInstances=IgnoreNew</code>, 10-minute execution limit, principal SYSTEM, <code>Last Result 0x0</code>.</li>
+<li>Event Viewer (Figure 15) correlates IIS/W3C events with Couriva <code>system_logs</code>.</li>
+</ul>
+<h3 id="49-hotspot-runbook-17220102">4.9 Hotspot runbook — 172.20.10.2</h3>
+<p>Files: <code>bin\configure-hotspot-ip.bat</code> (admin check, calls PowerShell with <code>-IPAddress 172.20.10.2 -PrefixLength 28 -Gateway 172.20.10.1 -DNS 172.20.10.2</code>) and <code>bin\configure-hotspot-ip.ps1</code> (Figure 18).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Action</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Connect guest NIC to iPhone Personal Hotspot Wi‑Fi</td>
+<td>adapter <code>Up</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Right-click <code>configure-hotspot-ip.bat</code> → Run as Administrator</td>
+<td>elevation check passes</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PS script sets static <code>172.20.10.2/28</code>, gateway <code>172.20.10.1</code>, DNS <code>172.20.10.2,127.0.0.1,172.20.10.1,1.1.1.1</code></td>
+<td>address on guest</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Set-NetConnectionProfile -NetworkCategory Private</code></td>
+<td>inbound LAN traffic allowed</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Firewall rules: TCP 80, TCP/UDP 443, UDP/TCP 53</td>
+<td>web + DNS open</td>
+</tr>
+<tr>
+<td>6</td>
+<td>DNS A records <code>@</code>,<code>www</code>,<code>mail</code>,<code>couriva</code> → <code>172.20.10.2</code>; forwarders <code>172.20.10.1</code>,<code>1.1.1.1</code>,<code>8.8.8.8</code>; cache clear</td>
+<td>name resolution</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Ensure <code>*:80</code> IIS binding; <code>iisreset /restart</code></td>
+<td>site listening</td>
+</tr>
+<tr>
+<td>8</td>
+<td>On iPhone Safari open <code>http://172.20.10.2/public/login.php</code></td>
+<td>login card</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Open this to prove it:</strong> Figure 17 shows the lab adapter; Figure 2 shows DNS zone; on the guest <code>Get-NetIPAddress | ? IPAddress -like '172.20.10.*'</code>.</p>
+<p><strong>Hotspot verification:</strong> after the host joined the iPhone hotspot (<code>172.20.10.3/28</code>, gateway <code>172.20.10.1</code>), <code>curl -s -o /dev/null -w '%{http_code} %{remote_ip}' http://172.20.10.2/public/login.php</code> returned <code>200 172.20.10.2</code>. Figures 39–40 are fresh captures of the login card at the defense URL at desktop and 430×932 mobile viewport. The iPhone Safari application itself was not driven from this host; the mobile capture is a browser at phone viewport. Figure 17 still shows both guest addresses: lab <code>192.168.1.178</code> and hotspot <code>172.20.10.2</code>.</p>
+<h3 id="410-rollback">4.10 Rollback</h3>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Rollback command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static IP</td>
+<td><code>Set-NetIPAddress -InterfaceAlias &lt;nic&gt; -AddressFamily IPv4 -PrefixPrefixLength 0</code> / re-enable DHCP: <code>Set-NetIPInterface -InterfaceAlias &lt;nic&gt; -Dhcp Enabled</code></td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td><code>Remove-NetFirewallRule -DisplayName "Couriva WebMail (HTTP 80)"</code>, etc.</td>
+</tr>
+<tr>
+<td>DNS records</td>
+<td><code>Set-DnsServerResourceRecord</code> back to lab IP, or <code>Remove-DnsServerResourceRecord</code></td>
+</tr>
+<tr>
+<td>IIS binding</td>
+<td><code>Remove-WebBinding -Name CourivaWebMail -Port 80 -IPAddress *</code> (if added)</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td><code>Set-NetConnectionProfile -NetworkCategory Public</code></td>
+</tr>
+<tr>
+<td>Then</td>
+<td><code>iisreset /restart</code>; verify <code>http://192.168.1.178/public/login.php</code> → 200</td>
+</tr>
+</tbody>
+</table>
+<p>No persisted rollback script was added; the commands above are the operator path.</p>
+<hr />
+<h2 id="part-5-identity-and-ldap">Part 5 — Identity and LDAP</h2>
+<p><code>config/ldap.php</code> reads every setting from environment (FastCGI Environment Variables in IIS). Defaults: <code>LDAP_ENABLED=false</code>, host <code>127.0.0.1</code>, port 389, <code>LDAP_DOMAIN=couriva.local</code>, <code>LDAP_BASE_DN=dc=couriva,dc=local</code>, <code>LDAP_ALLOWED_OU_DN=OU=CourivaUsers,DC=couriva,DC=local</code>, <code>LDAP_REQUIRE_TLS=true</code>, <code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code>, <code>LDAP_FALLBACK_LOCAL=false</code>, <code>LDAP_AUTO_CREATE=true</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Production value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LDAP_ENABLED</code></td>
+<td><code>true</code></td>
+<td>enables domain auth</td>
+</tr>
+<tr>
+<td><code>LDAP_HOST</code> / <code>LDAP_PORT</code></td>
+<td>DC FQDN / <code>636</code></td>
+<td>LDAPS endpoint</td>
+</tr>
+<tr>
+<td><code>LDAP_USE_SSL</code> / <code>LDAP_USE_TLS</code></td>
+<td><code>true</code> / <code>false</code></td>
+<td>LDAPS, not STARTTLS</td>
+</tr>
+<tr>
+<td><code>LDAP_BASE_DN</code></td>
+<td><code>dc=couriva,dc=local</code> (doc) / <code>dc=couriva,dc=com</code> (live)</td>
+<td>search root</td>
+</tr>
+<tr>
+<td><code>LDAP_ALLOWED_OU_DN</code></td>
+<td><code>OU=CourivaUsers,...</code></td>
+<td>login restricted to this OU</td>
+</tr>
+<tr>
+<td><code>LDAP_BIND_DN</code> / <code>LDAP_BIND_PASSWORD</code></td>
+<td>service account / secret</td>
+<td>directory search; never on disk</td>
+</tr>
+<tr>
+<td><code>LDAP_REQUIRE_TLS</code></td>
+<td><code>true</code></td>
+<td>fail closed without TLS</td>
+</tr>
+<tr>
+<td><code>LDAP_AUTO_CREATE</code></td>
+<td><code>true</code></td>
+<td>first login provisions mailbox</td>
+</tr>
+<tr>
+<td><code>LDAP_FALLBACK_LOCAL</code></td>
+<td><code>false</code></td>
+<td>no local fallback for LDAP users</td>
+</tr>
+<tr>
+<td><code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK</code></td>
+<td><code>true</code></td>
+<td>break-glass local admin only</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Password rules:</strong> minimum 10 characters, uppercase, lowercase, digit, symbol. LDAP users are directed to the domain controller; Couriva never changes AD passwords. <code>ad_object_guid</code> is immutable and unique (migration 006), so renames cannot hijack a mailbox.</p>
+<p><strong>Open this to prove it:</strong> Figures 3 and 11; <code>config/ldap.php</code>; <code>database/migrations/005_ad_auth_source.sql</code>, <code>006_ad_object_guid.sql</code>.</p>
+<hr />
+<h2 id="part-6-database">Part 6 — Database</h2>
+<h3 id="61-connection">6.1 Connection</h3>
+<p><code>config/database.php</code>: DSN <code>mysql:host=127.0.0.1;port=3306;dbname=webmail;charset=utf8mb4</code>, <code>PDO::ATTR_EMULATE_PREPARES=false</code>, <code>ERRMODE_EXCEPTION</code>, <code>SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci</code>, and <code>SET time_zone='+00:00'</code>. Live CLI verification (Figure 16):</p>
+<pre><code class="language-sql">SELECT @@datadir;              -- C:\Program Files\MariaDB 10.11\data\
+SELECT @@version;              -- 10.11.20-MariaDB
+SHOW TABLES;                   -- 14 rows
+</code></pre>
+<h3 id="62-tables-live-show-tables-14-rows">6.2 Tables (live <code>SHOW TABLES</code>, 14 rows)</h3>
+<ol>
+<li><code>attachments</code></li>
+<li><code>blocked_senders</code></li>
+<li><code>contacts</code></li>
+<li><code>delivery_status</code></li>
+<li><code>email_labels</code></li>
+<li><code>email_recipients</code></li>
+<li><code>emails</code></li>
+<li><code>folders</code></li>
+<li><code>labels</code></li>
+<li><code>notifications</code></li>
+<li><code>scheduled_emails</code></li>
+<li><code>spam_reports</code></li>
+<li><code>system_logs</code></li>
+<li><code>users</code></li>
+</ol>
+<p>Note: the repository audit says 13 tables and the assignment brief says 16. The live server reports <strong>14</strong> — record the drift, do not adjust the evidence.</p>
+<h3 id="63-schema-and-migrations">6.3 Schema and migrations</h3>
+<p><code>database/schema.sql</code> is the canonical DDL (no <code>USE</code>, safe for disposable DBs). Migration ledger:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>001_p1_security.sql</code></td>
+<td><code>must_change_password</code>, <code>session_epoch</code>, sender snapshots, <code>ON DELETE SET NULL</code></td>
+</tr>
+<tr>
+<td><code>002_couriva_features.sql</code></td>
+<td>approval states, folders, labels, archive/snooze, scheduled mail, notifications, blocks, spam reports</td>
+</tr>
+<tr>
+<td><code>003_couriva_domain.sql</code></td>
+<td><code>@webmail.local</code> → <code>@couriva.local</code> rewrite (idempotent)</td>
+</tr>
+<tr>
+<td><code>004_delivery_status.sql</code></td>
+<td>durable per-recipient delivery state + idempotency</td>
+</tr>
+<tr>
+<td><code>005_ad_auth_source.sql</code></td>
+<td><code>auth_source ENUM('local','ldap')</code></td>
+</tr>
+<tr>
+<td><code>006_ad_object_guid.sql</code></td>
+<td>immutable <code>ad_object_guid</code> unique binding</td>
+</tr>
+</tbody>
+</table>
+<p>Fresh installs import <code>schema.sql</code> only; upgrades apply migrations 001–006 in order after backup.</p>
+<h3 id="64-cli-logs-backup">6.4 CLI, logs, backup</h3>
+<pre><code class="language-powershell">&amp; &quot;C:\Program Files\MariaDB 10.11\bin\mysql.exe&quot; -u root -p webmail &lt; database\schema.sql
+&amp; &quot;C:\Program Files\MariaDB 10.11\bin\mysqldump.exe&quot; -u root -p --single-transaction --quick webmail &gt; webmail_backup.sql
+Compress-Archive -Path storage\attachments\* -DestinationPath attachments_backup.zip
+</code></pre>
+<p>Application logs: <code>storage\logs\php_errors.log</code>, <code>storage\logs\</code> (Figure 12), <code>system_logs</code> table, IIS W3C logs, Windows Event Viewer (Figure 15). Backup integrity: every <code>attachments.stored_filename</code> in the dump must exist in the zip.</p>
+<p><strong>Open this to prove it:</strong> Figure 16; <code>dir C:\inetpub\wwwroot\Web_Mail_System\storage\logs</code>.</p>
+<hr />
+<h2 id="part-7-member-demo-click-path">Part 7 — Member demo click-path</h2>
+<ol>
+<li>Open lab <code>http://192.168.1.178/public/login.php</code> (Figure 19) or mobile (Figure 20). On hotspot use <code>http://172.20.10.2/public/login.php</code>.</li>
+<li>Sign in with the disposable AD account created for the demo. Never read its password from the book.</li>
+<li>If flagged, the app forces <code>public/change-password.php</code> (complexity gate; all APIs 403).</li>
+<li>Inbox: category tabs, star, attachment chips, thread accordion in <code>read.php</code>.</li>
+<li>Compose: To/Cc/Bcc, attachment, auto-save every 30s, optional schedule.</li>
+<li>Verify Sent, Drafts, Scheduled, Spam, Trash; contacts autocomplete; notifications badge; settings theme light/dark/system.</li>
+</ol>
+<p><strong>Open this to prove it:</strong> navigate each URL directly; every protected route redirects to login when unauthenticated (<code>require_auth()</code>).</p>
+<p><em>Capture status:</em> login screens are fresh from the live VM (Figures 19–20). Authenticated member screens were captured against the live VM web app via a disposable AD/local account (Figures 22–34); no passwords were written to any file. Safari at <code>172.20.10.2</code> remains pending until the host joins the hotspot.</p>
+<hr />
+<h2 id="part-8-administrator-operator">Part 8 — Administrator / operator</h2>
+<p><code>admin/index.php</code> shows account counts, message volume, attachment bytes and a live activity feed. <code>admin/users.php</code> governs status/role/session epoch; web creation is disabled (HTTP 403). <code>admin/edit-user.php</code> issues temporary passwords, sets <code>must_change_password=1</code>, bumps <code>session_epoch</code>. <code>admin/logs.php</code> filters <code>system_logs</code> by action, status, IP, user and keyword. <code>admin/spam-reports.php</code> resolves/dismisses reports; <code>admin/registrations.php</code> is retired (HTTP 410).</p>
+<p>Break-glass provisioning (only supported local admin path):</p>
+<pre><code class="language-powershell">$env:ADMIN_EMAIL='admin@couriva.local'
+$env:ADMIN_PASSWORD='&lt;type-live-secret&gt;'
+$env:ADMIN_FIRST_NAME='System'; $env:ADMIN_LAST_NAME='Administrator'
+&amp; C:\PHP\php.exe C:\inetpub\wwwroot\Web_Mail_System\bin\create-admin.php
+</code></pre>
+<p><strong>Open this to prove it:</strong> <code>admin/logs.php</code>; <code>curl -s -o /dev/null -w "%{http_code}\n" http://192.168.1.178/admin/create-user.php</code> → <code>403</code>.</p>
+<hr />
+<h2 id="part-9-testing-and-acceptance">Part 9 — Testing and acceptance</h2>
+<p><code>npm test</code> runs the unified offline suite. Live smoke:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Expected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /public/login.php</code></td>
+<td>200, rendered form (Figure 19)</td>
+</tr>
+<tr>
+<td><code>GET /config/database.php</code></td>
+<td>404.8 hidden segment</td>
+</tr>
+<tr>
+<td><code>GET /storage/attachments/</code></td>
+<td>404.8</td>
+</tr>
+<tr>
+<td><code>GET /database/schema.sql</code></td>
+<td>404.8 / 404.7</td>
+</tr>
+<tr>
+<td><code>GET /.env</code></td>
+<td>404.7</td>
+</tr>
+<tr>
+<td><code>GET /public/register.php</code></td>
+<td>410</td>
+</tr>
+<tr>
+<td><code>POST /admin/create-user.php</code></td>
+<td>403</td>
+</tr>
+<tr>
+<td>Temp-password user <code>GET /public/inbox.php</code></td>
+<td>redirect to change-password</td>
+</tr>
+<tr>
+<td>Temp-password user <code>POST /api/toggle_star.php</code></td>
+<td>403 JSON</td>
+</tr>
+<tr>
+<td><code>schtasks /run /tn "Couriva-ScheduledMailProcessor"</code></td>
+<td>Last Result <code>0x0</code></td>
+</tr>
+<tr>
+<td>AD in-OU login</td>
+<td>auto-provision, <code>auth_source='ldap'</code>, GUID set</td>
+</tr>
+<tr>
+<td>AD out-of-OU login</td>
+<td>rejected, no row created</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Open this to prove it:</strong> <code>COURIVA_TESTING_AND_ACCEPTANCE.md</code> categories 1–6; <code>tests/</code>; Figures 7, 14, 16.</p>
+
+<h3 id="sec-9-2">9.2 Live E2E Verification Run (<code>agent-browser</code>, 2026-11-26)</h3>
+<p>Full browser E2E run executed against <code>http://172.20.10.2/public/login.php</code> using <code>agent-browser</code> 0.44.0 across three persistent sessions (<code>seno@couriva.com</code>, <code>olivar@couriva.com</code>, <code>admin@couriva.com</code>). Raw report archived at <a href="e2e/report.md"><code>docs/e2e/report.md</code></a>.</p>
+<table>
+<thead><tr><th>Metric</th><th>Count</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Checks passed</td><td>33</td><td>Auth, CSRF, RBAC, A&harr;B mail, attachments, admin, drafts, spam, search, contacts, notifications, theme, mobile, logout</td></tr>
+<tr><td>Checks failed</td><td>1</td><td><code>BUG-001</code> (duplicate security headers / dual CSP) &mdash; <strong>Fixed</strong> in <code>web.config</code> and verified on Windows Server (<code>172.16.13.138</code>)</td></tr>
+<tr><td>Deviations (P3)</td><td>2</td><td><code>DEV-001</code>: <code>/forgot-password.php</code> etc. return <code>302</code> catch-all to login; <code>DEV-002</code>: <code>admin/registrations.php</code> returns <code>GET 200</code> retirement notice (<code>POST 410</code>)</td></tr>
+<tr><td>Blocked / not tested</td><td>3</td><td>Forced password-change gate &amp; prior-session invalidation (no local non-admin throwaway), DC-side AD lockout/out-of-OU</td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Authentication &amp; Session Security:</strong> Login CSRF validation, bad-password rejection, AD account landing, and logout session/cookie invalidation.</li>
+<li><strong>Admin Governance &amp; Audit Trail:</strong> Dashboard metrics, User Governance table with <code>Protected</code> admin badges, <code>system_logs</code> audit trail, and AD password-reset guard.</li>
+<li><strong>Mail Delivery &amp; Threading:</strong> User A&rarr;B send, B&rarr;A reply, and B&rarr;<code>augusto@couriva.com</code> forward.</li>
+<li><strong>Attachment Security &amp; Access Control:</strong> <code>.php</code> payload upload rejected, <code>.txt</code> attachment delivered, non-party cross-user download denied (<code>403</code>), sender &amp; recipient downloads verified (<code>200</code>).</li>
+<li><strong>Mailbox Features, Theme &amp; Mobile:</strong> Drafts, search, report-spam modal + <code>[SPAM]</code> quarantine, notifications, contacts + autocomplete, settings + dark theme, and 390&times;844 mobile views.</li>
+</ul>
+
+<hr />
+<h2 id="part-10-troubleshooting-and-drift">Part 10 — Troubleshooting and drift</h2>
+<h3 id="101-login-loop-forced-password-change">10.1 Login loop / forced password change</h3>
+<p>Symptom: redirect to <code>change-password.php</code> on every route. Cause: <code>must_change_password=1</code>. Fix: complete the form (10+ chars, four classes) or reset via <code>admin/edit-user.php</code>. API 403 during this state is intentional.</p>
+<h3 id="102-5000-fastcgi">10.2 500.0 FastCGI</h3>
+<p>Symptom: all <code>.php</code> return 500.0. Cause: PHP path mismatch. Fix: register <code>C:\PHP\php-cgi.exe</code> globally and align <code>web.config:29</code>.</p>
+<h3 id="103-4048-on-docs-or-storage">10.3 404.8 on <code>docs/</code> or <code>storage/</code></h3>
+<p>Expected hardening. Use the filesystem (<code>dir</code>) or the guide figures, not HTTP, to inspect those paths.</p>
+<h3 id="104-duplicate-csp-blocked-inline-scripts">10.4 Duplicate CSP / blocked inline scripts</h3>
+<p>Two CSP headers are present live: static from <code>web.config:129</code> (no nonce) and dynamic from PHP (with nonce). Browsers intersect them, so nonce-bearing inline scripts can be blocked. Recorded as drift; do not claim a clean single header.</p>
+<h3 id="105-scheduled-mail-not-sending">10.5 Scheduled mail not sending</h3>
+<p>Check <code>schtasks /query /tn "Couriva-ScheduledMailProcessor" /v</code>, <code>storage\logs\</code>, <code>scheduled_emails.status</code>, <code>delivery_status.next_retry_at</code>, and the 10-minute stale-job reclaim.</p>
+<h3 id="106-drift-ledger-read-this-before-answering">10.6 Drift ledger (read this before answering)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Documentation says</th>
+<th>Live evidence</th>
+<th>Ruling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Windows Server 2019</td>
+<td>VM title "Windows Server 2022", build <code>10.0.20348.1</code> (Figure 1)</td>
+<td>Live VM is 2022</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Single CSP from <code>web.config:129</code></td>
+<td><code>curl -sI</code> shows two CSP headers; second has <code>'nonce-…'</code></td>
+<td>Duplicate headers live</td>
+</tr>
+<tr>
+<td>3</td>
+<td>13 tables (audit) / 16 tables (brief)</td>
+<td><code>SHOW TABLES;</code> → 14 rows (Figure 16)</td>
+<td>Live count is 14</td>
+</tr>
+<tr>
+<td>4</td>
+<td>AD domain <code>couriva.local</code></td>
+<td>DNS zone <code>couriva.com</code>, ADUC <code>couriva.com</code> (Figures 2–3)</td>
+<td>Live domain is <code>couriva.com</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Data dir unknown</td>
+<td><code>SELECT @@datadir;</code> → <code>C:\Program Files\MariaDB 10.11\data\</code></td>
+<td>Verified, not guessed</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Console window <code>0x02400007</code></td>
+<td>Window id changed to <code>0x02a00007</code>; driven via Xvfb <code>:99</code></td>
+<td>Environment drift</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Hotspot <code>172.20.10.2</code> reachable</td>
+<td>Initially unreachable; after host joined hotspot, <code>curl</code> → <code>200 172.20.10.2</code> and Figures 39–40 captured</td>
+<td>Verified; Safari device UI not driven</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=false</code></td>
+<td>Temporarily set to <code>true</code> for capture, then restored to <code>false</code> with <code>iisreset /restart</code>; disposable local + AD accounts deleted</td>
+<td>Production posture restored; no residual demo identity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="107-redaction-rule">10.7 Redaction rule</h3>
+<p>No password, bind password, token or session id appears in this book or its screenshots. The login card shows placeholders only; the MariaDB screen shows no secret.</p>
+<hr />
+<h2 id="appendix-a-command-quick-reference">Appendix A — Command quick reference</h2>
+<pre><code class="language-bash"># Host
+curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://192.168.1.178/public/login.php
+curl -sI http://192.168.1.178/public/login.php | grep -i -E 'server|content-security|nosniff'
+npm test
+
+# Guest PowerShell (elevated)
+Get-WindowsFeature | Where Installed
+Get-NetIPAddress | Format-Table IPAddress,InterfaceAlias
+schtasks /query /tn &quot;Couriva-ScheduledMailProcessor&quot; /v /fo list
+icacls &quot;C:\inetpub\wwwroot\Web_Mail_System\storage\attachments&quot;
+certutil -store -user Root
+
+# MariaDB CLI
+SELECT @@datadir; SELECT @@version; SHOW DATABASES; USE webmail; SHOW TABLES;
+SELECT email,role,status,auth_source FROM users;
+</code></pre>
+<h2 id="appendix-b-environment-variables">Appendix B — Environment variables</h2>
+<p><code>APP_ENV</code>, <code>WEBMAIL_FORCE_HTTPS</code>, <code>TRUST_PROXY_HEADERS</code>, <code>SESSION_IDLE_TIMEOUT</code> (1800), <code>SESSION_ABSOLUTE_TIMEOUT</code> (28800), <code>SMTP_VERIFY_PEER</code>, <code>SMTP_VERIFY_PEER_NAME</code>, <code>SMTP_CA_FILE</code>, <code>SMTP_INSECURE_TLS</code>, <code>MAIL_DRIVER</code> (<code>database</code>/<code>smtp</code>), <code>MAIL_DOMAIN</code> (<code>couriva.local</code>), <code>DB_HOST/PORT/NAME/USER/PASS</code>, and all <code>LDAP_*</code> keys in Part 5. SMTP TLS verification is on by default; <code>SMTP_INSECURE_TLS</code> is ignored unless <code>APP_ENV=development</code>.</p>
+<h2 id="appendix-c-file-map">Appendix C — File map</h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prove DB settings</td>
+<td><code>config/database.php</code></td>
+</tr>
+<tr>
+<td>Prove LDAP defaults</td>
+<td><code>config/ldap.php</code></td>
+</tr>
+<tr>
+<td>Prove IIS hardening</td>
+<td><code>web.config</code></td>
+</tr>
+<tr>
+<td>Prove schema</td>
+<td><code>database/schema.sql</code></td>
+</tr>
+<tr>
+<td>Prove migrations</td>
+<td><code>database/migrations/001..006</code></td>
+</tr>
+<tr>
+<td>Prove test matrix</td>
+<td><code>COURIVA_TESTING_AND_ACCEPTANCE.md</code></td>
+</tr>
+<tr>
+<td>Prove IIS requirements</td>
+<td><code>COURIVA_IIS_DEPLOYMENT_CHECKLIST.md</code></td>
+</tr>
+<tr>
+<td>Prove architecture</td>
+<td><code>docs/SYSTEM_COMPREHENSIVE_AUDIT.md</code></td>
+</tr>
+<tr>
+<td>Change hotspot IP</td>
+<td><code>bin/configure-hotspot-ip.bat</code> / <code>.ps1</code></td>
+</tr>
+<tr>
+<td>Provision break-glass admin</td>
+<td><code>bin/create-admin.php</code></td>
+</tr>
+<tr>
+<td>Drain scheduled mail</td>
+<td><code>bin/process_scheduled.php</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-d-glossary">Appendix D — Glossary</h2>
+<p><strong>AD DS</strong> Active Directory Domain Services. <strong>LDAPS</strong> LDAP over TLS, port 636. <strong>OU</strong> organizational unit. <strong>UPN</strong> user principal name. <strong>FastCGI</strong> IIS PHP process bridge. <strong>CSRF</strong> cross-site request forgery token. <strong>RBAC</strong> role-based access control. <strong>idempotency key</strong> unique key preventing duplicate delivery. <strong>hidden segment</strong> IIS request-filtering rule returning 404.8. <strong>session epoch</strong> DB counter invalidating older sessions. <strong>objectGUID</strong> immutable AD identity.</p>
+<h2 id="appendix-e-full-qa">Appendix E — Full Q&amp;A</h2>
+<p><strong>Q: Two login URLs — which is correct?</strong> A: Both. Lab <code>192.168.1.178</code> is reachable now; hotspot <code>172.20.10.2</code> is for defense day after joining the iPhone hotspot.
+<strong>Q: Is self-registration available?</strong> A: No — retired (410); web user creation 403.
+<strong>Q: Can LDAP users change password in Couriva?</strong> A: No — AD only.
+<strong>Q: What happens if AD is unreachable?</strong> A: Local break-glass admin can still log in if <code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code>.
+<strong>Q: How many tables?</strong> A: Live: 14. Docs disagree; evidence wins.
+<strong>Q: Where is the data dir?</strong> A: <code>SELECT @@datadir;</code> → <code>C:\Program Files\MariaDB 10.11\data\</code>.
+<strong>Q: Are attachments executable?</strong> A: No — MIME sniffing, extension blacklist, randomized names, denied storage path.
+<strong>Q: How often does the scheduler run?</strong> A: Every minute; stale jobs &gt;10 min reclaimed.
+<strong>Q: Are credentials in this book?</strong> A: No.
+<strong>Q: What remains to capture?</strong> A: Nothing in the book scope. Authenticated web screens: Figures 22–34. Hotspot defense URL: Figures 39–40. Only the native iPhone Safari chrome itself is not driven from this host.</p>
+<hr />
+<h2 id="figure-plates">Figure plates</h2>
+<p><img alt="Figure 1. Server Manager — installed roles: IIS, AD DS, DNS, File and Storage Services." src="screenshots/guide-01-server-manager-roles.png" /></p>
+<p><em>Figure 1. Server Manager — installed roles: IIS, AD DS, DNS, File and Storage Services. Live VM, 2026-11-25.</em></p>
+<p><img alt="Figure 2. DNS Manager — couriva.com forward lookup zone." src="screenshots/guide-02-dns-manager.png" /></p>
+<p><em>Figure 2. DNS Manager — <code>couriva.com</code> forward lookup zone. Live VM.</em></p>
+<p><img alt="Figure 3. ADUC — CourivaUsers OU." src="screenshots/guide-03-aduc.png" /></p>
+<p><em>Figure 3. Active Directory Users and Computers — <code>CourivaUsers</code> OU. Live VM.</em></p>
+<p><img alt="Figure 4. IIS Manager — CourivaWebMail." src="screenshots/guide-04-iis-manager.png" /></p>
+<p><em>Figure 4. IIS Manager — CourivaWebMail site and server features. Live VM.</em></p>
+<p><img alt="Figure 5. IIS Manager — CourivaPool." src="screenshots/guide-05-iis-app-pool.png" /></p>
+<p><em>Figure 5. IIS Manager — <code>CourivaPool</code> application pool. Live VM.</em></p>
+<p><img alt="Figure 6. IIS Manager — FastCGI settings." src="screenshots/guide-06-fastcgi.png" /></p>
+<p><em>Figure 6. IIS Manager — FastCGI <code>C:\PHP\php-cgi.exe</code>, 10000 requests. Live VM.</em></p>
+<p><img alt="Figure 7. IIS Manager — Request Filtering." src="screenshots/guide-07-request-filtering.png" /></p>
+<p><em>Figure 7. IIS Manager — Request Filtering denied extensions. Live VM.</em></p>
+<p><img alt="Figure 8. IIS Manager — site bindings." src="screenshots/guide-08-iis-bindings.png" /></p>
+<p><em>Figure 8. IIS Manager — site bindings (<code>http :80</code>, <code>https :443</code>). Live VM.</em></p>
+<p><img alt="Figure 9. File Explorer — application root." src="screenshots/guide-09-file-tree.png" /></p>
+<p><em>Figure 9. File Explorer — application root tree. Live VM.</em></p>
+<p><img alt="Figure 10. php.ini." src="screenshots/guide-10-php-ini.png" /></p>
+<p><em>Figure 10. <code>C:\PHP\php.ini</code> in Notepad. Live VM.</em></p>
+<p><img alt="Figure 11. ldap.conf." src="screenshots/guide-11-ldap-conf.png" /></p>
+<p><em>Figure 11. <code>C:\openldap\sysconf\ldap.conf</code> in Notepad. Live VM.</em></p>
+<p><img alt="Figure 12. storage\logs." src="screenshots/guide-12-storage-logs.png" /></p>
+<p><em>Figure 12. <code>storage\logs</code> in File Explorer. Live VM.</em></p>
+<p><img alt="Figure 13. Certificates MMC." src="screenshots/guide-13-certificates.png" /></p>
+<p><em>Figure 13. Certificates MMC — trusted roots for LDAPS. Live VM.</em></p>
+<p><img alt="Figure 14. Task Scheduler." src="screenshots/guide-14-task-scheduler.png" /></p>
+<p><em>Figure 14. Task Scheduler — <code>Couriva-ScheduledMailProcessor</code>. Live VM.</em></p>
+<p><img alt="Figure 15. Event Viewer." src="screenshots/guide-15-event-viewer.png" /></p>
+<p><em>Figure 15. Event Viewer — IIS/Windows events. Live VM.</em></p>
+<p><img alt="Figure 16. MariaDB CLI." src="screenshots/guide-16-mariadb-cli.png" /></p>
+<p><em>Figure 16. MariaDB CLI — <code>SHOW TABLES;</code> (14 rows) and verified <code>SELECT @@datadir;</code>. Live VM.</em></p>
+<p><img alt="Figure 17. ipconfig." src="screenshots/guide-17-ipconfig.png" /></p>
+<p><em>Figure 17. <code>ipconfig</code> — adapter addresses on the live guest.</em></p>
+<p><img alt="Figure 18. Hotspot script." src="screenshots/guide-18-hotspot-script.png" /></p>
+<p><em>Figure 18. <code>bin\configure-hotspot-ip.ps1</code> in Notepad. Live VM.</em></p>
+<p><img alt="Figure 19. Login page — desktop." src="screenshots/guide-19-web-login-desktop.png" /></p>
+<p><em>Figure 19. Login page at <code>192.168.1.178/public/login.php</code> — desktop. Live VM.</em></p>
+<p><img alt="Figure 20. Login page — mobile." src="screenshots/guide-20-web-login-mobile.png" /></p>
+<p><em>Figure 20. Login page at <code>192.168.1.178/public/login.php</code> — 430×932 mobile viewport. Fresh headless capture against the live VM web app.</em></p>
+<p><img alt="Figure 21. Sign-in form before the forced change." src="screenshots/guide-21-forced-password-change.png" /></p>
+<p><em>Figure 21. Sign-in form at <code>192.168.1.178/public/login.php</code> — captured before the disposable account login.</em></p>
+<p><img alt="Figure 22. Forced password-change gate." src="screenshots/guide-22-change-password-gate.png" /></p>
+<p><em>Figure 22. Forced password-change gate — only authenticated destination while <code>must_change_password=1</code>.</em></p>
+<p><img alt="Figure 23. Inbox." src="screenshots/guide-23-inbox.png" /></p>
+<p><em>Figure 23. Member inbox — category tabs, sidebar folders and message list.</em></p>
+<p><img alt="Figure 24. Compose." src="screenshots/guide-24-compose.png" /></p>
+<p><em>Figure 24. Compose — To/Cc/Bcc, rich text, attach zone, Send / Save as Draft / Schedule.</em></p>
+<p><img alt="Figure 25. Contacts." src="screenshots/guide-25-contacts.png" /></p>
+<p><em>Figure 25. Contacts — personal address book.</em></p>
+<p><img alt="Figure 26. Notifications." src="screenshots/guide-26-notifications.png" /></p>
+<p><em>Figure 26. Notifications — unread/total feed.</em></p>
+<p><img alt="Figure 27. Settings." src="screenshots/guide-27-settings.png" /></p>
+<p><em>Figure 27. Settings — account preferences and theme controls.</em></p>
+<p><img alt="Figure 28. Drafts." src="screenshots/guide-28-drafts.png" /></p>
+<p><em>Figure 28. Drafts — saved drafts view.</em></p>
+<p><img alt="Figure 29. Sent." src="screenshots/guide-29-sent.png" /></p>
+<p><em>Figure 29. Sent — outgoing mail repository.</em></p>
+<p><img alt="Figure 30. Spam." src="screenshots/guide-30-spam.png" /></p>
+<p><em>Figure 30. Spam — quarantine folder.</em></p>
+<p><img alt="Figure 31. Admin dashboard." src="screenshots/guide-31-admin-dashboard.png" /></p>
+<p><em>Figure 31. Admin dashboard — account/message/storage metrics and recent activity.</em></p>
+<p><img alt="Figure 32. Admin users." src="screenshots/guide-32-admin-users.png" /></p>
+<p><em>Figure 32. Admin users — user governance.</em></p>
+<p><img alt="Figure 33. Admin logs." src="screenshots/guide-33-admin-logs.png" /></p>
+<p><em>Figure 33. Admin logs — filterable <code>system_logs</code> audit trail.</em></p>
+<p><img alt="Figure 34. Compose with attachment." src="screenshots/guide-34-compose-attachment.png" /></p>
+<p><em>Figure 34. Compose with attachment — <code>demo-attachment.txt</code> shown as an attached file chip.</em></p>
+<p><img alt="Figure 35. Request pipeline diagram." src="screenshots/guide-35-request-flow.png" /></p>
+<p><em>Figure 35. Request pipeline — browser, IIS filtering, rewrite, FastCGI, app, MariaDB/LDAP, response.</em></p>
+<p><img alt="Figure 36. Login flow diagram." src="screenshots/guide-36-login-flow.png" /></p>
+<p><em>Figure 36. Login flow — CSRF, normalisation, LDAPS bind, local break-glass fallback, session, gate.</em></p>
+<p><img alt="Figure 37. Send flow diagram." src="screenshots/guide-37-send-flow.png" /></p>
+<p><em>Figure 37. Send flow — compose, validation, persistence, <code>delivery_status</code>, SMTP, reconciliation.</em></p>
+<p><img alt="Figure 38. Scheduler flow diagram." src="screenshots/guide-38-scheduler-flow.png" /></p>
+<p><em>Figure 38. Scheduler flow — queue, Task Scheduler claim, flock lock, delivery, stale-job reclaim.</em></p>
+<p><img alt="Figure 39. Hotspot login — desktop." src="screenshots/guide-39-hotspot-login.png" /></p>
+<p><em>Figure 39. Defense URL <code>http://172.20.10.2/public/login.php</code> — desktop capture after host joined hotspot. Verified <code>http=200</code>, <code>remote_ip=172.20.10.2</code>.</em></p>
+<p><img alt="Figure 40. Hotspot login — mobile viewport." src="screenshots/guide-40-hotspot-login-mobile.png" /></p>
+<p><em>Figure 40. Defense URL <code>http://172.20.10.2/public/login.php</code> — 430×932 mobile viewport capture (phone-sized browser, not the Safari app itself).</em></p>
+<h3 id="e2e-verification-plates">E2E Verification Plates (2026-11-26)</h3>
+<p><img alt="Figure 41. E2E — Login page." src="screenshots/e2e-01-login-page.png" /></p>
+<p><em>Figure 41. E2E T01 — Login page renders with CSRF token and no self-registration link.</em></p>
+<p><img alt="Figure 42. E2E — User A inbox." src="screenshots/e2e-02-userA-inbox.png" /></p>
+<p><em>Figure 42. E2E — User A (seno@couriva.com) authenticated inbox landing.</em></p>
+<p><img alt="Figure 43. E2E — User B inbox." src="screenshots/e2e-03-userB-inbox.png" /></p>
+<p><em>Figure 43. E2E — User B (olivar@couriva.com) authenticated inbox landing.</em></p>
+<p><img alt="Figure 44. E2E — Admin landing." src="screenshots/e2e-04-admin-landing.png" /></p>
+<p><em>Figure 44. E2E T12 — Admin (admin@couriva.com) login lands without forced password-change gate.</em></p>
+<p><img alt="Figure 45. E2E — Admin dashboard." src="screenshots/e2e-05-admin-dashboard.png" /></p>
+<p><em>Figure 45. E2E T23 — Admin dashboard showing account, message, and attachment metrics.</em></p>
+<p><img alt="Figure 46. E2E — Admin users." src="screenshots/e2e-06-admin-users.png" /></p>
+<p><em>Figure 46. E2E T24 — Admin User Governance table with roles, statuses, and Protected admin badges.</em></p>
+<p><img alt="Figure 47. E2E — Admin logs." src="screenshots/e2e-07-admin-logs.png" /></p>
+<p><em>Figure 47. E2E T25 — Admin System Audit Logs table.</em></p>
+<p><img alt="Figure 48. E2E — Compose form." src="screenshots/e2e-08-compose.png" /></p>
+<p><em>Figure 48. E2E T15 — User A composing message E2E_A_TO_B_070549 to User B.</em></p>
+<p><img alt="Figure 49. E2E — After send." src="screenshots/e2e-09-after-send.png" /></p>
+<p><em>Figure 49. E2E T15 — Confirmation after sending message from User A.</em></p>
+<p><img alt="Figure 50. E2E — User B inbox received." src="screenshots/e2e-10-userB-inbox-received.png" /></p>
+<p><em>Figure 50. E2E T15 — User B inbox showing delivered message from User A.</em></p>
+<p><img alt="Figure 51. E2E — User B read message." src="screenshots/e2e-11-userB-read-message.png" /></p>
+<p><em>Figure 51. E2E T16/T17 — User B reading message with reply and forward controls.</em></p>
+<p><img alt="Figure 52. E2E — Prohibited .php upload rejected." src="screenshots/e2e-12-php-upload-attempt.png" /></p>
+<p><em>Figure 52. E2E T18 — Uploading e2e-payload.php rejected with prohibited-type alert.</em></p>
+<p><img alt="Figure 53. E2E — Attachment staged." src="screenshots/e2e-13-attach-staged.png" /></p>
+<p><em>Figure 53. E2E T19 — Valid .txt attachment staged on compose (1 file(s) attached (51 B)).</em></p>
+<p><img alt="Figure 54. E2E — Sender private attachment read." src="screenshots/e2e-14-attach-private-read.png" /></p>
+<p><em>Figure 54. E2E T21 — Sender downloads own attachment (200 OK, text/plain, 51 bytes).</em></p>
+<p><img alt="Figure 55. E2E — Cross-user attachment download denied." src="screenshots/e2e-15-cross-user-denied.png" /></p>
+<p><em>Figure 55. E2E T20 — Non-party User B denied access to User A&#x27;s private attachment (403 Access denied to attachment.).</em></p>
+<p><img alt="Figure 56. E2E — Recipient attachment read." src="screenshots/e2e-16-userB-attachment-read.png" /></p>
+<p><em>Figure 56. E2E T22 — Recipient User B reads and downloads shared attachment (200 OK).</em></p>
+<p><img alt="Figure 57. E2E — Admin edit user view." src="screenshots/e2e-17-admin-edit-throwaway.png" /></p>
+<p><em>Figure 57. E2E N01 — Admin edit view for AD-managed user showing AD password-reset guard.</em></p>
+<p><img alt="Figure 58. E2E — Change password page." src="screenshots/e2e-18-change-password-page.png" /></p>
+<p><em>Figure 58. E2E — Change password page view.</em></p>
+<p><img alt="Figure 59. E2E — Drafts." src="screenshots/e2e-19-drafts.png" /></p>
+<p><em>Figure 59. E2E T26 — Saved draft persisted and reopened with To/Subject/Body intact.</em></p>
+<p><img alt="Figure 60. E2E — Search results." src="screenshots/e2e-20-search-results.png" /></p>
+<p><em>Figure 60. E2E T28 — Inbox-scoped search returning matching message.</em></p>
+<p><img alt="Figure 61. E2E — Report spam modal." src="screenshots/e2e-21a-report-spam-modal.png" /></p>
+<p><em>Figure 61. E2E T27 — Report spam confirmation modal.</em></p>
+<p><img alt="Figure 62. E2E — Spam quarantine." src="screenshots/e2e-21-spam.png" /></p>
+<p><em>Figure 62. E2E T27 — Reported message moved to Spam with [SPAM] prefix.</em></p>
+<p><img alt="Figure 63. E2E — Notifications." src="screenshots/e2e-22-notifications.png" /></p>
+<p><em>Figure 63. E2E T30 — Notifications panel listing unread messages.</em></p>
+<p><img alt="Figure 64. E2E — Contacts and autocomplete." src="screenshots/e2e-23-contacts.png" /></p>
+<p><em>Figure 64. E2E T29 — Contact saved in address book and suggested by compose autocomplete.</em></p>
+<p><img alt="Figure 65. E2E — Settings." src="screenshots/e2e-24-settings.png" /></p>
+<p><em>Figure 65. E2E T31 — Account settings and theme selector.</em></p>
+<p><img alt="Figure 66. E2E — Dark theme." src="screenshots/e2e-25-dark-theme.png" /></p>
+<p><em>Figure 66. E2E T31 — Dark theme (data-bs-theme=&quot;dark&quot;) applied.</em></p>
+<p><img alt="Figure 67. E2E — Mobile inbox 390x844." src="screenshots/e2e-26-mobile-inbox.png" /></p>
+<p><em>Figure 67. E2E T32 — Mobile viewport (390x844) inbox with hamburger nav and compose FAB.</em></p>
+<p><img alt="Figure 68. E2E — Mobile compose 390x844." src="screenshots/e2e-27-mobile-compose.png" /></p>
+<p><em>Figure 68. E2E T32 — Mobile viewport (390x844) compose view with reachable controls.</em></p>
+<hr />
+<h2 id="index">Index</h2>
+<p>Admin dashboard → Part 8; AD DS → Part 4.4; attachment security → Part 2.3; backup → Part 6.4; bindings → Part 4.2; break-glass admin → Part 5; CSP drift → Part 10.4, 10.6; CSRF → Part 2.2; data directory → Part 6.1; DNS → Part 4.3; FastCGI → Part 4.2; forced password change → Part 2.2, 10.1; hidden segments → Part 3.2; hotspot → Part 4.9–4.10; IIS → Part 4.2; LDAP → Part 5; login flow → Part 2.2; MariaDB → Part 4.6, 6; migrations → Part 6.3; NTFS ACL → Part 4.8; objectGUID → Part 5, 6.3; request pipeline → Part 2.1; scheduled mail → Part 2.4, 10.5; security headers → Part 4.7; session epoch → Part 1.2; tables → Part 6.2; Task Scheduler → Part 4.8; testing → Part 9; TLS → Part 4.8, 5; URL Rewrite → Part 4.7; verification stamp → cover.</p>
+</div></body></html>

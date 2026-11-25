@@ -214,6 +214,21 @@ try {
     ]);
     $adminHashAfter = (string)$db->query("SELECT password FROM users WHERE id = 1")->fetchColumn();
     check($resetAdminPost['status'] === 403 && $adminHashAfter === $adminHash, 'admin/edit-user.php POST reset_password on admin rejects with HTTP 403 and preserves password', 'status=' . $resetAdminPost['status']);
+
+    // Verify User Governance filters (search, role, status)
+    require_once $root . '/app/Models/User.php';
+    $userModel = new \App\Models\User($db);
+    $db->exec("INSERT INTO users (email, password, first_name, last_name, role, status, timezone, created_at, updated_at) VALUES ('disabled.user@couriva.com', 'hash', 'Disabled', 'Account', 'user', 'disabled', 'UTC', '2026-11-25 00:00:00', '2026-11-25 00:00:00')");
+
+    check($userModel->countAll(null, 'admin', null) >= 1, 'User::countAll filters by role=admin');
+    check($userModel->countAll('disabled', 'user', 'Disabled Account') === 1, 'User::countAll filters by status, role, and full-name search');
+    check($userModel->countAll(null, null, 'no-such-user-xyz') === 0, 'User::countAll returns 0 when search has no matches');
+
+    $filteredGet = runEndpoint($tmp, $dbPath, 'admin/users.php', 'GET', ['search' => 'Disabled Account', 'role' => 'user', 'status' => 'disabled']);
+    check($filteredGet['status'] === 200 && str_contains($filteredGet['body'], 'disabled.user@couriva.com') && !str_contains($filteredGet['body'], 'peer.admin@couriva.local') && !str_contains($filteredGet['body'], 'jdoe@couriva.com'), 'admin/users.php GET filters rendered users by search, role, and status');
+
+    $emptyGet = runEndpoint($tmp, $dbPath, 'admin/users.php', 'GET', ['search' => 'no-such-user-xyz']);
+    check($emptyGet['status'] === 200 && str_contains($emptyGet['body'], 'No users matching filter criteria.'), 'admin/users.php GET renders empty state when no users match');
 } finally {
     // Cleanup temp directory
     $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tmp, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);

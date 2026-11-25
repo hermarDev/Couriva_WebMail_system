@@ -173,32 +173,53 @@ class User
         return $stmt->execute([$id]);
     }
 
-    public function getAll(int $limit = 50, int $offset = 0, ?string $status = null): array
+    private function buildFilterClause(?string $status = null, ?string $role = null, ?string $search = null): array
     {
-        $sql = "SELECT id, email, first_name, last_name, role, status, timezone, theme, created_at, updated_at FROM users";
+        $where = [];
         $params = [];
 
-        if ($status !== null) {
-            $sql .= " WHERE status = ?";
+        if ($status !== null && $status !== '') {
+            $where[] = "status = ?";
             $params[] = $status;
         }
 
-        $sql .= " ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}";
+        if ($role !== null && $role !== '') {
+            $where[] = "role = ?";
+            $params[] = $role;
+        }
+
+        if ($search !== null && trim($search) !== '') {
+            $term = '%' . trim($search) . '%';
+            $fullNameExpr = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite'
+                ? "(first_name || ' ' || last_name)"
+                : "CONCAT(first_name, ' ', last_name)";
+            $where[] = "(first_name LIKE ? OR last_name LIKE ? OR {$fullNameExpr} LIKE ? OR email LIKE ?)";
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+
+        $whereSql = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
+        return [$whereSql, $params];
+    }
+
+    public function getAll(int $limit = 50, int $offset = 0, ?string $status = null, ?string $role = null, ?string $search = null): array
+    {
+        [$whereSql, $params] = $this->buildFilterClause($status, $role, $search);
+        $limit = max(1, (int)$limit);
+        $offset = max(0, (int)$offset);
+
+        $sql = "SELECT id, email, first_name, last_name, role, status, timezone, theme, created_at, updated_at FROM users{$whereSql} ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function countAll(?string $status = null): int
+    public function countAll(?string $status = null, ?string $role = null, ?string $search = null): int
     {
-        $sql = "SELECT COUNT(*) FROM users";
-        $params = [];
-
-        if ($status !== null) {
-            $sql .= " WHERE status = ?";
-            $params[] = $status;
-        }
-
+        [$whereSql, $params] = $this->buildFilterClause($status, $role, $search);
+        $sql = "SELECT COUNT(*) FROM users{$whereSql}";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return (int)$stmt->fetchColumn();

@@ -131,6 +131,16 @@ class AuthService
         ];
     }
 
+    private function getAllowedLdapDomains(): array
+    {
+        $domain = trim((string)($this->ldapConfig['domain'] ?? 'couriva.local'));
+        $accountSuffixDomain = ltrim(trim((string)($this->ldapConfig['account_suffix'] ?? '')), '@');
+        return array_values(array_unique(array_filter([
+            strtolower($domain),
+            strtolower($accountSuffixDomain),
+        ])));
+    }
+
     /**
      * Active Directory / LDAP Domain Authentication
      */
@@ -152,6 +162,13 @@ class AuthService
         $requireTls = !array_key_exists('require_tls', $this->ldapConfig) || !empty($this->ldapConfig['require_tls']);
         $timeout = (int)($this->ldapConfig['timeout'] ?? 10);
         $domain = trim((string)($this->ldapConfig['domain'] ?? 'couriva.local'));
+        $allowedDomains = $this->getAllowedLdapDomains();
+        if (str_contains($email, '@')) {
+            $inputDomain = strtolower(substr((string)strrchr($email, '@'), 1));
+            if ($inputDomain === '' || !in_array($inputDomain, $allowedDomains, true)) {
+                return ['success' => false, 'message' => 'Email domain is not permitted for Active Directory sign-in.'];
+            }
+        }
         $allowedOuDn = array_key_exists('allowed_ou_dn', $this->ldapConfig)
             ? trim((string)$this->ldapConfig['allowed_ou_dn'])
             : 'OU=CourivaUsers,DC=couriva,DC=local';
@@ -204,7 +221,7 @@ class AuthService
         $searchFilter = $allowedGroupDn !== ''
             ? '(&' . $baseFilter . '(memberOf=' . ldap_escape($allowedGroupDn, '', LDAP_ESCAPE_FILTER) . '))'
             : $baseFilter;
-        $searchAttributes = ['dn', 'mail', 'givenname', 'sn', 'displayname', 'telephonenumber', 'company', 'objectguid', 'useraccountcontrol'];
+        $searchAttributes = ['dn', 'mail', 'userprincipalname', 'givenname', 'sn', 'displayname', 'telephonenumber', 'company', 'objectguid', 'useraccountcontrol'];
 
         $bindSuccess = false;
         $ldapUserAttributes = [];
@@ -402,12 +419,25 @@ class AuthService
             return ['success' => false, 'message' => 'Active Directory objectGUID is missing or invalid.'];
         }
 
-        $ldapEmail = !empty($attrs['mail'][0]) ? trim(strtolower((string)$attrs['mail'][0])) : $email;
+        $ldapEmail = !empty($attrs['mail'][0])
+            ? trim(strtolower((string)$attrs['mail'][0]))
+            : (!empty($attrs['userprincipalname'][0])
+                ? trim(strtolower((string)$attrs['userprincipalname'][0]))
+                : $email);
         if ($ldapEmail === '' || !filter_var($ldapEmail, FILTER_VALIDATE_EMAIL)) {
             $ldapEmail = $email;
         }
+        $resolvedDomain = str_contains($ldapEmail, '@') ? strtolower(substr((string)strrchr($ldapEmail, '@'), 1)) : '';
+        if ($resolvedDomain === '' || !in_array($resolvedDomain, $this->getAllowedLdapDomains(), true)) {
+            return ['success' => false, 'message' => 'Active Directory email domain is not permitted.'];
+        }
         $firstName = !empty($attrs['givenname'][0]) ? trim((string)$attrs['givenname'][0]) : ucfirst($username);
         $lastName = !empty($attrs['sn'][0]) ? trim((string)$attrs['sn'][0]) : 'User';
+        $adminOuDn = trim((string)($this->ldapConfig['admin_ou_dn'] ?? ''));
+        $dn = strtolower(trim((string)($attrs['dn'] ?? '')));
+        $resolvedRole = ($adminOuDn !== '' && $dn !== '' && str_ends_with($dn, ',' . strtolower($adminOuDn)))
+            ? 'admin'
+            : ($this->ldapConfig['default_role'] ?? 'user');
 
         // 1. Match immutably by ad_object_guid first (handles AD renames / email updates)
         $guidUser = $this->userModel->findByAdObjectGuid($guid);
@@ -425,12 +455,16 @@ class AuthService
                 }
             }
 
-            $this->userModel->update((int)$guidUser['id'], [
+            $updateData = [
                 'email'       => $ldapEmail,
                 'first_name'  => $firstName,
                 'last_name'   => $lastName,
                 'auth_source' => 'ldap',
-            ]);
+            ];
+            if ($adminOuDn !== '') {
+                $updateData['role'] = $resolvedRole;
+            }
+            $this->userModel->update((int)$guidUser['id'], $updateData);
 
             $refreshed = $this->userModel->findById((int)$guidUser['id']);
             return [
@@ -454,12 +488,16 @@ class AuthService
                 return ['success' => false, 'message' => 'Your account is disabled. Contact system administrator.'];
             }
 
-            $this->userModel->update((int)$localUser['id'], [
+            $updateData = [
                 'first_name'     => $firstName,
                 'last_name'      => $lastName,
                 'auth_source'    => 'ldap',
                 'ad_object_guid' => $guid,
-            ]);
+            ];
+            if ($adminOuDn !== '') {
+                $updateData['role'] = $resolvedRole;
+            }
+            $this->userModel->update((int)$localUser['id'], $updateData);
 
             $refreshed = $this->userModel->findById((int)$localUser['id']);
             return [
@@ -476,7 +514,7 @@ class AuthService
                 'password'             => bin2hex(random_bytes(16)), // Unusable random hash since authenticated via LDAP
                 'first_name'           => $firstName,
                 'last_name'            => $lastName,
-                'role'                 => $this->ldapConfig['default_role'] ?? 'user',
+                'role'                 => $resolvedRole,
                 'status'               => 'active',
                 'auth_source'          => 'ldap',
                 'ad_object_guid'       => $guid,

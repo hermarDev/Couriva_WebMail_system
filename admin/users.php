@@ -89,7 +89,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$users = $userModel->getAll(100, 0);
+$perPage = 50;
+$page = max(1, (int)($_GET['page'] ?? 1));
+$offset = ($page - 1) * $perPage;
+
+$search = trim($_GET['search'] ?? '');
+$filterRole = trim($_GET['role'] ?? '');
+$filterStatus = trim($_GET['status'] ?? '');
+
+if ($filterRole !== '' && !is_valid_user_role($filterRole)) {
+    $filterRole = '';
+}
+if ($filterStatus !== '' && !is_valid_user_status($filterStatus)) {
+    $filterStatus = '';
+}
+
+$statusParam = $filterStatus !== '' ? $filterStatus : null;
+$roleParam = $filterRole !== '' ? $filterRole : null;
+$searchParam = $search !== '' ? $search : null;
+
+$totalUsers = $userModel->countAll($statusParam, $roleParam, $searchParam);
+$totalPages = max(1, (int)ceil($totalUsers / $perPage));
+if ($page > $totalPages) {
+    $page = $totalPages;
+    $offset = ($page - 1) * $perPage;
+}
+
+$users = $userModel->getAll($perPage, $offset, $statusParam, $roleParam, $searchParam);
 
 $pageTitle = 'Manage Users';
 require_once dirname(__DIR__) . '/includes/header.php';
@@ -115,6 +141,37 @@ require_once dirname(__DIR__) . '/includes/header.php';
     </div>
 </div>
 
+<!-- Filters Bar -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3">
+        <form method="GET" action="<?= app_base_url('admin/users.php') ?>" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="search" class="form-control form-control-sm" placeholder="Search name or email..." value="<?= e($search) ?>">
+            </div>
+            <div class="col-md-3">
+                <select name="role" class="form-select form-select-sm">
+                    <option value="">All Roles</option>
+                    <option value="user" <?= $filterRole === 'user' ? 'selected' : '' ?>>Standard User</option>
+                    <option value="admin" <?= $filterRole === 'admin' ? 'selected' : '' ?>>Administrator</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="active" <?= $filterStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                    <option value="disabled" <?= $filterStatus === 'disabled' ? 'selected' : '' ?>>Disabled</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-primary w-100" title="Filter"><i class="bi bi-search"></i></button>
+                <?php if ($search !== '' || $filterRole !== '' || $filterStatus !== ''): ?>
+                    <a href="<?= app_base_url('admin/users.php') ?>" class="btn btn-sm btn-light border" title="Reset"><i class="bi bi-x-lg"></i></a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="card shadow-sm border-0 mb-4">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -131,7 +188,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($users as $u): ?>
+                <?php if (empty($users)): ?>
+                    <tr><td colspan="8" class="text-center py-5 text-muted">No users matching filter criteria.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($users as $u): ?>
                     <tr>
                         <td class="text-muted small"><?= $u['id'] ?></td>
                         <td class="fw-semibold">
@@ -222,9 +282,20 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         </td>
                     </tr>
                 <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
+
+    <?php if ($totalPages > 1): ?>
+        <div class="card-footer bg-body py-2 d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Showing page <?= $page ?> of <?= $totalPages ?> (<?= $totalUsers ?> users)</span>
+            <div class="btn-group btn-group-sm">
+                <a href="?page=<?= max(1, $page - 1) ?>&search=<?= urlencode($search) ?>&role=<?= urlencode($filterRole) ?>&status=<?= urlencode($filterStatus) ?>" class="btn btn-light border <?= $page <= 1 ? 'disabled' : '' ?>">Previous</a>
+                <a href="?page=<?= min($totalPages, $page + 1) ?>&search=<?= urlencode($search) ?>&role=<?= urlencode($filterRole) ?>&status=<?= urlencode($filterStatus) ?>" class="btn btn-light border <?= $page >= $totalPages ? 'disabled' : '' ?>">Next</a>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- Modal: Edit User -->
