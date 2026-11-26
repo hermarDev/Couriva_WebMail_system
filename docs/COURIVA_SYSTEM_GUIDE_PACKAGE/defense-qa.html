@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Defense Q&amp;A &amp; Team Contributions — Couriva System Guide</title>
+<link rel="stylesheet" href="assets/guide.css" />
+</head>
+<body>
+<header class="mobile-bar">
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false">&#9776; Chapters</button>
+  <span class="mobile-title">Couriva System Guide</span>
+  <a class="menu-btn" href="defense-qa.html">Defense Q&amp;A</a>
+</header>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Book Navigation">
+    <div class="sidebar-head">
+      <div class="sidebar-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="sidebar-title">Couriva System Guide</div>
+        <div class="sidebar-sub">Edition 1.1 · Multi-Page</div>
+      </div>
+    </div>
+    <div class="sidebar-search">
+      <label class="sr-only" for="toc-search">Filter chapters</label>
+      <input type="search" id="toc-search" placeholder="Filter chapters..." autocomplete="off" />
+    </div>
+    <nav class="toc-scroll" id="toc-nav" aria-label="Table of Contents">
+      <ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">&middot; Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">&middot; Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">&middot; Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">&middot; Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">&middot; Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">&middot; Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">&middot; 65 Terms</span></a></li>
+<li><a href="defense-qa.html" class="active">Defense Q&A <span style="opacity:.65;font-size:.8em">&middot; Q1–Q3 & Team</span></a></li>
+<li><a href="documentation.html" class="">System Doc (PDF) <span style="opacity:.65;font-size:.8em">&middot; V8.1 · 39 pp</span></a></li></ul>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-btn" href="dictionary.html">Dictionary</a>
+      <a class="side-btn" href="documentation.html">Doc PDF</a>
+    </div>
+  </aside>
+
+  <main class="book-main">
+    <article class="book-page">
+      <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(65 Terms)</small></a>
+<a href="defense-qa.html" class="active">Defense Q&A <small style="opacity:.75">(Q1–Q3 & Team)</small></a>
+<a href="documentation.html" class="">System Doc (PDF) <small style="opacity:.75">(V8.1 · 39 pp)</small></a></nav>
+      
+<h2 class="chapter-h2"><span class="chapter-eyebrow">DEFENSE PREP &middot; BSIT-41A GROUP 2</span>Defense Q&amp;A &amp; Team Contributions</h2>
+<p>Ready-to-use answers for the three mandatory panelist questions, plus individual contributions for the Product Owner and all 13 members.</p>
+<input id="qa-search" class="dict-search" type="search" placeholder="Filter Q&amp;A or search your name..." aria-label="Search Defense Q&amp;A and members" />
+
+<article class="qa-card">
+  <h3>1. What features do you have in your System that don't exist in the current System?</h3>
+  <div class="spoken-box"><strong>30-Second Spoken Answer:</strong> &ldquo;Traditional cloud suites like Gmail or Outlook require constant internet and store organizational records on third-party servers, while basic local mail tools lack modern security and governance. Couriva combines a familiar modern webmail UI with 100% offline LAN sovereignty, Active Directory OU role gating (<code>CourivaUsers</code> &amp; <code>CourivaAdmins</code>) with immutable <code>objectGUID</code> binding, privacy-isolated single-message spam review, instant <code>session_epoch</code> session revocation, and magic-byte <code>finfo_file()</code> attachment protection—with zero per-seat SaaS fees.&rdquo;</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Capability</th><th>Cloud / Legacy Current Systems</th><th>Couriva WebMail System</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Network &amp; Custody</strong></td><td>Halts without ISP; data stored on external vendor clouds</td><td>100% offline LAN (IIS 10 + MariaDB + NTFS); zero external CDN or ISP needed</td></tr>
+      <tr><td><strong>Identity &amp; Role Sync</strong></td><td>Manual local signups or unlinked mail accounts</td><td>LDAPS (636) + <code>CourivaUsers</code> / <code>CourivaAdmins</code> sub-OU auto-sync + immutable <code>objectGUID</code></td></tr>
+      <tr><td><strong>Spam Moderation Privacy</strong></td><td>Full mailbox/admin impersonation risk</td><td>Single-message isolation: admins see only the reported message, never the user's inbox</td></tr>
+      <tr><td><strong>Session &amp; Admin Protection</strong></td><td>Static cookies; web UI can alter admins</td><td><code>session_epoch</code> instant invalidation + HTTP 403 Protected Admin guard + CLI break-glass admin</td></tr>
+      <tr><td><strong>Attachment &amp; Scheduled Safety</strong></td><td>Extension-only checks or cron race conditions</td><td><code>finfo_file()</code> magic-byte allow-list + cross-user 403 block + atomic <code>flock()</code> scheduler</td></tr>
+    </tbody>
+  </table></div>
+</article>
+
+<article class="qa-card">
+  <h3>2. Explain the ERD of your System (14 MariaDB InnoDB Tables)</h3>
+  <div class="spoken-box"><strong>30-Second Spoken Answer:</strong> &ldquo;Our database uses 14 normalized InnoDB tables in MariaDB (<code>webmail</code>) with full ACID transactions, grouped into 4 clusters: <strong>Identity</strong> (<code>users</code>), <strong>Core Messaging &amp; Threading</strong> (<code>emails</code>, <code>email_recipients</code>, <code>attachments</code>, <code>scheduled_emails</code>, <code>delivery_status</code>), <strong>Organization</strong> (<code>folders</code>, <code>labels</code>, <code>email_labels</code>, <code>contacts</code>, <code>notifications</code>), and <strong>Governance &amp; Audit</strong> (<code>blocked_senders</code>, <code>spam_reports</code>, <code>system_logs</code>).&rdquo;</div>
+  <ul>
+    <li><strong>Cluster 1 — Identity (<code>users</code>):</strong> Stores local &amp; AD accounts (<code>auth_source</code>, immutable <code>ad_object_guid</code>), <code>role</code>, <code>status</code>, <code>session_epoch</code>, and <code>must_change_password</code>.</li>
+    <li><strong>Cluster 2 — Messaging &amp; Delivery:</strong> <code>emails</code> links <code>1:N</code> from <code>users</code> (sender/recipient) and has a <strong>self-referencing FK</strong> (<code>parent_email_id</code>) for Reply/Forward threads plus <code>category</code> (Primary/Promotions/Updates). <code>email_recipients</code> handles To/Cc/Bcc (<code>1:N</code>); <code>attachments</code> stores file metadata (<code>1:N</code>); <code>scheduled_emails</code> &amp; <code>delivery_status</code> track queued send and idempotent delivery.</li>
+    <li><strong>Cluster 3 — Organization:</strong> User-owned <code>folders</code> (<code>1:N</code>), <code>labels</code> linked to <code>emails</code> via the <strong>M:N junction table</strong> <code>email_labels</code>, <code>contacts</code>, and <code>notifications</code>.</li>
+    <li><strong>Cluster 4 — Governance &amp; Audit:</strong> <code>blocked_senders</code>, <code>spam_reports</code> (isolated single-message reports), and <code>system_logs</code>. Foreign keys use <code>ON DELETE SET NULL</code> on sender/recipient references so audit history and snapshots remain intact.</li>
+  </ul>
+  <p><a href="identity-db.html">Open full ERD diagrams &amp; table breakdown &rarr;</a></p>
+</article>
+
+<article class="qa-card">
+  <h3>3. What is your contribution to your Group? (Product Owner + 13 Members)</h3>
+  <p>Each member owns a specific, non-overlapping slice of Couriva matching the official <strong>Group 2 (BSIT-41A)</strong> roster in <code>Couriva_System_DocumentationV8.1.pdf</code>:</p>
+</article>
+
+<div class="member-grid">
+  <article class="member-card po"><div class="member-role">PRODUCT OWNER &middot; Product Owner &amp; Lead Systems Architect</div><h4>Centillas, Hermar Jr.</h4><p><strong>Contribution &amp; What to Say:</strong> Defined product scope, architected Windows Server 2022 + IIS 10 + AD DS + MariaDB integration, implemented LDAPS/OU governance (CourivaUsers &amp; CourivaAdmins), security hardening (single nonce CSP, CSRF, session_epoch), E2E remediation (BUG-001/002/003), and coordinated Group 2.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Core Messaging &amp; Threading (Compose / Reply / Forward)</div><h4>Augusto, Ryle Ian</h4><p><strong>Contribution &amp; What to Say:</strong> Built compose workflows (To/Cc/Bcc), message threading via parent_email_id, Reply All &amp; Forward-with-attachment logic, and 30-second draft autosave.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Database Design &amp; MariaDB Migrations</div><h4>Cuyag, Johndel</h4><p><strong>Contribution &amp; What to Say:</strong> Designed the 14-table normalized InnoDB schema (schema.sql), foreign-key cascade/SET NULL rules, ACID transactions, and versioned SQL migrations (001–007).</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Active Directory &amp; Identity Integration</div><h4>Talaba, Lyndel</h4><p><strong>Contribution &amp; What to Say:</strong> Configured AD DS organizational units (OU=CourivaUsers), LDAPS (636) / StartTLS bind verification, userAccountControl checks, and immutable objectGUID account sync.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Attachment Security &amp; Storage Quota</div><h4>Cabatingan, Mark</h4><p><strong>Contribution &amp; What to Say:</strong> Implemented server-side finfo_file() magic-byte MIME inspection, prohibited extension blocking (.php rejection), 500 MB per-user quota tracking, and cross-user 403 download isolation.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Administrative Governance &amp; Audit Logs</div><h4>Cabezas, Kevin</h4><p><strong>Contribution &amp; What to Say:</strong> Developed the Admin Dashboard, User Governance filters (search/role/status), Protected Admin guard, and filterable system_logs audit trail.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Privacy-Isolated Moderation &amp; Blocking</div><h4>Espinosa, Kate Carl</h4><p><strong>Contribution &amp; What to Say:</strong> Implemented single-message spam reporting (admin/spam-reports.php) that isolates reported mail from private inboxes, plus per-user blocked_senders auto-routing to Spam.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Mailbox Organization &amp; Search</div><h4>Bosque, Dency Marie</h4><p><strong>Contribution &amp; What to Say:</strong> Implemented custom folders, color-coded labels (M:N email_labels), archive/snooze/star/trash lifecycle, batch actions, and keyword/date search with pagination.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Scheduled Mail &amp; Background Processing</div><h4>Baslag, Rhea</h4><p><strong>Contribution &amp; What to Say:</strong> Built the scheduled_emails queue (1 min to 1 year ahead), Windows Task Scheduler 1-minute job, and atomic flock() locking in bin/process_scheduled.php.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Frontend UI, Themes &amp; Mobile Responsiveness</div><h4>Albiso, Ryza</h4><p><strong>Contribution &amp; What to Say:</strong> Crafted Bootstrap 5 layouts, Light/Dark theme persistence, responsive mobile viewport (390x844 hamburger nav &amp; compose FAB), and WCAG AA accessibility contrast fixes.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Contacts, Autocomplete &amp; Notifications</div><h4>Moneva, Neah</h4><p><strong>Contribution &amp; What to Say:</strong> Built the Contacts address book (CRUD + PH mobile validation), compose recipient autocomplete API, and real-time unread notifications feed.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Web Server Hardening &amp; IIS Configuration</div><h4>Fuentes, Sheryl</h4><p><strong>Contribution &amp; What to Say:</strong> Configured IIS 10 CourivaPool, PHP 8.2 FastCGI, Request Filtering (404.7/404.8 on /config, /database, /storage, .env), URL Rewrite HTTPS rules, and single-layer security headers.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; Automated Testing &amp; E2E Verification</div><h4>Seno, Deter Troy</h4><p><strong>Contribution &amp; What to Say:</strong> Executed offline PHP policy suites (ad_ou_policy_test.php, admin_protection_test.php) and live multi-session E2E browser testing (55 checks passed) + axe-core accessibility audits.</p></article><article class="member-card"><div class="member-role">GROUP 2 MEMBER &middot; System Documentation &amp; Defense Guide</div><h4>Olivar, Jaff</h4><p><strong>Contribution &amp; What to Say:</strong> Compiled Couriva System Documentation V8.1 (39 pages: ERD, DFD, Use Case, Flowcharts), simulated LAN setup guide, and System Terminology Dictionary.</p></article>
+</div>
+
+<h3 style="margin-top:24px">Bonus Panelist Questions &amp; Answers</h3>
+<article class="qa-card"><h3>Why did you build Couriva on PHP 8.2 + MariaDB + IIS 10 instead of cloud email or Node.js?</h3><p>Our target environment is a closed organizational LAN running Windows Server 2022. IIS 10 + FastCGI PHP 8.2 + MariaDB 10.11 run natively on Windows Server with zero external internet or CDN dependencies, native OpenLDAP/LDAPS integration to Active Directory, and full ACID transactions.</p></article>
+<article class="qa-card"><h3>How does Couriva prevent an attacker or admin from reading other users&#x27; private emails?</h3><p>Every inbox, read, and attachment endpoint enforces strict recipient/sender ownership checks (cross-user attachment downloads return HTTP 403). Even when a user reports spam, admin/spam-reports.php exposes only that single reported message—never the user&#x27;s mailbox.</p></article>
+<article class="qa-card"><h3>What happens if Active Directory goes down—can the admin still log in?</h3><p>Yes. Couriva supports a break-glass local administrator provisioned via CLI (php bin/create-admin.php) with auth_source=&#x27;local&#x27;. LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true lets local admins sign in even when AD DS is unreachable, while normal AD users stay fail-closed.</p></article>
+<article class="qa-card"><h3>How do password changes work for OU (Active Directory) users?</h3><p>Passwords for AD users are managed in Windows Active Directory (Domain Controller ADUC / Set-ADAccountPassword / Ctrl+Alt+Del), not in Couriva&#x27;s web UI. Because Couriva binds directly to AD over LDAPS on every login, password changes take effect immediately.</p></article>
+<article class="qa-card"><h3>How did you separate normal users from administrators in Active Directory?</h3><p>We scoped login to OU=CourivaUsers and created a dedicated sub-OU OU=CourivaAdmins inside it. On every sign-in, AuthService checks the user&#x27;s Distinguished Name (DN): accounts in CourivaAdmins automatically receive role=&#x27;admin&#x27;, and moving them out reverts them to role=&#x27;user&#x27;.</p></article>
+<article class="qa-card"><h3>What bugs did your E2E testing find, and how did you fix them?</h3><p>Our 2-pass browser E2E run (55 checks) uncovered 3 bugs—all fixed and re-verified: BUG-001 (duplicate CSP/security headers in web.config vs functions.php), BUG-002 (Primary/Promotions/Updates inbox tabs not filtering—fixed with migration 007_email_category.sql + classifier), and BUG-003 (axe-core accessibility contrast, aria-label, heading order, and &lt;main&gt; landmarks).</p></article>
+
+      <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(65 Terms)</small></a>
+<a href="defense-qa.html" class="active">Defense Q&A <small style="opacity:.75">(Q1–Q3 & Team)</small></a>
+<a href="documentation.html" class="">System Doc (PDF) <small style="opacity:.75">(V8.1 · 39 pp)</small></a></nav>
+    </article>
+  </main>
+</div>
+
+</div>
+
+</div>
+
+<button type="button" class="back-top" id="back-top" aria-label="Back to top">↑ Top</button>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Enlarged figure viewer">
+  <div class="lb-header">
+    <span class="lb-counter" id="lb-counter">Figure 1 / 40</span>
+    <div class="lb-controls">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset" aria-label="Toggle zoom"><span id="lb-zoom-label">Fit</span></button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" class="lb-btn close-btn" id="lb-close" aria-label="Close viewer">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img class="lb-img" id="lb-img" src="" alt="" />
+  </div>
+  <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous figure">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next figure">›</button>
+  <div class="lb-footer">
+    <div class="lb-caption" id="lb-caption"></div>
+    <div class="lb-file" id="lb-file"></div>
+  </div>
+</div>
+
+
+<script src="assets/guide.js"></script>
+</body>
+</html
+<script src="assets/guide.js"></script>
+</body>
+</html>

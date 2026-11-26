@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>System Documentation V8.1 (PDF) — Couriva System Guide</title>
+<link rel="stylesheet" href="assets/guide.css" />
+</head>
+<body>
+<header class="mobile-bar">
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false">&#9776; Chapters</button>
+  <span class="mobile-title">Couriva System Guide</span>
+  <a class="menu-btn" href="defense-qa.html">Defense Q&amp;A</a>
+</header>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Book Navigation">
+    <div class="sidebar-head">
+      <div class="sidebar-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="sidebar-title">Couriva System Guide</div>
+        <div class="sidebar-sub">Edition 1.1 · Multi-Page</div>
+      </div>
+    </div>
+    <div class="sidebar-search">
+      <label class="sr-only" for="toc-search">Filter chapters</label>
+      <input type="search" id="toc-search" placeholder="Filter chapters..." autocomplete="off" />
+    </div>
+    <nav class="toc-scroll" id="toc-nav" aria-label="Table of Contents">
+      <ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">&middot; Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">&middot; Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">&middot; Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">&middot; Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">&middot; Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">&middot; Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">&middot; 65 Terms</span></a></li>
+<li><a href="defense-qa.html" class="">Defense Q&A <span style="opacity:.65;font-size:.8em">&middot; Q1–Q3 & Team</span></a></li>
+<li><a href="documentation.html" class="active">System Doc (PDF) <span style="opacity:.65;font-size:.8em">&middot; V8.1 · 39 pp</span></a></li></ul>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-btn" href="dictionary.html">Dictionary</a>
+      <a class="side-btn" href="documentation.html">Doc PDF</a>
+    </div>
+  </aside>
+
+  <main class="book-main">
+    <article class="book-page">
+      <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(65 Terms)</small></a>
+<a href="defense-qa.html" class="">Defense Q&A <small style="opacity:.75">(Q1–Q3 & Team)</small></a>
+<a href="documentation.html" class="active">System Doc (PDF) <small style="opacity:.75">(V8.1 · 39 pp)</small></a></nav>
+      
+<h2 class="chapter-h2"><span class="chapter-eyebrow">OFFICIAL DOCUMENTATION · V8.1</span>Couriva System Documentation (39 Pages)</h2>
+<p><strong>Couriva: A Standalone Web-Based Internal Mail System</strong> — Submitted by <strong>Group 2 (BSIT – 41A)</strong> to <strong>Mr. Ryan Prudenciado</strong>. Product Owner: <strong>Centillas, Hermar Jr.</strong></p>
+
+<div class="pdf-toolbar">
+  <a class="btn-primary-link" href="docs/Couriva_System_DocumentationV8.1.pdf" download="Couriva_System_DocumentationV8.1.pdf">&#11015; Download Full PDF (3.2 MB)</a>
+  <a class="btn-secondary-link" href="docs/Couriva_System_DocumentationV8.1.pdf" target="_blank" rel="noopener">Open PDF in New Tab &#8599;</a>
+</div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Section</th><th>Pages</th><th>Contents</th></tr></thead>
+<tbody>
+<tr><td><strong>1.0 Introduction</strong></td><td>pp. 3–10</td><td>Problem Statement, Objectives, Scope, Delimitations, Limitations, Significance</td></tr>
+<tr><td><strong>2.0 List of Tables, Figures &amp; Diagrams</strong></td><td>p. 11</td><td>Complete index of V8.1 tables and architectural diagrams</td></tr>
+<tr><td><strong>3.0 Data Models &amp; ERD</strong></td><td>pp. 12–22</td><td>Entity-Relationship Diagram (ERD) and normalized 14-table MariaDB schema</td></tr>
+<tr><td><strong>4.0 DFD &amp; Use Case Diagrams</strong></td><td>pp. 23–25</td><td>Context Diagram, Data Flow Diagrams, and UML Use Case Diagrams</td></tr>
+<tr><td><strong>5.0 System Flowcharts</strong></td><td>pp. 26–37</td><td>Authentication, Compose/Delivery, Attachment Validation, Admin &amp; Scheduler flows</td></tr>
+<tr><td><strong>6.0 Validation &amp; Security Enhancements</strong></td><td>pp. 38–39</td><td>AD Account Governance, PH Mobile Validation, Unified Alerts, Password Policy</td></tr>
+</tbody>
+</table></div>
+
+<iframe class="pdf-frame" src="docs/Couriva_System_DocumentationV8.1.pdf" title="Couriva System Documentation V8.1 PDF">
+  <p>Your browser cannot display inline PDFs. <a href="docs/Couriva_System_DocumentationV8.1.pdf">Download Couriva_System_DocumentationV8.1.pdf</a>.</p>
+</iframe>
+
+      <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(65 Terms)</small></a>
+<a href="defense-qa.html" class="">Defense Q&A <small style="opacity:.75">(Q1–Q3 & Team)</small></a>
+<a href="documentation.html" class="active">System Doc (PDF) <small style="opacity:.75">(V8.1 · 39 pp)</small></a></nav>
+    </article>
+  </main>
+</div>
+
+</div>
+
+</div>
+
+<button type="button" class="back-top" id="back-top" aria-label="Back to top">↑ Top</button>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Enlarged figure viewer">
+  <div class="lb-header">
+    <span class="lb-counter" id="lb-counter">Figure 1 / 40</span>
+    <div class="lb-controls">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset" aria-label="Toggle zoom"><span id="lb-zoom-label">Fit</span></button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" class="lb-btn close-btn" id="lb-close" aria-label="Close viewer">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img class="lb-img" id="lb-img" src="" alt="" />
+  </div>
+  <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous figure">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next figure">›</button>
+  <div class="lb-footer">
+    <div class="lb-caption" id="lb-caption"></div>
+    <div class="lb-file" id="lb-file"></div>
+  </div>
+</div>
+
+
+<script src="assets/guide.js"></script>
+</body>
+</html
+<script src="assets/guide.js"></script>
+</body>
+</html>

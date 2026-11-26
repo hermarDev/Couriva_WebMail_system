@@ -209,3 +209,15 @@
     }, true);
   }
 })();
+
+(() => {
+  const qaInput = document.getElementById('qa-search');
+  if (qaInput) {
+    qaInput.addEventListener('input', () => {
+      const q = qaInput.value.trim().toLowerCase();
+      document.querySelectorAll('.qa-card, .member-card').forEach(el => {
+        el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
+      });
+    });
+  }
+})();
