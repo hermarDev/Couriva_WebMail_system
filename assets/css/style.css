@@ -470,7 +470,7 @@ body {
     height: 32px;
     border-radius: 50%;
     background-color: var(--primary-soft);
-    color: var(--primary);
+    color: var(--primary-hover);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -981,12 +981,16 @@ body {
 
 .webmail-nav-link.active {
     background-color: var(--primary-soft);
-    color: var(--primary);
+    color: var(--primary-hover);
     font-weight: 600;
 }
 
 .webmail-nav-link.active i {
-    color: var(--primary) !important;
+    color: var(--primary-hover) !important;
+}
+
+.settings-section-tabs .nav-link:not(.active) {
+    color: var(--text-secondary);
 }
 
 .webmail-nav-link .nav-icon {
@@ -1312,7 +1316,7 @@ body {
     align-items: center;
     gap: 0.35rem;
     background-color: var(--primary-soft);
-    color: var(--primary);
+    color: var(--primary-hover);
     border: 1px solid rgba(37, 99, 235, 0.2);
     border-radius: 16px;
     padding: 0.15rem 0.55rem;
@@ -1429,7 +1433,7 @@ body {
 
 .editor-btn.active {
     background-color: var(--primary-soft);
-    color: var(--primary);
+    color: var(--primary-hover);
 }
 
 .rich-text-editor {

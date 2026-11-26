@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-26T00:19:27.359Z",
+        "reason": "Pre-existing Couriva WebMail brand typography in assets/css/style.css:165; outside BUG-003 contrast scope"
+      }
+    ]
+  }
+}

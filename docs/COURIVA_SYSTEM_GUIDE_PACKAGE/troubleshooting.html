@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Troubleshooting, Appendices &amp; Index — Couriva System Guide</title>
+<link rel="stylesheet" href="assets/guide.css" />
+</head>
+<body>
+<header class="topbar">
+  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+  <span class="topbar-title">Couriva System Guide</span>
+  <span class="topbar-sub">Troubleshooting, Appendices &amp; Index</span>
+</header>
+<div id="drawer-backdrop" class="drawer-backdrop"></div>
+<div class="layout">
+  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
+    <div class="sidebar-brand">
+      <div class="brand-badge">C</div>
+      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+    </div>
+    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
+    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="active">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+  </aside>
+  <main class="content">
+    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="active">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    <hr />
+<h2 id="part-10-troubleshooting-and-drift" class="chapter-h2 part-break"><span class="chapter-eyebrow">PART 10</span>Troubleshooting and drift</h2>
+<h3 id="101-login-loop-forced-password-change">10.1 Login loop / forced password change</h3>
+<p>Symptom: redirect to <code>change-password.php</code> on every route. Cause: <code>must_change_password=1</code>. Fix: complete the form (10+ chars, four classes) or reset via <code>admin/edit-user.php</code>. API 403 during this state is intentional.</p>
+<h3 id="102-5000-fastcgi">10.2 500.0 FastCGI</h3>
+<p>Symptom: all <code>.php</code> return 500.0. Cause: PHP path mismatch. Fix: register <code>C:\PHP\php-cgi.exe</code> globally and align <code>web.config:29</code>.</p>
+<h3 id="103-4048-on-docs-or-storage">10.3 404.8 on <code>docs/</code> or <code>storage/</code></h3>
+<p>Expected hardening. Use the filesystem (<code>dir</code>) or the guide figures, not HTTP, to inspect those paths.</p>
+<h3 id="104-duplicate-csp-blocked-inline-scripts">10.4 Duplicate CSP / blocked inline scripts</h3>
+<p>Two CSP headers are present live: static from <code>web.config:129</code> (no nonce) and dynamic from PHP (with nonce). Browsers intersect them, so nonce-bearing inline scripts can be blocked. Recorded as drift; do not claim a clean single header.</p>
+<h3 id="105-scheduled-mail-not-sending">10.5 Scheduled mail not sending</h3>
+<p>Check <code>schtasks /query /tn "Couriva-ScheduledMailProcessor" /v</code>, <code>storage\logs\</code>, <code>scheduled_emails.status</code>, <code>delivery_status.next_retry_at</code>, and the 10-minute stale-job reclaim.</p>
+<h3 id="106-drift-ledger-read-this-before-answering">10.6 Drift ledger (read this before answering)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Documentation says</th>
+<th>Live evidence</th>
+<th>Ruling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Windows Server 2019</td>
+<td>VM title "Windows Server 2022", build <code>10.0.20348.1</code> (<a class="fig-ref" href="#fig-1" data-open-fig="1">Figure 1</a>)</td>
+<td>Live VM is 2022</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Single CSP from <code>web.config:129</code></td>
+<td><code>curl -sI</code> shows two CSP headers; second has <code>'nonce-…'</code></td>
+<td>Duplicate headers live</td>
+</tr>
+<tr>
+<td>3</td>
+<td>13 tables (audit) / 16 tables (brief)</td>
+<td><code>SHOW TABLES;</code> → 14 rows (<a class="fig-ref" href="#fig-16" data-open-fig="16">Figure 16</a>)</td>
+<td>Live count is 14</td>
+</tr>
+<tr>
+<td>4</td>
+<td>AD domain <code>couriva.local</code></td>
+<td>DNS zone <code>couriva.com</code>, ADUC <code>couriva.com</code> (Figures 2–3)</td>
+<td>Live domain is <code>couriva.com</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Data dir unknown</td>
+<td><code>SELECT @@datadir;</code> → <code>C:\Program Files\MariaDB 10.11\data\</code></td>
+<td>Verified, not guessed</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Console window <code>0x02400007</code></td>
+<td>Window id changed to <code>0x02a00007</code>; driven via Xvfb <code>:99</code></td>
+<td>Environment drift</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Hotspot <code>172.20.10.2</code> reachable</td>
+<td>Initially unreachable; after host joined hotspot, <code>curl</code> → <code>200 172.20.10.2</code> and Figures 39–40 captured</td>
+<td>Verified; Safari device UI not driven</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=false</code></td>
+<td>Temporarily set to <code>true</code> for capture, then restored to <code>false</code> with <code>iisreset /restart</code>; disposable local + AD accounts deleted</td>
+<td>Production posture restored; no residual demo identity</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="107-redaction-rule">10.7 Redaction rule</h3>
+<p>No password, bind password, token or session id appears in this book or its screenshots. The login card shows placeholders only; the MariaDB screen shows no secret.</p>
+<hr />
+<h2 id="appendix-a-command-quick-reference" class="chapter-h2 part-break"><span class="chapter-eyebrow">APPENDIX A</span>Command quick reference</h2>
+<div class="code-block"><div class="code-bar"><span class="code-lang">BASH</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="language-bash"># Host
+curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://172.20.10.2/public/login.php
+curl -sI http://172.20.10.2/public/login.php | grep -i -E 'server|content-security|nosniff'
+npm test
+
+# Guest PowerShell (elevated)
+Get-WindowsFeature | Where Installed
+Get-NetIPAddress | Format-Table IPAddress,InterfaceAlias
+schtasks /query /tn &quot;Couriva-ScheduledMailProcessor&quot; /v /fo list
+icacls &quot;C:\inetpub\wwwroot\Web_Mail_System\storage\attachments&quot;
+certutil -store -user Root
+
+# MariaDB CLI
+SELECT @@datadir; SELECT @@version; SHOW DATABASES; USE webmail; SHOW TABLES;
+SELECT email,role,status,auth_source FROM users;
+</code></pre></div>
+<h2 id="appendix-b-environment-variables" class="chapter-h2 part-break"><span class="chapter-eyebrow">APPENDIX B</span>Environment variables</h2>
+<p><code>APP_ENV</code>, <code>WEBMAIL_FORCE_HTTPS</code>, <code>TRUST_PROXY_HEADERS</code>, <code>SESSION_IDLE_TIMEOUT</code> (1800), <code>SESSION_ABSOLUTE_TIMEOUT</code> (28800), <code>SMTP_VERIFY_PEER</code>, <code>SMTP_VERIFY_PEER_NAME</code>, <code>SMTP_CA_FILE</code>, <code>SMTP_INSECURE_TLS</code>, <code>MAIL_DRIVER</code> (<code>database</code>/<code>smtp</code>), <code>MAIL_DOMAIN</code> (<code>couriva.local</code>), <code>DB_HOST/PORT/NAME/USER/PASS</code>, and all <code>LDAP_*</code> keys in Part 5. SMTP TLS verification is on by default; <code>SMTP_INSECURE_TLS</code> is ignored unless <code>APP_ENV=development</code>.</p>
+<h2 id="appendix-c-file-map" class="chapter-h2 part-break"><span class="chapter-eyebrow">APPENDIX C</span>File map</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Need</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prove DB settings</td>
+<td><code>config/database.php</code></td>
+</tr>
+<tr>
+<td>Prove LDAP defaults</td>
+<td><code>config/ldap.php</code></td>
+</tr>
+<tr>
+<td>Prove IIS hardening</td>
+<td><code>web.config</code></td>
+</tr>
+<tr>
+<td>Prove schema</td>
+<td><code>database/schema.sql</code></td>
+</tr>
+<tr>
+<td>Prove migrations</td>
+<td><code>database/migrations/001..006</code></td>
+</tr>
+<tr>
+<td>Prove test matrix</td>
+<td><code>COURIVA_TESTING_AND_ACCEPTANCE.md</code></td>
+</tr>
+<tr>
+<td>Prove IIS requirements</td>
+<td><code>COURIVA_IIS_DEPLOYMENT_CHECKLIST.md</code></td>
+</tr>
+<tr>
+<td>Prove architecture</td>
+<td><code>docs/SYSTEM_COMPREHENSIVE_AUDIT.md</code></td>
+</tr>
+<tr>
+<td>Change hotspot IP</td>
+<td><code>bin/configure-hotspot-ip.bat</code> / <code>.ps1</code></td>
+</tr>
+<tr>
+<td>Provision break-glass admin</td>
+<td><code>bin/create-admin.php</code></td>
+</tr>
+<tr>
+<td>Drain scheduled mail</td>
+<td><code>bin/process_scheduled.php</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="appendix-d-glossary" class="chapter-h2 part-break"><span class="chapter-eyebrow">APPENDIX D</span>Glossary</h2>
+<p><strong>AD DS</strong> Active Directory Domain Services. <strong>LDAPS</strong> LDAP over TLS, port 636. <strong>OU</strong> organizational unit. <strong>UPN</strong> user principal name. <strong>FastCGI</strong> IIS PHP process bridge. <strong>CSRF</strong> cross-site request forgery token. <strong>RBAC</strong> role-based access control. <strong>idempotency key</strong> unique key preventing duplicate delivery. <strong>hidden segment</strong> IIS request-filtering rule returning 404.8. <strong>session epoch</strong> DB counter invalidating older sessions. <strong>objectGUID</strong> immutable AD identity.</p>
+<h2 id="appendix-e-full-qa" class="chapter-h2 part-break"><span class="chapter-eyebrow">APPENDIX E</span>Full Q&amp;A</h2>
+<p><strong>Q: Two login URLs — which is correct?</strong> A: Both. Active server <code>172.20.10.2</code> is reachable now (earlier lab NIC <code>172.20.10.2</code> is retired); for defense day after joining the iPhone hotspot.
+<strong>Q: Is self-registration available?</strong> A: No — retired (410); web user creation 403.
+<strong>Q: Can LDAP users change password in Couriva?</strong> A: No — AD only.
+<strong>Q: What happens if AD is unreachable?</strong> A: Local break-glass admin can still log in if <code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code>.
+<strong>Q: How many tables?</strong> A: Live: 14. Docs disagree; evidence wins.
+<strong>Q: Where is the data dir?</strong> A: <code>SELECT @@datadir;</code> → <code>C:\Program Files\MariaDB 10.11\data\</code>.
+<strong>Q: Are attachments executable?</strong> A: No — MIME sniffing, extension blacklist, randomized names, denied storage path.
+<strong>Q: How often does the scheduler run?</strong> A: Every minute; stale jobs &gt;10 min reclaimed.
+<strong>Q: Are credentials in this book?</strong> A: No.
+<strong>Q: What remains to capture?</strong> A: Nothing in the book scope. Authenticated web screens: Figures 22–34. Hotspot defense URL: Figures 39–40. Only the native iPhone Safari chrome itself is not driven from this host.</p>
+<hr />
+
+<hr />
+<h2 id="appendix-f-json-api-and-security-controls" class="chapter-h2 part-break"><span class="chapter-eyebrow">APPENDIX F</span>JSON API &amp; security controls</h2>
+<p>Every endpoint under <code>public/api/</code> returns JSON, requires an authenticated session (<code>401</code> if logged out), enforces <code>require_api_password_change()</code> (<code>403</code> while <code>must_change_password=1</code>), and validates CSRF tokens on state-changing requests.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>public/api/autosave_draft.php</code></td><td>POST</td><td>Saves/updates draft content asynchronously every 30s during Compose.</td></tr>
+<tr><td><code>public/api/batch_actions.php</code></td><td>POST</td><td>Bulk read/unread, star, archive/unarchive, snooze/unsnooze, move to folder/trash/spam, permanent delete.</td></tr>
+<tr><td><code>public/api/contacts.php</code></td><td>GET</td><td>Returns matching personal contacts for Compose To/Cc/Bcc autocomplete.</td></tr>
+<tr><td><code>public/api/get_email.php</code></td><td>GET</td><td>Loads a single email + attachments for the Inbox split reading pane.</td></tr>
+<tr><td><code>public/api/organization.php</code></td><td>POST</td><td>Creates, updates, or deletes user custom folders and color labels.</td></tr>
+<tr><td><code>public/api/theme.php</code></td><td>POST</td><td>Persists Light / Dark / System theme preference to <code>users</code>.</td></tr>
+<tr><td><code>public/api/toggle_star.php</code></td><td>POST</td><td>Toggles starred state on a message row.</td></tr>
+</tbody>
+</table></div>
+<p><strong>Core security controls active across all pages:</strong></p>
+<ul>
+<li><strong>Closed identity</strong>: No public signup (<code>register.php</code> → <code>410</code>), no web user creation (<code>403</code>), AD LDAPS <code>:636</code> with immutable <code>ad_object_guid</code>, CLI-only break-glass admin.</li>
+<li><strong>Session &amp; brute-force defense</strong>: <code>session_regenerate_id(true)</code>, <code>HttpOnly</code> + <code>SameSite=Strict</code> cookies, <code>session_epoch</code> invalidation, IP throttle (<code>10</code> fails / <code>15 min</code> → <code>429</code>).</li>
+<li><strong>Safe uploads &amp; feedback</strong>: <code>finfo_file()</code> MIME verification, randomized filenames in non-web-reachable <code>storage\attachments\</code> (<code>404.8</code>), unified accessible alerts via <code>render_inline_alert()</code>.</li>
+</ul>
+
+<hr />
+<h2 id="index" class="chapter-h2 part-break"><span class="chapter-eyebrow">REFERENCE</span>Index</h2>
+<div class="index-grid"><div class="idx-item"><span class="idx-term">Admin dashboard</span><span class="idx-loc">Part 8</span></div><div class="idx-item"><span class="idx-term">AD DS</span><span class="idx-loc">Part 4.4</span></div><div class="idx-item"><span class="idx-term">attachment security</span><span class="idx-loc">Part 2.3</span></div><div class="idx-item"><span class="idx-term">backup</span><span class="idx-loc">Part 6.4</span></div><div class="idx-item"><span class="idx-term">bindings</span><span class="idx-loc">Part 4.2</span></div><div class="idx-item"><span class="idx-term">break-glass admin</span><span class="idx-loc">Part 5</span></div><div class="idx-item"><span class="idx-term">CSP drift</span><span class="idx-loc">Part 10.4, 10.6</span></div><div class="idx-item"><span class="idx-term">CSRF</span><span class="idx-loc">Part 2.2</span></div><div class="idx-item"><span class="idx-term">data directory</span><span class="idx-loc">Part 6.1</span></div><div class="idx-item"><span class="idx-term">DNS</span><span class="idx-loc">Part 4.3</span></div><div class="idx-item"><span class="idx-term">FastCGI</span><span class="idx-loc">Part 4.2</span></div><div class="idx-item"><span class="idx-term">forced password change</span><span class="idx-loc">Part 2.2, 10.1</span></div><div class="idx-item"><span class="idx-term">hidden segments</span><span class="idx-loc">Part 3.2</span></div><div class="idx-item"><span class="idx-term">hotspot</span><span class="idx-loc">Part 4.9–4.10</span></div><div class="idx-item"><span class="idx-term">IIS</span><span class="idx-loc">Part 4.2</span></div><div class="idx-item"><span class="idx-term">LDAP</span><span class="idx-loc">Part 5</span></div><div class="idx-item"><span class="idx-term">login flow</span><span class="idx-loc">Part 2.2</span></div><div class="idx-item"><span class="idx-term">MariaDB</span><span class="idx-loc">Part 4.6, 6</span></div><div class="idx-item"><span class="idx-term">migrations</span><span class="idx-loc">Part 6.3</span></div><div class="idx-item"><span class="idx-term">NTFS ACL</span><span class="idx-loc">Part 4.8</span></div><div class="idx-item"><span class="idx-term">objectGUID</span><span class="idx-loc">Part 5, 6.3</span></div><div class="idx-item"><span class="idx-term">request pipeline</span><span class="idx-loc">Part 2.1</span></div><div class="idx-item"><span class="idx-term">scheduled mail</span><span class="idx-loc">Part 2.4, 10.5</span></div><div class="idx-item"><span class="idx-term">security headers</span><span class="idx-loc">Part 4.7</span></div><div class="idx-item"><span class="idx-term">session epoch</span><span class="idx-loc">Part 1.2</span></div><div class="idx-item"><span class="idx-term">tables</span><span class="idx-loc">Part 6.2</span></div><div class="idx-item"><span class="idx-term">Task Scheduler</span><span class="idx-loc">Part 4.8</span></div><div class="idx-item"><span class="idx-term">testing</span><span class="idx-loc">Part 9</span></div><div class="idx-item"><span class="idx-term">TLS</span><span class="idx-loc">Part 4.8, 5</span></div><div class="idx-item"><span class="idx-term">URL Rewrite</span><span class="idx-loc">Part 4.7</span></div><div class="idx-item"><span class="idx-term">verification stamp</span><span class="idx-loc">cover.</span></div></div>
+    </article>
+  
+    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="active">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+  </main>
+</div>
+
+</div>
+
+<button type="button" class="back-top" id="back-top" aria-label="Back to top">↑ Top</button>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Enlarged figure viewer">
+  <div class="lb-header">
+    <span class="lb-counter" id="lb-counter">Figure 1 / 40</span>
+    <div class="lb-controls">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset" aria-label="Toggle zoom"><span id="lb-zoom-label">Fit</span></button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" class="lb-btn close-btn" id="lb-close" aria-label="Close viewer">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img class="lb-img" id="lb-img" src="" alt="" />
+  </div>
+  <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous figure">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next figure">›</button>
+  <div class="lb-footer">
+    <div class="lb-caption" id="lb-caption"></div>
+    <div class="lb-file" id="lb-file"></div>
+  </div>
+</div>
+
+
+<script src="assets/guide.js"></script>
+</body>
+</html>

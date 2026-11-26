@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Identity, AD DS &amp; Database — Couriva System Guide</title>
+<link rel="stylesheet" href="assets/guide.css" />
+</head>
+<body>
+<header class="topbar">
+  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+  <span class="topbar-title">Couriva System Guide</span>
+  <span class="topbar-sub">Identity, AD DS &amp; Database</span>
+</header>
+<div id="drawer-backdrop" class="drawer-backdrop"></div>
+<div class="layout">
+  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
+    <div class="sidebar-brand">
+      <div class="brand-badge">C</div>
+      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+    </div>
+    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
+    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="active">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+  </aside>
+  <main class="content">
+    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="active">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    <hr />
+<h2 id="part-5-identity-and-ldap" class="chapter-h2 part-break"><span class="chapter-eyebrow">PART 05</span>Identity and LDAP</h2>
+<p><code>config/ldap.php</code> reads every setting from environment (FastCGI Environment Variables in IIS). Defaults: <code>LDAP_ENABLED=false</code>, host <code>127.0.0.1</code>, port 389, <code>LDAP_DOMAIN=couriva.local</code>, <code>LDAP_BASE_DN=dc=couriva,dc=local</code>, <code>LDAP_ALLOWED_OU_DN=OU=CourivaUsers,DC=couriva,DC=local</code>, <code>LDAP_REQUIRE_TLS=true</code>, <code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code>, <code>LDAP_FALLBACK_LOCAL=false</code>, <code>LDAP_AUTO_CREATE=true</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Production value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LDAP_ENABLED</code></td>
+<td><code>true</code></td>
+<td>enables domain auth</td>
+</tr>
+<tr>
+<td><code>LDAP_HOST</code> / <code>LDAP_PORT</code></td>
+<td>DC FQDN / <code>636</code></td>
+<td>LDAPS endpoint</td>
+</tr>
+<tr>
+<td><code>LDAP_USE_SSL</code> / <code>LDAP_USE_TLS</code></td>
+<td><code>true</code> / <code>false</code></td>
+<td>LDAPS, not STARTTLS</td>
+</tr>
+<tr>
+<td><code>LDAP_BASE_DN</code></td>
+<td><code>dc=couriva,dc=local</code> (doc) / <code>dc=couriva,dc=com</code> (live)</td>
+<td>search root</td>
+</tr>
+<tr>
+<td><code>LDAP_ALLOWED_OU_DN</code></td>
+<td><code>OU=CourivaUsers,...</code></td>
+<td>login restricted to this OU</td>
+</tr>
+<tr>
+<td><code>LDAP_BIND_DN</code> / <code>LDAP_BIND_PASSWORD</code></td>
+<td>service account / secret</td>
+<td>directory search; never on disk</td>
+</tr>
+<tr>
+<td><code>LDAP_REQUIRE_TLS</code></td>
+<td><code>true</code></td>
+<td>fail closed without TLS</td>
+</tr>
+<tr>
+<td><code>LDAP_AUTO_CREATE</code></td>
+<td><code>true</code></td>
+<td>first login provisions mailbox</td>
+</tr>
+<tr>
+<td><code>LDAP_FALLBACK_LOCAL</code></td>
+<td><code>false</code></td>
+<td>no local fallback for LDAP users</td>
+</tr>
+<tr>
+<td><code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK</code></td>
+<td><code>true</code></td>
+<td>break-glass local admin only</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Password rules:</strong> minimum 10 characters, uppercase, lowercase, digit, symbol. LDAP users are directed to the domain controller; Couriva never changes AD passwords. <code>ad_object_guid</code> is immutable and unique (migration 006), so renames cannot hijack a mailbox.</p>
+<div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body">Figures 3 and 11; <code>config/ldap.php</code>; <code>database/migrations/005_ad_auth_source.sql</code>, <code>006_ad_object_guid.sql</code>; <code>http://172.20.10.2/public/register.php</code> → HTTP <code>410</code>.</div></div>
+<figure class="inline-fig" data-open-fig="49" tabindex="0" role="button" aria-label="Enlarge Figure 49: http://172.20.10.2/public/register.php — retired public registration returning HTTP 410."><div class="inline-fig-frame"><img data-fig-src="49" alt="Figure 49" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 49</span> <span><code>http://172.20.10.2/public/register.php</code> — retired public registration returning HTTP <code>410</code>.</span></figcaption></figure>
+<hr />
+<h2 id="part-6-database" class="chapter-h2 part-break"><span class="chapter-eyebrow">PART 06</span>Database</h2>
+<h3 id="61-connection">6.1 Connection</h3>
+<p><code>config/database.php</code>: DSN <code>mysql:host=127.0.0.1;port=3306;dbname=webmail;charset=utf8mb4</code>, <code>PDO::ATTR_EMULATE_PREPARES=false</code>, <code>ERRMODE_EXCEPTION</code>, <code>SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci</code>, and <code>SET time_zone='+00:00'</code>. Live CLI verification (<a class="fig-ref" href="#fig-16" data-open-fig="16">Figure 16</a>):</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">SQL</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="language-sql">SELECT @@datadir;              -- C:\Program Files\MariaDB 10.11\data\
+SELECT @@version;              -- 10.11.20-MariaDB
+SHOW TABLES;                   -- 14 rows
+</code></pre></div>
+<h3 id="62-tables-live-show-tables-14-rows">6.2 Tables (live <code>SHOW TABLES</code>, 14 rows)</h3>
+<ol>
+<li><code>attachments</code></li>
+<li><code>blocked_senders</code></li>
+<li><code>contacts</code></li>
+<li><code>delivery_status</code></li>
+<li><code>email_labels</code></li>
+<li><code>email_recipients</code></li>
+<li><code>emails</code></li>
+<li><code>folders</code></li>
+<li><code>labels</code></li>
+<li><code>notifications</code></li>
+<li><code>scheduled_emails</code></li>
+<li><code>spam_reports</code></li>
+<li><code>system_logs</code></li>
+<li><code>users</code></li>
+</ol>
+<p>Note: the repository audit says 13 tables and the assignment brief says 16. The live server reports <strong>14</strong> — record the drift, do not adjust the evidence.</p>
+
+<p><strong>What each of the 14 tables stores (at a glance):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Table</th><th>Purpose &amp; Relationships</th></tr></thead>
+<tbody>
+<tr><td><code>users</code></td><td>Member &amp; admin accounts, role (<code>user</code>/<code>admin</code>), status, <code>auth_source</code> (<code>local</code>/<code>ldap</code>), <code>ad_object_guid</code>, <code>must_change_password</code>, <code>session_epoch</code>, theme/signature/timezone preferences.</td></tr>
+<tr><td><code>emails</code></td><td>Core message records: sender/recipient IDs, subject, body, folder (<code>inbox</code>/<code>sent</code>/<code>drafts</code>/<code>spam</code>/<code>trash</code>), <code>is_read</code>, <code>is_starred</code>, <code>is_archived</code>, <code>snoozed_until</code>, <code>custom_folder_id</code>, <code>deleted_at</code>.</td></tr>
+<tr><td><code>email_recipients</code></td><td>Normalized <code>To</code>, <code>Cc</code>, and <code>Bcc</code> recipient rows linked to <code>emails.id</code> and <code>users.id</code>.</td></tr>
+<tr><td><code>attachments</code></td><td>Metadata for uploaded files (original filename, randomized <code>stored_filename</code> on disk, MIME type, byte size) linked to <code>emails.id</code>.</td></tr>
+<tr><td><code>delivery_status</code></td><td>Per-recipient delivery state (<code>queued</code>, <code>delivered</code>, <code>sent</code>, <code>failed</code>, <code>bounced</code>, <code>unknown</code>), idempotency key, retry count, and <code>next_retry_at</code>.</td></tr>
+<tr><td><code>scheduled_emails</code></td><td>Future send queue linking draft email IDs to <code>scheduled_at</code>, lock/status (<code>pending</code>, <code>processing</code>, <code>sent</code>, <code>cancelled</code>), and stale-job timestamps.</td></tr>
+<tr><td><code>folders</code></td><td>User-created custom mailbox folders (name and color) for organizing mail outside the main Inbox.</td></tr>
+<tr><td><code>labels</code></td><td>User-created color-coded tags (name and hex color) for categorizing messages.</td></tr>
+<tr><td><code>email_labels</code></td><td>Many-to-many join table linking <code>emails.id</code> to <code>labels.id</code>.</td></tr>
+<tr><td><code>contacts</code></td><td>Personal address book entries (name, <code>@couriva.com</code> email, optional <code>09XXXXXXXXX</code> Philippine mobile, notes) per user.</td></tr>
+<tr><td><code>notifications</code></td><td>In-app unread/read activity alerts triggered by incoming messages and scheduled dispatches.</td></tr>
+<tr><td><code>blocked_senders</code></td><td>Per-user block list; incoming mail from a blocked sender is silently placed in Spam with no notification.</td></tr>
+<tr><td><code>spam_reports</code></td><td>User-flagged spam reports exposing only that single reported message to admins for Resolve or Dismiss.</td></tr>
+<tr><td><code>system_logs</code></td><td>Security and operational audit trail (<code>USER_LOGIN</code>, password resets, admin actions, IP, status, timestamps).</td></tr>
+</tbody>
+</table></div>
+
+<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="41" tabindex="0" role="button" aria-label="Enlarge Figure 41: Crow&#x27;s Foot ERD (1A) — Core Identity &amp;amp; Messaging (users, emails, folders)."><div class="inline-fig-frame"><img data-fig-src="41" alt="Figure 41" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 41</span> <span>Crow's Foot ERD (1A) — Core Identity &amp; Messaging (<code>users</code>, <code>emails</code>, <code>folders</code>).</span></figcaption></figure><figure class="inline-fig" data-open-fig="42" tabindex="0" role="button" aria-label="Enlarge Figure 42: Crow&#x27;s Foot ERD (1B) — Recipients &amp;amp; Attachments (email_recipients, attachments)."><div class="inline-fig-frame"><img data-fig-src="42" alt="Figure 42" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 42</span> <span>Crow's Foot ERD (1B) — Recipients &amp; Attachments (<code>email_recipients</code>, <code>attachments</code>).</span></figcaption></figure></div>
+<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="43" tabindex="0" role="button" aria-label="Enlarge Figure 43: Crow&#x27;s Foot ERD (1C) — Mailbox Organization &amp;amp; Contacts (folders, labels, email_labels, contacts)."><div class="inline-fig-frame"><img data-fig-src="43" alt="Figure 43" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 43</span> <span>Crow's Foot ERD (1C) — Mailbox Organization &amp; Contacts (<code>folders</code>, <code>labels</code>, <code>email_labels</code>, <code>contacts</code>).</span></figcaption></figure><figure class="inline-fig" data-open-fig="44" tabindex="0" role="button" aria-label="Enlarge Figure 44: Crow&#x27;s Foot ERD (1D) — Scheduled Dispatch, Delivery Tracking &amp;amp; Notifications (scheduled_emails, delivery_status, notifications)."><div class="inline-fig-frame"><img data-fig-src="44" alt="Figure 44" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 44</span> <span>Crow's Foot ERD (1D) — Scheduled Dispatch, Delivery Tracking &amp; Notifications (<code>scheduled_emails</code>, <code>delivery_status</code>, <code>notifications</code>).</span></figcaption></figure></div>
+<figure class="inline-fig" data-open-fig="45" tabindex="0" role="button" aria-label="Enlarge Figure 45: Crow&#x27;s Foot ERD (1E) — Spam Moderation, Blocking &amp;amp; Security Audit (spam_reports, blocked_senders, system_logs)."><div class="inline-fig-frame"><img data-fig-src="45" alt="Figure 45" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 45</span> <span>Crow's Foot ERD (1E) — Spam Moderation, Blocking &amp; Security Audit (<code>spam_reports</code>, <code>blocked_senders</code>, <code>system_logs</code>).</span></figcaption></figure>
+
+<h4>Full ERD walkthrough — Spoon-feed guide (Figures 1A to 1E / Figs. 41–45)</h4>
+<p><strong>How to read Crow's Foot symbols in 10 seconds:</strong> a single bar (<code>|</code>) means <strong>ONE</strong>, a three-prong crow's foot (<code>&lt;</code>) means <strong>MANY</strong>, and a circle (<code>o</code>) means <strong>OPTIONAL (can be NULL / 0)</strong>. So <code>|──o&lt;</code> means <em>"one parent can have zero, one, or many children."</em></p>
+
+<div class="callout callout-info">
+  <div class="callout-title">Figure 1A (Fig. 41) — Core Identity &amp; Messaging (<code>users</code>, <code>emails</code>, <code>folders</code>)</div>
+  <p><strong>Plain-English story:</strong> Everything starts with a person (<code>users</code>) sending or receiving a message (<code>emails</code>), and optionally filing it into a personal folder (<code>folders</code>).</p>
+  <ul>
+    <li><code>users (1) ──&lt; (N) emails</code> via <code>sender_id</code>: One user can send many emails, but every email has one sender.</li>
+    <li><code>users (1) ──o&lt; (N) emails</code> via <code>recipient_id</code>: One user can receive many emails (<code>recipient_id</code> can be <code>NULL</code> for drafts/multi-recipient).</li>
+    <li><code>emails (1) ──o&lt; (N) emails</code> via <code>parent_email_id</code> (self-relationship): A reply points back to its parent email so Couriva builds a conversation thread in <code>public/read.php</code>.</li>
+    <li><code>folders (1) ──o&lt; (N) emails</code> via <code>custom_folder_id</code> (<code>ON DELETE SET NULL</code>): One custom folder can hold many emails; deleting the folder keeps the emails safe and just clears <code>custom_folder_id</code>.</li>
+    <li><code>users (1) ──o&lt; (N) users</code> via <code>reviewed_by</code>: Records which admin reviewed a user account.</li>
+  </ul>
+  <p><strong>If a panelist points at Fig. 1A, say:</strong> <em>"Figure 1A is the core mailbox backbone: <code>users</code> stores Active Directory-linked accounts (<code>ad_object_guid</code>, <code>auth_source</code>), and <code>emails</code> links senders, recipients, custom folders, and self-referencing <code>parent_email_id</code> threads."</em></p>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Figure 1B (Fig. 42) — Recipients &amp; Attachments (<code>email_recipients</code>, <code>attachments</code>)</div>
+  <p><strong>Plain-English story:</strong> One email can go to multiple people (To, Cc, Bcc) and carry multiple files—so we store them in child tables instead of squeezing lists into one column.</p>
+  <ul>
+    <li><code>emails (1) ──&lt; (N) email_recipients</code> (<code>ON DELETE CASCADE</code>): One email has one or more normalized recipient rows (<code>recipient_type</code> = <code>to</code>, <code>cc</code>, or <code>bcc</code>). Deleting the email deletes its recipient rows automatically.</li>
+    <li><code>users (1) ──o&lt; (N) email_recipients</code> (<code>ON DELETE SET NULL</code>): Links to the recipient's user row if they exist, while always keeping <code>email_address</code> as a permanent text snapshot.</li>
+    <li><code>emails (1) ──&lt; (N) attachments</code> (<code>ON DELETE CASCADE</code>): One email can have many uploaded files. Each row stores the user's <code>original_filename</code>, randomized <code>stored_filename</code>, <code>mime_type</code>, and byte size; the file bytes live safely in non-executable <code>storage/attachments/</code>.</li>
+  </ul>
+  <p><strong>If a panelist points at Fig. 1B, say:</strong> <em>"Figure 1B normalizes multi-recipient To/Cc/Bcc addressing and file attachments into 1-to-many child tables with cascading deletes when a message is permanently purged."</em></p>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Figure 1C (Fig. 43) — Mailbox Organization &amp; Contacts (<code>folders</code>, <code>labels</code>, <code>email_labels</code>, <code>contacts</code>)</div>
+  <p><strong>Plain-English story:</strong> Each user organizes their own mailbox privately—custom folders, color labels, and personal contacts belong strictly to one <code>user_id</code>.</p>
+  <ul>
+    <li><code>users (1) ──&lt; (N) folders</code> &amp; <code>users (1) ──&lt; (N) labels</code> &amp; <code>users (1) ──&lt; (N) contacts</code> (all <code>ON DELETE CASCADE</code>): One user owns many folders, many color-coded labels, and many personal contacts. No user can ever see another user's folders or contacts.</li>
+    <li><code>emails (M) ──&lt; email_labels &gt;── (N) labels</code> (Many-to-Many bridge table): One email can have multiple labels (e.g., <em>Urgent</em> + <em>Project</em>), and one label can tag many emails. <code>email_labels</code> resolves this M:N relationship using a composite key (<code>email_id</code>, <code>label_id</code>).</li>
+  </ul>
+  <p><strong>If a panelist points at Fig. 1C, say:</strong> <em>"Figure 1C models per-user mailbox organization: <code>folders</code>, <code>labels</code>, and <code>contacts</code> are 1-to-many from <code>users</code>, while <code>email_labels</code> is the many-to-many junction table between <code>emails</code> and <code>labels</code>."</em></p>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Figure 1D (Fig. 44) — Scheduled Dispatch, Delivery &amp; Notifications (<code>scheduled_emails</code>, <code>delivery_status</code>, <code>notifications</code>)</div>
+  <p><strong>Plain-English story:</strong> When a user clicks <em>Schedule</em>, the message waits safely in a queue until Task Scheduler runs <code>bin/process_scheduled.php</code> every minute, tracks delivery, and alerts the recipient.</p>
+  <ul>
+    <li><code>users (1) ──&lt; (N) scheduled_emails</code>: One user can queue many future-dated emails.</li>
+    <li><code>emails (1) ──&lt; (N) scheduled_emails</code> via <code>draft_email_id</code> and <code>sent_email_id</code>: Links the queued job to the draft before sending, and to the final sent email afterward. Status moves atomically <code>scheduled → processing → sent</code> so two worker runs can never double-send.</li>
+    <li><code>emails (1) ──&lt; (N) delivery_status</code> (<code>ON DELETE CASCADE</code>): Tracks per-recipient delivery state (<code>queued</code>, <code>delivered</code>, <code>sent</code>, <code>failed</code>, <code>bounced</code>), idempotency key, and retry count.</li>
+    <li><code>users (1) ──&lt; (N) notifications</code> (<code>ON DELETE CASCADE</code>): Stores unread/read in-app alerts when new mail arrives.</li>
+  </ul>
+  <p><strong>If a panelist points at Fig. 1D, say:</strong> <em>"Figure 1D powers reliable background sending: <code>scheduled_emails</code> locks due drafts for the 1-minute Task Scheduler worker, <code>delivery_status</code> guarantees idempotency, and <code>notifications</code> alerts recipients."</em></p>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Figure 1E (Fig. 45) — Spam Moderation, Blocking &amp; Audit (<code>blocked_senders</code>, <code>spam_reports</code>, <code>system_logs</code>)</div>
+  <p><strong>Plain-English story:</strong> Users can silently block unwanted senders or report a suspicious message to an admin—without letting the admin read the rest of their inbox—and every security action is logged.</p>
+  <ul>
+    <li><code>users (1) ──&lt; (N) blocked_senders</code> (<code>ON DELETE CASCADE</code>): One user can block many sender addresses; future mail from them routes silently to Spam.</li>
+    <li><code>users (1) ──&lt; (N) spam_reports</code> (as <code>reporter_id</code> and admin <code>reviewer_id</code>) &amp; <code>emails (1) ──&lt; (N) spam_reports</code> (<code>ON DELETE CASCADE</code>): Ties a report to <em>only one specific</em> <code>email_id</code> so <code>admin/spam-reports.php</code> stays privacy-isolated.</li>
+    <li><code>users (1) ──o&lt; (N) system_logs</code> (<code>ON DELETE SET NULL</code>): Immutable audit trail of logins, failed auth, password changes, and admin governance actions.</li>
+  </ul>
+  <p><strong>If a panelist points at Fig. 1E, say:</strong> <em>"Figure 1E handles safety and accountability: <code>blocked_senders</code> enforces per-user blocks, <code>spam_reports</code> exposes only the single reported <code>email_id</code> to admins, and <code>system_logs</code> records all security events."</em></p>
+</div>
+
+<h3 id="63-schema-and-migrations">6.3 Schema and migrations</h3>
+<p><code>database/schema.sql</code> is the canonical DDL (no <code>USE</code>, safe for disposable DBs). Migration ledger:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>001_p1_security.sql</code></td>
+<td><code>must_change_password</code>, <code>session_epoch</code>, sender snapshots, <code>ON DELETE SET NULL</code></td>
+</tr>
+<tr>
+<td><code>002_couriva_features.sql</code></td>
+<td>approval states, folders, labels, archive/snooze, scheduled mail, notifications, blocks, spam reports</td>
+</tr>
+<tr>
+<td><code>003_couriva_domain.sql</code></td>
+<td><code>@webmail.local</code> → <code>@couriva.local</code> rewrite (idempotent)</td>
+</tr>
+<tr>
+<td><code>004_delivery_status.sql</code></td>
+<td>durable per-recipient delivery state + idempotency</td>
+</tr>
+<tr>
+<td><code>005_ad_auth_source.sql</code></td>
+<td><code>auth_source ENUM('local','ldap')</code></td>
+</tr>
+<tr>
+<td><code>006_ad_object_guid.sql</code></td>
+<td>immutable <code>ad_object_guid</code> unique binding</td>
+</tr>
+</tbody>
+</table></div>
+<p>Fresh installs import <code>schema.sql</code> only; upgrades apply migrations 001–006 in order after backup.</p>
+<h3 id="64-cli-logs-backup">6.4 CLI, logs, backup</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">POWERSHELL</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="language-powershell">&amp; &quot;C:\Program Files\MariaDB 10.11\bin\mysql.exe&quot; -u root -p webmail &lt; database\schema.sql
+&amp; &quot;C:\Program Files\MariaDB 10.11\bin\mysqldump.exe&quot; -u root -p --single-transaction --quick webmail &gt; webmail_backup.sql
+Compress-Archive -Path storage\attachments\* -DestinationPath attachments_backup.zip
+</code></pre></div>
+<p>Application logs: <code>storage\logs\php_errors.log</code>, <code>storage\logs\</code> (<a class="fig-ref" href="#fig-12" data-open-fig="12">Figure 12</a>), <code>system_logs</code> table, IIS W3C logs, Windows Event Viewer (<a class="fig-ref" href="#fig-15" data-open-fig="15">Figure 15</a>). Backup integrity: every <code>attachments.stored_filename</code> in the dump must exist in the zip.</p>
+<div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body"><a class="fig-ref" href="#fig-16" data-open-fig="16">Figure 16</a>; <code>dir C:\inetpub\wwwroot\Web_Mail_System\storage\logs</code>.</div></div>
+
+    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="active">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+  </main>
+</div>
+
+</div>
+
+<button type="button" class="back-top" id="back-top" aria-label="Back to top">↑ Top</button>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Enlarged figure viewer">
+  <div class="lb-header">
+    <span class="lb-counter" id="lb-counter">Figure 1 / 40</span>
+    <div class="lb-controls">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset" aria-label="Toggle zoom"><span id="lb-zoom-label">Fit</span></button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" class="lb-btn close-btn" id="lb-close" aria-label="Close viewer">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img class="lb-img" id="lb-img" src="" alt="" />
+  </div>
+  <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous figure">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next figure">›</button>
+  <div class="lb-footer">
+    <div class="lb-caption" id="lb-caption"></div>
+    <div class="lb-file" id="lb-file"></div>
+  </div>
+</div>
+
+
+<script src="assets/guide.js"></script>
+</body>
+</html>

@@ -65,6 +65,18 @@ class Email
         return $email ?: null;
     }
 
+    public static function classifyCategory(string $subject, string $body = ''): string
+    {
+        $text = strtolower($subject . ' ' . $body);
+        if (preg_match('/\b(promo|promotion|promotions|discount|offer|sale|deal|newsletter|coupon|marketing)\b/', $text)) {
+            return 'promotions';
+        }
+        if (preg_match('/\b(update|updates|notification|alert|invoice|receipt|security|password|system|account|scheduled|digest)\b/', $text)) {
+            return 'updates';
+        }
+        return 'primary';
+    }
+
     public function create(array $data): int
     {
         $senderEmailSnapshot = $data['sender_email_snapshot'] ?? null;
@@ -80,9 +92,14 @@ class Email
             }
         }
 
+        $category = $data['category'] ?? self::classifyCategory((string)($data['subject'] ?? ''), (string)($data['body'] ?? ''));
+        if (!in_array($category, ['primary', 'promotions', 'updates'], true)) {
+            $category = 'primary';
+        }
+
         $stmt = $this->pdo->prepare("
-            INSERT INTO emails (sender_id, sender_email_snapshot, sender_name_snapshot, recipient_id, parent_email_id, subject, body, is_read, is_starred, is_draft, folder, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            INSERT INTO emails (sender_id, sender_email_snapshot, sender_name_snapshot, recipient_id, parent_email_id, subject, body, is_read, is_starred, is_draft, folder, category, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
         $stmt->execute([
             $data['sender_id'] ?? null,
@@ -96,6 +113,7 @@ class Email
             !empty($data['is_starred']) ? 1 : 0,
             !empty($data['is_draft']) ? 1 : 0,
             $data['folder'] ?? 'inbox',
+            $category,
         ]);
         return (int)$this->pdo->lastInsertId();
     }

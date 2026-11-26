@@ -145,7 +145,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 <div class="settings-container settings-wrapper">
     <!-- Page Header (Left-aligned with settings cards) -->
     <div class="mb-3">
-        <h4 class="fw-bold mb-1"><i class="bi bi-gear-fill text-primary me-2"></i>Account Settings</h4>
+        <h1 class="h4 fw-bold mb-1"><i class="bi bi-gear-fill text-primary me-2"></i>Account Settings</h1>
         <p class="text-muted small">Manage your user profile, email signature, and security credentials</p>
     </div>
 
@@ -182,7 +182,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                 </div>
                                 <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3 flex-grow-1 min-w-0">
                                     <div class="min-w-0">
-                                        <h6 class="fw-bold mb-0 text-body fs-6 text-break"><?= e($user['first_name'] . ' ' . $user['last_name']) ?></h6>
+                                        <p class="fw-bold mb-0 text-body fs-6 text-break"><?= e($user['first_name'] . ' ' . $user['last_name']) ?></p>
                                         <div class="text-muted small text-break"><?= e($user['email']) ?></div>
                                     </div>
                                     <div class="d-flex flex-wrap align-items-center gap-2 flex-shrink-0">

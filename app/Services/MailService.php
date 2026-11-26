@@ -842,6 +842,10 @@ class MailService
                 $where[] = "e.is_archived = 0";
                 $where[] = "e.custom_folder_id IS NULL";
                 $where[] = "(e.snoozed_until IS NULL OR e.snoozed_until <= NOW())";
+                if (!empty($criteria['category']) && in_array($criteria['category'], ['primary', 'promotions', 'updates'], true)) {
+                    $where[] = "e.category = ?";
+                    $params[] = $criteria['category'];
+                }
                 break;
 
             case 'sent':

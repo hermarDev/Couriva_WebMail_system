@@ -73,7 +73,7 @@ $bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<div class="auth-stage">
+<main class="auth-stage">
     <div class="auth-card">
         <div class="auth-card-body">
             <div class="auth-heading">
@@ -127,6 +127,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

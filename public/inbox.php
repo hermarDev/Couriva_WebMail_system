@@ -77,6 +77,7 @@ $criteria = [
     'is_starred'     => $_GET['is_starred'] ?? '',
     'label_id'       => $activeLabelId,
     'folder_id'      => $activeCustomFolderId,
+    'category'       => $activeFolder === 'inbox' ? $activeCategory : '',
 ];
 
 $mailService = new \App\Services\MailService($pdo);
@@ -107,6 +108,7 @@ $folderHeading = match ($activeFolder) {
     default => 'Inbox',
 };
 ?>
+<h1 class="visually-hidden"><?= e($folderHeading) ?></h1>
 <!-- Advanced Search Filters Panel (Collapsible) -->
 <div class="collapse <?= (!empty($criteria['q']) || !empty($criteria['date_from']) || !empty($criteria['date_to']) || $criteria['has_attachment'] !== '' || $criteria['is_unread'] !== '') ? 'show' : '' ?> mb-3 d-md-none" id="filterPanel">
     <div class="card card-body bg-body-tertiary border-0 shadow-sm p-3">

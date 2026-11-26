@@ -595,7 +595,7 @@ $bodyClass = $bodyClass ?? '';
                     </div>
                     <div class="progress mb-1" style="height: 4px; border-radius: 2px;">
                         <?php $storageBarWidth = $userStorageBytes > 0 ? max(2, $storagePercent) : 0; ?>
-                        <div class="progress-bar <?= $storagePercent > 80 ? 'bg-danger' : ($storagePercent > 50 ? 'bg-warning' : 'bg-primary') ?>" role="progressbar" style="width: <?= $storageBarWidth ?>%;" aria-valuenow="<?= $storagePercent ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar <?= $storagePercent > 80 ? 'bg-danger' : ($storagePercent > 50 ? 'bg-warning' : 'bg-primary') ?>" role="progressbar" aria-label="Storage usage" style="width: <?= $storageBarWidth ?>%;" aria-valuenow="<?= $storagePercent ?>" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="text-muted" style="font-size: 0.72rem;">
                         <span><?= $storagePercent ?>% used</span>

@@ -85,6 +85,13 @@
 | T32 | Mobile viewport 390×844 | usable inbox + compose | hamburger nav, FAB compose, controls reachable | `shots/26-mobile-inbox.png`, `shots/27-mobile-compose.png` |
 | T33 | Logout invalidates session | protected route redirects | after `/public/logout.php`, inbox → login; restoring saved cookie still → login | browser run log |
 
+## Password-integrity verification (post-run)
+
+- Fresh logins with the original credentials succeeded for all three accounts: `seno@couriva.com / Pleasepass@2026`, `olivar@couriva.com / Pleasepass@2026`, `admin@couriva.com / Admin123` — each landed on `/public/inbox.php` in a throwaway verification session that was then closed.
+- `admin/logs.php?action=PASSWORD_RESET` → "No audit logs matching query criteria." (no reset ever recorded).
+- `admin/logs.php?action=PASSWORD_CHANGED` → one pre-existing entry: `2026-11-25 08:37:04 PASSWORD_CHANGED SUCCESS System 192.168.1.35 Forced first-login password change`, predating this run (operator IP 172.20.10.3; this run's events logged 23:0x).
+- No `reset_password` or `action=password` POST was submitted at any point; `admin/edit-user.php?id=12` was only opened via GET and showed the AD-managed notice. A/B/admin sessions remained valid throughout.
+
 ## Not tested / blocked
 
 - **N01 — Forced password-change gate (P0/P1).** Admin login did **not** force a change, so no STOP was needed. To exercise the gate, an admin must reset a **local, non-protected** throwaway user. Inspection of `/admin/edit-user.php?id=12` (`test.test@couriva.com`) and IDs 5,6,7,13,14,15 showed all non-admin users are `auth_source=ldap`; the web UI refuses resets for AD users ("Passwords must be reset in the Windows Domain Controller"). The only local users (ID 3 `admin@couriva.com`, ID 29 `admin.backup@couriva.com`) are protected admins. Therefore no eligible throwaway exists for this test. **Needed to complete:** one local non-admin throwaway account (created via `bin/create-admin.php` equivalent / CLI on the server, or an existing local non-admin), plus its temporary password. No user was modified to force this state.
@@ -102,3 +109,79 @@
 ## Screenshot index
 
 `01-login-page.png`, `02-userA-inbox.png`, `03-userB-inbox.png`, `04-admin-landing.png`, `05-admin-dashboard.png`, `06-admin-users.png`, `07-admin-logs.png`, `08-compose.png`, `09-after-send.png`, `10-userB-inbox-received.png`, `11-userB-read-message.png`, `12-php-upload-attempt.png`, `13-attach-staged.png`, `14-attach-private-read.png`, `15-cross-user-denied.png`, `16-userB-attachment-read.png`, `17-admin-edit-throwaway.png`, `18-change-password-page.png`, `19-drafts.png`, `20-search-results.png`, `21a-report-spam-modal.png`, `21-spam.png`, `22-notifications.png`, `23-contacts.png`, `24-settings.png`, `25-dark-theme.png`, `26-mobile-inbox.png`, `27-mobile-compose.png`. All under `/tmp/opencode/couriva-e2e/shots/`.
+
+---
+
+# Pass 2 (2026-11-26, 07:38–08:07 UTC)
+
+Scope file: `/home/hrmr/.opencode/plan/couriva-e2e-pass2.md`. Sessions `e2e-user-a`, `e2e-user-b`, `e2e-admin` (all re-logged with original credentials after idle expiry; no password change).
+
+## Pass-2 summary
+
+| Category | Count |
+|---|---|
+| Checks passed | 22 |
+| Checks failed | 2 (BUG-002, BUG-003) |
+| Cumulative (pass 1 + 2) | 55 pass, 3 fail, 2 deviations, 3 not tested |
+
+## Pass-2 bug findings
+
+### BUG-002 — Category tabs do not filter the message list
+
+- **Severity:** P2
+- **Repro:** As User A, open `/public/inbox.php?category=primary`, then `?category=promotions`, then `?category=updates` (or click the three tabs).
+- **Expected:** each tab shows only messages in that category.
+- **Actual:** all three return the identical message set (`data-email-id` = 71, 51). The tab only changes URL/highlight and empty-state markup.
+- **Cause (source inspected):** `/public/inbox.php:60-93` computes `$activeCategory` but never adds it to `$criteria` passed to `MailService::searchEmails()`.
+- **Evidence:** browser `eval fetch` results for all three category URLs; screenshot `/tmp/opencode/couriva-e2e/shots/39-tabs.png`.
+- **Impact:** Promotions/Updates categorization is non-functional; users cannot separate mail by category.
+
+### BUG-003 — Accessibility violations on login and authenticated pages
+
+- **Severity:** P2 (WCAG AA)
+- **Repro:** `agent-browser --session e2e-user-a a11y --json` on inbox; `agent-browser --session e2e-a11y-tmp a11y --json` on login page.
+- **Expected:** zero axe-core violations.
+- **Actual:**
+  - Inbox: 4 violations — `aria-progressbar-name` (serious, storage progressbar has no accessible name), `color-contrast` (serious, 7 nodes incl. avatar badge, nav text, `tab-security-btn`), `heading-order` (moderate, h6 after h4), `page-has-heading-one` (moderate).
+  - Login: 2 violations — `landmark-one-main` (moderate), `region` (moderate, 8 nodes outside landmarks).
+- **Evidence:** `/tmp/opencode/couriva-e2e/a11y-inbox.json`, `/tmp/opencode/couriva-e2e/a11y-login.json`; screenshots `01-login-page.png`, `39-tabs.png`.
+- **Impact:** screen-reader users cannot identify the storage meter or navigate landmark regions; contrast fails AA on several controls.
+
+## Pass-2 passed checks
+
+| ID | Check | Result | Evidence |
+|---|---|---|---|
+| P2-01 | Cc: A→To B, Cc augusto; B read shows `Cc: augusto`; A Sent shows both | PASS | `shots/28-cc-recipient-view.png` |
+| P2-02 | Bcc: A→To augusto, Bcc B; B receives; Bcc shown only to sender/Bcc recipient (source `read.php:470-482`) | PASS | `shots/29-bcc-recipient-view.png` |
+| P2-03 | Reply All prefill To=A, Cc=augusto; send; A receives with Cc + 2-message thread | PASS | `shots/30-reply-all-received.png` |
+| P2-04 | Forward message with attachment; new attachment id 11 copied server-side | PASS | `shots/31-forward-with-attachment.png` |
+| P2-05 | Star/unstar via `.star-toggle-btn`, API `is_starred` 1 then 0 | PASS | browser eval |
+| P2-06 | Archive/unarchive; inbox excludes, archive view includes, button toggles | PASS | browser eval |
+| P2-07 | Snooze dropdown (In 4 hours) + Unsnooze; button toggles | PASS | `shots/32-snoozed.png` |
+| P2-08 | Trash via custom confirm modal → folder=trash → batch Restore → inbox | PASS | `shots/33-trash-confirm.png`, `34-trash-restored.png` |
+| P2-09 | Mark unread/read via batch; DOM row class `unread`/`read` (note: `get_email.php` auto-marks read, so DOM used) | PASS | `shots/35-mark-unread.png` |
+| P2-10 | Block sender: B blocks A → next A→B message routed to Spam; unblock restores | PASS | `shots/36-block-sender.png` |
+| P2-11 | Print button; console and page errors empty | PASS | browser log |
+| P2-12 | 15 batch actions (`mark_read`, `mark_unread`, `trash`, `spam`, `restore`, `not_spam`, `star`, `unstar`, `archive`, `unarchive`, `snooze`, `unsnooze`, `label`, `unlabel`, `move_folder`); unsupported action 400, missing CSRF 403. `permanent_delete` deliberately not run (destructive) | PASS | `shots/37-batch-actions-final.png` |
+| P2-13 | Create label + folder; apply/remove label and move to folder via UI, then restore | PASS | `shots/38-label-folder-ui.png` |
+| P2-14 | Promotions/Updates tabs | FAIL | BUG-002 |
+| P2-15 | Search filters: unread=1 → 1 row, has_attachment=1 → 0, =0 → 2, date range, page=2 empty | PASS | `shots/40-filter-unread.png` |
+| P2-16 | Schedule send → `/public/scheduled.php` shows subject | PASS | `shots/41-scheduled.png` |
+| P2-17 | Autosave draft timer → "Saved at 08:00:55 AM", draft present | PASS | `shots/42-autosave.png` |
+| P2-18 | Contacts edit + delete on throwaway "E2E Delete Me"; original contact kept | PASS | `shots/43-contact-edited.png`, `44-contact-deleted.png` |
+| P2-19 | Notifications mark read: 4 unread → 3 unread | PASS | `shots/45-notification-mark-read.png` |
+| P2-20 | Settings save timezone Asia/Manila + signature; flash "Profile and theme settings updated successfully." | PASS | `shots/46-settings-saved.png` |
+| P2-21 | Admin user search/filter, spam-reports page, logs filters (`action`, `status`, `search`) | PASS | `shots/47-admin-user-search.png`, `48-admin-spam-reports.png`, `49-admin-logs-filters.png` |
+| P2-22 | Oversized 26 MB upload rejected with alert; 0 staged | PASS | `shots/50-oversized-upload.png` |
+| P2-23 | `download.php?id=` injection probes (`1 OR 1=1`, quotes, -1, abc, 999999) → 400/403, no data | PASS | browser eval |
+| P2-24 | a11y audit + vitals | FAIL | BUG-003; vitals TTFB 17.8ms, FCP/LCP 68ms, CLS 0 |
+
+**Observation (not a bug):** JSON POST APIs require CSRF in `X-CSRF-Token` header; token in JSON body alone yields 403. UI flows use form posts and are unaffected.
+
+## Pass-2 test data left in place
+
+- New mail: A→B cc `E2E_CC_073833` (id 63), A→augusto bcc B `E2E_BCC_074022` (id 68), B Reply All `E2E_REPLYALL_074225` (id 71), B forward w/ attachment `E2E_FWD_ATTACH_074352` (id 73), A→B block-enforcement `E2E_BLOCK_075204` (routed to B Spam).
+- Label "E2E Batch Label" (id 3), folder "E2E Batch Folder" (id 2); scheduled message `E2E_SCHED_080002`; autosave draft `E2E_AUTOSAVE_080045`.
+- Settings on User A: timezone Asia/Manila, signature `-- E2E signature (pass-2)` (original: UTC, `--` + name + email).
+- B notification: 1 of 4 marked read. Admin spam report for message id 49 left open.
+- Restored after testing: star, archive, snooze, trash, label, folder, block/unblock, theme light. Throwaway contact deleted; original "E2E Augusto Contact" kept. No password/account change.

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>System Dictionary — Couriva System Guide</title>
+<link rel="stylesheet" href="assets/guide.css" />
+</head>
+<body>
+<header class="topbar">
+  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+  <span class="topbar-title">Couriva System Guide</span>
+  <span class="topbar-sub">System Dictionary</span>
+</header>
+<div id="drawer-backdrop" class="drawer-backdrop"></div>
+<div class="layout">
+  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
+    <div class="sidebar-brand">
+      <div class="brand-badge">C</div>
+      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+    </div>
+    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
+    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="active">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+  </aside>
+  <main class="content">
+    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="active">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    
+<h2 class="chapter-h2"><span class="chapter-eyebrow">REFERENCE</span>System Terminology &amp; Architecture Dictionary</h2>
+<p>Plain-English definitions of every protocol, security control, database concept, and server component deployed in Couriva WebMail.</p>
+<input id="dict-search" class="dict-search" type="search" placeholder="Search terms (e.g. ACID, LDAPS, CSP, objectGUID)..." aria-label="Search dictionary terms" />
+<div class="dict-grid">
+<article class="dict-card"><div class="dict-cat">Database &amp; Storage</div><h3>ACID (Atomicity, Consistency, Isolation, Durability)</h3><p>Guarantees that database transactions—like delivering a message to multiple recipients and updating quota—either succeed completely or roll back cleanly so partial/corrupted mail never occurs. Enforced by MariaDB&#x27;s InnoDB engine.</p></article>
+<article class="dict-card"><div class="dict-cat">Database &amp; Storage</div><h3>InnoDB</h3><p>MariaDB&#x27;s default transactional storage engine. Provides ACID transactions, row-level locking, crash recovery, and foreign-key constraints across all 14 Couriva tables.</p></article>
+<article class="dict-card"><div class="dict-cat">Database &amp; Storage</div><h3>MariaDB 10.11</h3><p>Open-source relational database server running locally on 127.0.0.1:3306 on Windows Server 2022, storing users, emails, recipients, attachments metadata, labels, folders, and system_logs.</p></article>
+<article class="dict-card"><div class="dict-cat">Database &amp; Storage</div><h3>Migrations (001–007)</h3><p>Ordered, versioned SQL scripts in database/migrations/ that evolve the database schema safely (e.g., 006_ad_object_guid.sql, 007_email_category.sql).</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>AD DS (Active Directory Domain Services)</h3><p>Microsoft directory service on Windows Server 2022 that acts as the single source of truth for user accounts, groups, and organizational units (couriva.com).</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>LDAPS (LDAP over TLS, Port 636)</h3><p>Encrypted Lightweight Directory Access Protocol connection using TLS/SSL on TCP port 636 so passwords and directory queries are never sent in plaintext.</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>StartTLS</h3><p>Upgrades a plaintext LDAP connection (port 389) to an encrypted TLS session before binding credentials; enforced alongside TLS_REQCERT demand.</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>OU (Organizational Unit)</h3><p>Active Directory container used to scope access and roles: OU=CourivaUsers allows sign-in, while sub-OU OU=CourivaAdmins automatically grants admin role on login.</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>objectGUID</h3><p>Immutable 16-byte UUID assigned by Active Directory to every user object. Couriva stores it in users.ad_object_guid so AD email or name changes never hijack or duplicate local accounts.</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>sAMAccountName &amp; UPN</h3><p>sAMAccountName is the short Windows logon name (e.g. seno); UPN (User Principal Name) is the email-style logon (e.g. seno@couriva.com). Couriva validates the email domain against LDAP_DOMAIN.</p></article>
+<article class="dict-card"><div class="dict-cat">Identity &amp; Active Directory</div><h3>Break-Glass Local Admin</h3><p>Emergency local administrator account created via CLI (php bin/create-admin.php) with auth_source=&#x27;local&#x27;, allowing admin sign-in even if Active Directory is unreachable.</p></article>
+<article class="dict-card"><div class="dict-cat">Web Server &amp; Runtime</div><h3>IIS 10 (Internet Information Services)</h3><p>Windows Server web server hosting Couriva on ports 80/443, handling TLS termination, URL Rewrite, Request Filtering, and FastCGI PHP execution.</p></article>
+<article class="dict-card"><div class="dict-cat">Web Server &amp; Runtime</div><h3>FastCGI (php-cgi.exe)</h3><p>Persistent process interface between IIS 10 and PHP 8.2 that reuses worker processes for fast response times instead of spawning a new PHP process per request.</p></article>
+<article class="dict-card"><div class="dict-cat">Web Server &amp; Runtime</div><h3>URL Rewrite</h3><p>IIS module configured in web.config to enforce HTTPS on domain hostnames while routing clean paths and exempting local/private lab IPs when needed.</p></article>
+<article class="dict-card"><div class="dict-cat">Web Server &amp; Runtime</div><h3>Request Filtering (404.7 / 404.8)</h3><p>IIS security feature blocking direct HTTP access to sensitive segments (/config, /database, /storage, .env, .sql) at the web server layer before PHP runs.</p></article>
+<article class="dict-card"><div class="dict-cat">Application Security</div><h3>CSP (Content-Security-Policy) + Nonce</h3><p>HTTP response header restricting which scripts, styles, and resources the browser may execute. Couriva emits a single authoritative CSP with a per-request cryptographic nonce in includes/functions.php.</p></article>
+<article class="dict-card"><div class="dict-cat">Application Security</div><h3>CSRF (Cross-Site Request Forgery) Token</h3><p>Per-session secret token verified on every POST form and JSON API mutation to prevent unauthorized third-party sites from triggering actions on a logged-in user&#x27;s behalf.</p></article>
+<article class="dict-card"><div class="dict-cat">Application Security</div><h3>session_epoch</h3><p>Integer counter on each user row incremented on password change, role change, or account disable—immediately invalidating all older browser sessions.</p></article>
+<article class="dict-card"><div class="dict-cat">Application Security</div><h3>HttpOnly &amp; SameSite=Strict Cookies</h3><p>Session cookie flags preventing JavaScript (document.cookie) from reading the session ID (HttpOnly) and blocking cross-site cookie transmission (SameSite=Strict).</p></article>
+<article class="dict-card"><div class="dict-cat">Application Security</div><h3>bcrypt (PASSWORD_BCRYPT)</h3><p>Adaptive salted password-hashing algorithm used for local accounts so plaintext passwords are never stored.</p></article>
+<article class="dict-card"><div class="dict-cat">Application Security</div><h3>finfo_file() &amp; MIME Allow-List</h3><p>Server-side PHP file-inspection function that reads magic bytes (not just filename extensions) to reject prohibited uploads like .php scripts.</p></article>
+<article class="dict-card"><div class="dict-cat">Networking &amp; Operations</div><h3>Simulated LAN (/28 Subnet)</h3><p>Isolated 172.20.10.0/28 network configured on the Windows Server VM (172.20.10.2) and host (172.20.10.3) so defense panelists can connect and test without external internet.</p></article>
+<article class="dict-card"><div class="dict-cat">Networking &amp; Operations</div><h3>DNS A Record</h3><p>Maps domain names (couriva.com, www.couriva.com, mail.couriva.com) to the Windows Server IPv4 address (172.20.10.2) on the local DNS server.</p></article>
+<article class="dict-card"><div class="dict-cat">Networking &amp; Operations</div><h3>Windows Task Scheduler &amp; flock()</h3><p>Runs bin/process_scheduled.php every minute; flock() provides an atomic OS file lock so concurrent runs never double-send scheduled emails.</p></article>
+<article class="dict-card"><div class="dict-cat">Testing &amp; Quality</div><h3>E2E (End-to-End) Testing</h3><p>Automated full-browser verification (via agent-browser) testing real user flows—login, mail send/reply/forward, attachments, RBAC, and mobile layout—against the live server.</p></article>
+<article class="dict-card"><div class="dict-cat">Testing &amp; Quality</div><h3>WCAG AA &amp; axe-core</h3><p>Web Content Accessibility Guidelines (Level AA) audited automatically by axe-core for color contrast (&gt;=4.5:1), ARIA labels, heading hierarchy, and &lt;main&gt; landmarks.</p></article>
+</div>
+
+    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+<a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
+<a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
+<a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
+<a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
+<a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
+<a href="dictionary.html" class="active">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+  </main>
+</div>
+
+</div>
+
+<button type="button" class="back-top" id="back-top" aria-label="Back to top">↑ Top</button>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Enlarged figure viewer">
+  <div class="lb-header">
+    <span class="lb-counter" id="lb-counter">Figure 1 / 40</span>
+    <div class="lb-controls">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset" aria-label="Toggle zoom"><span id="lb-zoom-label">Fit</span></button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" class="lb-btn close-btn" id="lb-close" aria-label="Close viewer">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img class="lb-img" id="lb-img" src="" alt="" />
+  </div>
+  <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous figure">‹</button>
+  <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next figure">›</button>
+  <div class="lb-footer">
+    <div class="lb-caption" id="lb-caption"></div>
+    <div class="lb-file" id="lb-file"></div>
+  </div>
+</div>
+
+
+<script src="assets/guide.js"></script>
+</body>
+</html>

@@ -48,7 +48,7 @@ $bodyClass = 'auth-page';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<div class="auth-stage">
+<main class="auth-stage">
     <div class="auth-card">
         <div class="auth-card-body">
             <div class="auth-heading">
@@ -89,7 +89,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
             </form>
         </div>
     </div>
-</div>
+</main>
 
 <script src="<?= app_base_url('assets/js/auth-signin.js') ?>"></script>
 <?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>
