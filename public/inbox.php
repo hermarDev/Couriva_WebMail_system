@@ -335,7 +335,7 @@ $folderHeading = match ($activeFolder) {
                         <div class="mail-item-row <?= $mail['is_read'] ? 'read' : 'unread' ?>" data-email-id="<?= $mail['id'] ?>">
                             <!-- Checkbox -->
                             <div class="form-check m-0 me-2" data-stop-propagation>
-                                <input class="form-check-input email-select-checkbox" type="checkbox" value="<?= $mail['id'] ?>">
+                                <input class="form-check-input email-select-checkbox" type="checkbox" value="<?= $mail['id'] ?>" id="selectEmail<?= (int)$mail['id'] ?>" aria-label="Select message: <?= e($mail['subject'] ?: '(No subject)') ?>">
                             </div>
 
                             <!-- Star Button -->
