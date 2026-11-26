@@ -7,37 +7,51 @@
 <link rel="stylesheet" href="assets/guide.css" />
 </head>
 <body>
-<header class="topbar">
-  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
-  <span class="topbar-title">Couriva System Guide</span>
-  <span class="topbar-sub">Overview &amp; System Flows</span>
+<header class="mobile-bar">
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false">&#9776; Chapters</button>
+  <span class="mobile-title">Couriva System Guide</span>
+  <a class="menu-btn" href="testing.html">E2E (51)</a>
 </header>
-<div id="drawer-backdrop" class="drawer-backdrop"></div>
-<div class="layout">
-  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
-    <div class="sidebar-brand">
-      <div class="brand-badge">C</div>
-      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Book Navigation">
+    <div class="sidebar-head">
+      <div class="sidebar-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="sidebar-title">Couriva System Guide</div>
+        <div class="sidebar-sub">Edition 1.1 · Multi-Page</div>
+      </div>
     </div>
-    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
-    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="active">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
-<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
-<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
-<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
-<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
-<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
-<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+    <div class="sidebar-search">
+      <label class="sr-only" for="toc-search">Filter chapters</label>
+      <input type="search" id="toc-search" placeholder="Filter chapters..." autocomplete="off" />
+    </div>
+    <nav class="toc-scroll" id="toc-nav" aria-label="Table of Contents">
+      <ul><li><a href="index.html" class="active">Overview & Flows <span style="opacity:.65;font-size:.8em">&middot; Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">&middot; Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">&middot; Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">&middot; Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">&middot; Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">&middot; Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">&middot; Terminology</span></a></li></ul>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-btn" href="dictionary.html">Dictionary</a>
+      <button type="button" class="side-btn" id="print-btn">Print / PDF</button>
+    </div>
   </aside>
-  <main class="content">
-    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="active">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+
+  <main class="book-main">
+    <article class="book-page">
+      <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="active">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
-    
-    <article class="book-page">
+      
       <section class="book-cover" id="cover" aria-label="Book Cover">
   <div class="cover-top">
     <span class="cover-badge">EDITION 1.0 · COMPLETE E2E BOOK</span>
@@ -378,7 +392,7 @@ Prepared from the live VMware Workstation guest and the repository audit set:
 <h3 id="21-request-pipeline">2.1 Request pipeline</h3>
 <p>Browser → IIS 10 → URL Rewrite (root → <code>public/index.php</code>, static allow-list, HTTP→HTTPS except lab/hotspot hosts) → Request Filtering (hidden segments and denied extensions) → FastCGI <code>*.php</code> handler → PHP application → PDO → MariaDB / LDAPS → response with security headers.</p>
 <div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body"><a class="fig-ref" href="#fig-7" data-open-fig="7">Figure 7</a> (denied extensions), <a class="fig-ref" href="#fig-8" data-open-fig="8">Figure 8</a> (bindings), and <code>web.config:26-136</code>.</div></div>
-<figure class="inline-fig" data-open-fig="35" tabindex="0" role="button" aria-label="Enlarge Figure 35: Request pipeline — browser, IIS filtering, rewrite, FastCGI, app, MariaDB/LDAP, response."><div class="inline-fig-frame"><img data-fig-src="35" alt="Figure 35" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 35</span> <span>Request pipeline — browser, IIS filtering, rewrite, FastCGI, app, MariaDB/LDAP, response.</span></figcaption></figure>
+<figure class="inline-fig" data-open-fig="35" tabindex="0" role="button" aria-label="Enlarge Figure 35: Request pipeline — browser, IIS filtering, rewrite, FastCGI, app, MariaDB/LDAP, response."><div class="inline-fig-frame"><img data-fig- alt="Figure 35" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 35</span> <span>Request pipeline — browser, IIS filtering, rewrite, FastCGI, app, MariaDB/LDAP, response.</span></figcaption></figure>
 <h3 id="22-login-flow">2.2 Login flow</h3>
 <div class="code-block"><div class="code-bar"><span class="code-lang">MERMAID</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="language-mermaid">flowchart TD
     A[POST login.php] --&gt; B{CSRF token valid?}
@@ -398,32 +412,33 @@ Prepared from the live VMware Workstation guest and the repository audit set:
     J -- no --&gt; L[Inbox]
 </code></pre></div>
 <p><strong>Step-by-step:</strong> (1) Verify CSRF token and check IP throttle (<code>10</code> failed attempts in <code>15</code> minutes returns HTTP <code>429</code>). (2) Normalize email/username. (3) If LDAP is enabled, bind over LDAPS <code>:636</code> against <code>OU=CourivaUsers</code> and sync the immutable <code>ad_object_guid</code>. (4) Otherwise allow break-glass local admin only when <code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code>. (5) Regenerate session ID, increment/verify <code>session_epoch</code>, enforce <code>30m</code> idle / <code>8h</code> absolute timers, and gate <code>must_change_password=1</code> users onto <code>change-password.php</code>.</p>
-<figure class="inline-fig" data-open-fig="36" tabindex="0" role="button" aria-label="Enlarge Figure 36: Login flow — CSRF, normalisation, LDAPS bind, local break-glass fallback, session, gate."><div class="inline-fig-frame"><img data-fig-src="36" alt="Figure 36" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 36</span> <span>Login flow — CSRF, normalisation, LDAPS bind, local break-glass fallback, session, gate.</span></figcaption></figure>
+<figure class="inline-fig" data-open-fig="36" tabindex="0" role="button" aria-label="Enlarge Figure 36: Login flow — CSRF, normalisation, LDAPS bind, local break-glass fallback, session, gate."><div class="inline-fig-frame"><img data-fig- alt="Figure 36" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 36</span> <span>Login flow — CSRF, normalisation, LDAPS bind, local break-glass fallback, session, gate.</span></figcaption></figure>
 <div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body"><a class="fig-ref" href="#fig-19" data-open-fig="19">Figure 19</a> shows the entry form; <code>app/Services/AuthService.php</code>, <code>config/ldap.php</code>, <code>public/login.php</code>, <code>public/change-password.php</code>.</div></div>
 <h3 id="23-send-flow">2.3 Send flow</h3>
 <p>Compose (<code>public/compose.php</code>) → validate recipients → <code>AttachmentService</code> MIME + extension checks → persist <code>emails</code> + <code>email_recipients</code> + <code>attachments</code> → create <code>delivery_status</code> rows (<code>queued</code>) → SMTP transport or database delivery → update status (<code>delivered</code>/<code>sent</code>/<code>failed</code>/<code>bounced</code>/<code>unknown</code>) → retry with <code>next_retry_at</code> (max 3). Fail-closed: a declared attachment missing on disk stops before any SMTP connection.</p>
 
 <p><strong>What happens when you click Send:</strong> (1) Validates To/Cc/Bcc recipients and user storage quota (<code>500 MB</code>). (2) Checks each upload with <code>finfo_file()</code> MIME sniffing + extension blacklist (<code>25 MB</code>/file, <code>50 MB</code> total) and writes randomized filenames to <code>storage\attachments\</code>. (3) Runs a MariaDB transaction inserting the sender's <code>sent</code> copy, each recipient's <code>inbox</code> copy (or <code>spam</code> if the sender is in <code>blocked_senders</code>), <code>delivery_status</code> rows, and in-app <code>notifications</code>. (4) Clears any auto-saved draft.</p>
-<figure class="inline-fig" data-open-fig="37" tabindex="0" role="button" aria-label="Enlarge Figure 37: Send flow — compose, validation, persistence, delivery_status, SMTP, reconciliation."><div class="inline-fig-frame"><img data-fig-src="37" alt="Figure 37" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 37</span> <span>Send flow — compose, validation, persistence, <code>delivery_status</code>, SMTP, reconciliation.</span></figcaption></figure>
+<figure class="inline-fig" data-open-fig="37" tabindex="0" role="button" aria-label="Enlarge Figure 37: Send flow — compose, validation, persistence, delivery_status, SMTP, reconciliation."><div class="inline-fig-frame"><img data-fig- alt="Figure 37" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 37</span> <span>Send flow — compose, validation, persistence, <code>delivery_status</code>, SMTP, reconciliation.</span></figcaption></figure>
 <h3 id="24-scheduler-flow">2.4 Scheduler flow</h3>
 <p><code>public/scheduled.php</code> queues a future dispatch in <code>scheduled_emails</code> linked to the draft. <code>bin/process_scheduled.php</code> (Task Scheduler, every minute) claims due rows (<code>status='processing'</code>), delivers, marks <code>sent</code>, reclaims rows stuck &gt;10 minutes, and exits quietly if another instance holds the lock.</p>
 <div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body"><a class="fig-ref" href="#fig-14" data-open-fig="14">Figure 14</a>; <code>schtasks /query /tn "Couriva-ScheduledMailProcessor" /v /fo list</code>; <code>database/migrations/004_delivery_status.sql</code>.</div></div>
 
-<figure class="inline-fig" data-open-fig="38" tabindex="0" role="button" aria-label="Enlarge Figure 38: Scheduler flow — queue, Task Scheduler claim, flock lock, delivery, stale-job reclaim."><div class="inline-fig-frame"><img data-fig-src="38" alt="Figure 38" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 38</span> <span>Scheduler flow — queue, Task Scheduler claim, flock lock, delivery, stale-job reclaim.</span></figcaption></figure>
+<figure class="inline-fig" data-open-fig="38" tabindex="0" role="button" aria-label="Enlarge Figure 38: Scheduler flow — queue, Task Scheduler claim, flock lock, delivery, stale-job reclaim."><div class="inline-fig-frame"><img data-fig- alt="Figure 38" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 38</span> <span>Scheduler flow — queue, Task Scheduler claim, flock lock, delivery, stale-job reclaim.</span></figcaption></figure>
 <h3 id="25-receiving-notifications-and-blocked-senders">2.5 Receiving, notifications, and blocked senders</h3>
 <p>When a message arrives for an active user, Couriva checks <code>blocked_senders</code>: if the recipient previously blocked that sender, the message is routed silently to <strong>Spam</strong> with no notification badge. Otherwise it lands unread in <strong>Inbox</strong> and writes an unread alert row in <code>notifications</code>.</p>
 <h3 id="26-data-flow-and-use-case-overview">2.6 Data flow and use case overview</h3>
 <p>These architecture diagrams show the full system boundary between internal members, administrators, Active Directory, and background tasks:</p>
-<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="46" tabindex="0" role="button" aria-label="Enlarge Figure 46: Context Diagram (DFD Level 0) — User, Administrator, Active Directory, and Couriva boundary."><div class="inline-fig-frame"><img data-fig-src="46" alt="Figure 46" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 46</span> <span>Context Diagram (DFD Level 0) — User, Administrator, Active Directory, and Couriva boundary.</span></figcaption></figure><figure class="inline-fig" data-open-fig="47" tabindex="0" role="button" aria-label="Enlarge Figure 47: Level-0 Data Flow Diagram — Core processes (Auth, Mail, Scheduler, Admin) and data stores."><div class="inline-fig-frame"><img data-fig-src="47" alt="Figure 47" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 47</span> <span>Level-0 Data Flow Diagram — Core processes (Auth, Mail, Scheduler, Admin) and data stores.</span></figcaption></figure></div>
-<figure class="inline-fig" data-open-fig="48" tabindex="0" role="button" aria-label="Enlarge Figure 48: Use Case Diagram — Member, Administrator, and Active Directory / Task Scheduler actors."><div class="inline-fig-frame"><img data-fig-src="48" alt="Figure 48" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 48</span> <span>Use Case Diagram — Member, Administrator, and Active Directory / Task Scheduler actors.</span></figcaption></figure>
+<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="46" tabindex="0" role="button" aria-label="Enlarge Figure 46: Context Diagram (DFD Level 0) — User, Administrator, Active Directory, and Couriva boundary."><div class="inline-fig-frame"><img data-fig- alt="Figure 46" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 46</span> <span>Context Diagram (DFD Level 0) — User, Administrator, Active Directory, and Couriva boundary.</span></figcaption></figure><figure class="inline-fig" data-open-fig="47" tabindex="0" role="button" aria-label="Enlarge Figure 47: Level-0 Data Flow Diagram — Core processes (Auth, Mail, Scheduler, Admin) and data stores."><div class="inline-fig-frame"><img data-fig- alt="Figure 47" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 47</span> <span>Level-0 Data Flow Diagram — Core processes (Auth, Mail, Scheduler, Admin) and data stores.</span></figcaption></figure></div>
+<figure class="inline-fig" data-open-fig="48" tabindex="0" role="button" aria-label="Enlarge Figure 48: Use Case Diagram — Member, Administrator, and Active Directory / Task Scheduler actors."><div class="inline-fig-frame"><img data-fig- alt="Figure 48" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 48</span> <span>Use Case Diagram — Member, Administrator, and Active Directory / Task Scheduler actors.</span></figcaption></figure>
 
-    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="active">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+      <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="active">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    </article>
   </main>
 </div>
 

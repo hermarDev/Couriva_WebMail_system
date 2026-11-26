@@ -7,36 +7,51 @@
 <link rel="stylesheet" href="assets/guide.css" />
 </head>
 <body>
-<header class="topbar">
-  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
-  <span class="topbar-title">Couriva System Guide</span>
-  <span class="topbar-sub">Identity, AD DS &amp; Database</span>
+<header class="mobile-bar">
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false">&#9776; Chapters</button>
+  <span class="mobile-title">Couriva System Guide</span>
+  <a class="menu-btn" href="testing.html">E2E (51)</a>
 </header>
-<div id="drawer-backdrop" class="drawer-backdrop"></div>
-<div class="layout">
-  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
-    <div class="sidebar-brand">
-      <div class="brand-badge">C</div>
-      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Book Navigation">
+    <div class="sidebar-head">
+      <div class="sidebar-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="sidebar-title">Couriva System Guide</div>
+        <div class="sidebar-sub">Edition 1.1 · Multi-Page</div>
+      </div>
     </div>
-    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
-    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
-<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
-<li><a href="identity-db.html" class="active">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
-<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
-<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
-<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
-<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+    <div class="sidebar-search">
+      <label class="sr-only" for="toc-search">Filter chapters</label>
+      <input type="search" id="toc-search" placeholder="Filter chapters..." autocomplete="off" />
+    </div>
+    <nav class="toc-scroll" id="toc-nav" aria-label="Table of Contents">
+      <ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">&middot; Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">&middot; Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="active">Identity & DB <span style="opacity:.65;font-size:.8em">&middot; Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">&middot; Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">&middot; Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">&middot; Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">&middot; Terminology</span></a></li></ul>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-btn" href="dictionary.html">Dictionary</a>
+      <button type="button" class="side-btn" id="print-btn">Print / PDF</button>
+    </div>
   </aside>
-  <main class="content">
-    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+
+  <main class="book-main">
+    <article class="book-page">
+      <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="active">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
-    <hr />
+      <hr />
 <h2 id="part-5-identity-and-ldap" class="chapter-h2 part-break"><span class="chapter-eyebrow">PART 05</span>Identity and LDAP</h2>
 <p><code>config/ldap.php</code> reads every setting from environment (FastCGI Environment Variables in IIS). Defaults: <code>LDAP_ENABLED=false</code>, host <code>127.0.0.1</code>, port 389, <code>LDAP_DOMAIN=couriva.local</code>, <code>LDAP_BASE_DN=dc=couriva,dc=local</code>, <code>LDAP_ALLOWED_OU_DN=OU=CourivaUsers,DC=couriva,DC=local</code>, <code>LDAP_REQUIRE_TLS=true</code>, <code>LDAP_ALLOW_LOCAL_ADMIN_FALLBACK=true</code>, <code>LDAP_FALLBACK_LOCAL=false</code>, <code>LDAP_AUTO_CREATE=true</code>.</p>
 <div class="table-wrap"><table>
@@ -102,7 +117,7 @@
 </table></div>
 <p><strong>Password rules:</strong> minimum 10 characters, uppercase, lowercase, digit, symbol. LDAP users are directed to the domain controller; Couriva never changes AD passwords. <code>ad_object_guid</code> is immutable and unique (migration 006), so renames cannot hijack a mailbox.</p>
 <div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body">Figures 3 and 11; <code>config/ldap.php</code>; <code>database/migrations/005_ad_auth_source.sql</code>, <code>006_ad_object_guid.sql</code>; <code>http://172.20.10.2/public/register.php</code> → HTTP <code>410</code>.</div></div>
-<figure class="inline-fig" data-open-fig="49" tabindex="0" role="button" aria-label="Enlarge Figure 49: http://172.20.10.2/public/register.php — retired public registration returning HTTP 410."><div class="inline-fig-frame"><img data-fig-src="49" alt="Figure 49" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 49</span> <span><code>http://172.20.10.2/public/register.php</code> — retired public registration returning HTTP <code>410</code>.</span></figcaption></figure>
+<figure class="inline-fig" data-open-fig="49" tabindex="0" role="button" aria-label="Enlarge Figure 49: http://172.20.10.2/public/register.php — retired public registration returning HTTP 410."><div class="inline-fig-frame"><img data-fig- alt="Figure 49" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 49</span> <span><code>http://172.20.10.2/public/register.php</code> — retired public registration returning HTTP <code>410</code>.</span></figcaption></figure>
 <hr />
 <h2 id="part-6-database" class="chapter-h2 part-break"><span class="chapter-eyebrow">PART 06</span>Database</h2>
 <h3 id="61-connection">6.1 Connection</h3>
@@ -151,9 +166,9 @@ SHOW TABLES;                   -- 14 rows
 </tbody>
 </table></div>
 
-<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="41" tabindex="0" role="button" aria-label="Enlarge Figure 41: Crow&#x27;s Foot ERD (1A) — Core Identity &amp;amp; Messaging (users, emails, folders)."><div class="inline-fig-frame"><img data-fig-src="41" alt="Figure 41" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 41</span> <span>Crow's Foot ERD (1A) — Core Identity &amp; Messaging (<code>users</code>, <code>emails</code>, <code>folders</code>).</span></figcaption></figure><figure class="inline-fig" data-open-fig="42" tabindex="0" role="button" aria-label="Enlarge Figure 42: Crow&#x27;s Foot ERD (1B) — Recipients &amp;amp; Attachments (email_recipients, attachments)."><div class="inline-fig-frame"><img data-fig-src="42" alt="Figure 42" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 42</span> <span>Crow's Foot ERD (1B) — Recipients &amp; Attachments (<code>email_recipients</code>, <code>attachments</code>).</span></figcaption></figure></div>
-<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="43" tabindex="0" role="button" aria-label="Enlarge Figure 43: Crow&#x27;s Foot ERD (1C) — Mailbox Organization &amp;amp; Contacts (folders, labels, email_labels, contacts)."><div class="inline-fig-frame"><img data-fig-src="43" alt="Figure 43" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 43</span> <span>Crow's Foot ERD (1C) — Mailbox Organization &amp; Contacts (<code>folders</code>, <code>labels</code>, <code>email_labels</code>, <code>contacts</code>).</span></figcaption></figure><figure class="inline-fig" data-open-fig="44" tabindex="0" role="button" aria-label="Enlarge Figure 44: Crow&#x27;s Foot ERD (1D) — Scheduled Dispatch, Delivery Tracking &amp;amp; Notifications (scheduled_emails, delivery_status, notifications)."><div class="inline-fig-frame"><img data-fig-src="44" alt="Figure 44" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 44</span> <span>Crow's Foot ERD (1D) — Scheduled Dispatch, Delivery Tracking &amp; Notifications (<code>scheduled_emails</code>, <code>delivery_status</code>, <code>notifications</code>).</span></figcaption></figure></div>
-<figure class="inline-fig" data-open-fig="45" tabindex="0" role="button" aria-label="Enlarge Figure 45: Crow&#x27;s Foot ERD (1E) — Spam Moderation, Blocking &amp;amp; Security Audit (spam_reports, blocked_senders, system_logs)."><div class="inline-fig-frame"><img data-fig-src="45" alt="Figure 45" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 45</span> <span>Crow's Foot ERD (1E) — Spam Moderation, Blocking &amp; Security Audit (<code>spam_reports</code>, <code>blocked_senders</code>, <code>system_logs</code>).</span></figcaption></figure>
+<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="41" tabindex="0" role="button" aria-label="Enlarge Figure 41: Crow&#x27;s Foot ERD (1A) — Core Identity &amp;amp; Messaging (users, emails, folders)."><div class="inline-fig-frame"><img data-fig- alt="Figure 41" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 41</span> <span>Crow's Foot ERD (1A) — Core Identity &amp; Messaging (<code>users</code>, <code>emails</code>, <code>folders</code>).</span></figcaption></figure><figure class="inline-fig" data-open-fig="42" tabindex="0" role="button" aria-label="Enlarge Figure 42: Crow&#x27;s Foot ERD (1B) — Recipients &amp;amp; Attachments (email_recipients, attachments)."><div class="inline-fig-frame"><img data-fig- alt="Figure 42" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 42</span> <span>Crow's Foot ERD (1B) — Recipients &amp; Attachments (<code>email_recipients</code>, <code>attachments</code>).</span></figcaption></figure></div>
+<div class="inline-fig-pair"><figure class="inline-fig" data-open-fig="43" tabindex="0" role="button" aria-label="Enlarge Figure 43: Crow&#x27;s Foot ERD (1C) — Mailbox Organization &amp;amp; Contacts (folders, labels, email_labels, contacts)."><div class="inline-fig-frame"><img data-fig- alt="Figure 43" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 43</span> <span>Crow's Foot ERD (1C) — Mailbox Organization &amp; Contacts (<code>folders</code>, <code>labels</code>, <code>email_labels</code>, <code>contacts</code>).</span></figcaption></figure><figure class="inline-fig" data-open-fig="44" tabindex="0" role="button" aria-label="Enlarge Figure 44: Crow&#x27;s Foot ERD (1D) — Scheduled Dispatch, Delivery Tracking &amp;amp; Notifications (scheduled_emails, delivery_status, notifications)."><div class="inline-fig-frame"><img data-fig- alt="Figure 44" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 44</span> <span>Crow's Foot ERD (1D) — Scheduled Dispatch, Delivery Tracking &amp; Notifications (<code>scheduled_emails</code>, <code>delivery_status</code>, <code>notifications</code>).</span></figcaption></figure></div>
+<figure class="inline-fig" data-open-fig="45" tabindex="0" role="button" aria-label="Enlarge Figure 45: Crow&#x27;s Foot ERD (1E) — Spam Moderation, Blocking &amp;amp; Security Audit (spam_reports, blocked_senders, system_logs)."><div class="inline-fig-frame"><img data-fig- alt="Figure 45" loading="lazy" decoding="async" /><span class="fig-zoom-pill" aria-hidden="true">Click to enlarge</span></div><figcaption><span class="fig-num">Figure 45</span> <span>Crow's Foot ERD (1E) — Spam Moderation, Blocking &amp; Security Audit (<code>spam_reports</code>, <code>blocked_senders</code>, <code>system_logs</code>).</span></figcaption></figure>
 
 <h4>Full ERD walkthrough — Spoon-feed guide (Figures 1A to 1E / Figs. 41–45)</h4>
 <p><strong>How to read Crow's Foot symbols in 10 seconds:</strong> a single bar (<code>|</code>) means <strong>ONE</strong>, a three-prong crow's foot (<code>&lt;</code>) means <strong>MANY</strong>, and a circle (<code>o</code>) means <strong>OPTIONAL (can be NULL / 0)</strong>. So <code>|──o&lt;</code> means <em>"one parent can have zero, one, or many children."</em></p>
@@ -260,13 +275,14 @@ Compress-Archive -Path storage\attachments\* -DestinationPath attachments_backup
 <p>Application logs: <code>storage\logs\php_errors.log</code>, <code>storage\logs\</code> (<a class="fig-ref" href="#fig-12" data-open-fig="12">Figure 12</a>), <code>system_logs</code> table, IIS W3C logs, Windows Event Viewer (<a class="fig-ref" href="#fig-15" data-open-fig="15">Figure 15</a>). Backup integrity: every <code>attachments.stored_filename</code> in the dump must exist in the zip.</p>
 <div class="proof-callout"><span class="proof-label">Open this to prove it</span><div class="proof-body"><a class="fig-ref" href="#fig-16" data-open-fig="16">Figure 16</a>; <code>dir C:\inetpub\wwwroot\Web_Mail_System\storage\logs</code>.</div></div>
 
-    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+      <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="active">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    </article>
   </main>
 </div>
 

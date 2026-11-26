@@ -7,36 +7,51 @@
 <link rel="stylesheet" href="assets/guide.css" />
 </head>
 <body>
-<header class="topbar">
-  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
-  <span class="topbar-title">Couriva System Guide</span>
-  <span class="topbar-sub">Troubleshooting, Appendices &amp; Index</span>
+<header class="mobile-bar">
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false">&#9776; Chapters</button>
+  <span class="mobile-title">Couriva System Guide</span>
+  <a class="menu-btn" href="testing.html">E2E (51)</a>
 </header>
-<div id="drawer-backdrop" class="drawer-backdrop"></div>
-<div class="layout">
-  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
-    <div class="sidebar-brand">
-      <div class="brand-badge">C</div>
-      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Book Navigation">
+    <div class="sidebar-head">
+      <div class="sidebar-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="sidebar-title">Couriva System Guide</div>
+        <div class="sidebar-sub">Edition 1.1 · Multi-Page</div>
+      </div>
     </div>
-    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
-    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
-<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
-<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
-<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
-<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
-<li><a href="troubleshooting.html" class="active">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
-<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+    <div class="sidebar-search">
+      <label class="sr-only" for="toc-search">Filter chapters</label>
+      <input type="search" id="toc-search" placeholder="Filter chapters..." autocomplete="off" />
+    </div>
+    <nav class="toc-scroll" id="toc-nav" aria-label="Table of Contents">
+      <ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">&middot; Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">&middot; Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">&middot; Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">&middot; Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">&middot; Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="active">Runbooks & Index <span style="opacity:.65;font-size:.8em">&middot; Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="">System Dictionary <span style="opacity:.65;font-size:.8em">&middot; Terminology</span></a></li></ul>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-btn" href="dictionary.html">Dictionary</a>
+      <button type="button" class="side-btn" id="print-btn">Print / PDF</button>
+    </div>
   </aside>
-  <main class="content">
-    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+
+  <main class="book-main">
+    <article class="book-page">
+      <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="active">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
-    <hr />
+      <hr />
 <h2 id="part-10-troubleshooting-and-drift" class="chapter-h2 part-break"><span class="chapter-eyebrow">PART 10</span>Troubleshooting and drift</h2>
 <h3 id="101-login-loop-forced-password-change">10.1 Login loop / forced password change</h3>
 <p>Symptom: redirect to <code>change-password.php</code> on every route. Cause: <code>must_change_password=1</code>. Fix: complete the form (10+ chars, four classes) or reset via <code>admin/edit-user.php</code>. API 403 during this state is intentional.</p>
@@ -226,15 +241,15 @@ SELECT email,role,status,auth_source FROM users;
 <hr />
 <h2 id="index" class="chapter-h2 part-break"><span class="chapter-eyebrow">REFERENCE</span>Index</h2>
 <div class="index-grid"><div class="idx-item"><span class="idx-term">Admin dashboard</span><span class="idx-loc">Part 8</span></div><div class="idx-item"><span class="idx-term">AD DS</span><span class="idx-loc">Part 4.4</span></div><div class="idx-item"><span class="idx-term">attachment security</span><span class="idx-loc">Part 2.3</span></div><div class="idx-item"><span class="idx-term">backup</span><span class="idx-loc">Part 6.4</span></div><div class="idx-item"><span class="idx-term">bindings</span><span class="idx-loc">Part 4.2</span></div><div class="idx-item"><span class="idx-term">break-glass admin</span><span class="idx-loc">Part 5</span></div><div class="idx-item"><span class="idx-term">CSP drift</span><span class="idx-loc">Part 10.4, 10.6</span></div><div class="idx-item"><span class="idx-term">CSRF</span><span class="idx-loc">Part 2.2</span></div><div class="idx-item"><span class="idx-term">data directory</span><span class="idx-loc">Part 6.1</span></div><div class="idx-item"><span class="idx-term">DNS</span><span class="idx-loc">Part 4.3</span></div><div class="idx-item"><span class="idx-term">FastCGI</span><span class="idx-loc">Part 4.2</span></div><div class="idx-item"><span class="idx-term">forced password change</span><span class="idx-loc">Part 2.2, 10.1</span></div><div class="idx-item"><span class="idx-term">hidden segments</span><span class="idx-loc">Part 3.2</span></div><div class="idx-item"><span class="idx-term">hotspot</span><span class="idx-loc">Part 4.9–4.10</span></div><div class="idx-item"><span class="idx-term">IIS</span><span class="idx-loc">Part 4.2</span></div><div class="idx-item"><span class="idx-term">LDAP</span><span class="idx-loc">Part 5</span></div><div class="idx-item"><span class="idx-term">login flow</span><span class="idx-loc">Part 2.2</span></div><div class="idx-item"><span class="idx-term">MariaDB</span><span class="idx-loc">Part 4.6, 6</span></div><div class="idx-item"><span class="idx-term">migrations</span><span class="idx-loc">Part 6.3</span></div><div class="idx-item"><span class="idx-term">NTFS ACL</span><span class="idx-loc">Part 4.8</span></div><div class="idx-item"><span class="idx-term">objectGUID</span><span class="idx-loc">Part 5, 6.3</span></div><div class="idx-item"><span class="idx-term">request pipeline</span><span class="idx-loc">Part 2.1</span></div><div class="idx-item"><span class="idx-term">scheduled mail</span><span class="idx-loc">Part 2.4, 10.5</span></div><div class="idx-item"><span class="idx-term">security headers</span><span class="idx-loc">Part 4.7</span></div><div class="idx-item"><span class="idx-term">session epoch</span><span class="idx-loc">Part 1.2</span></div><div class="idx-item"><span class="idx-term">tables</span><span class="idx-loc">Part 6.2</span></div><div class="idx-item"><span class="idx-term">Task Scheduler</span><span class="idx-loc">Part 4.8</span></div><div class="idx-item"><span class="idx-term">testing</span><span class="idx-loc">Part 9</span></div><div class="idx-item"><span class="idx-term">TLS</span><span class="idx-loc">Part 4.8, 5</span></div><div class="idx-item"><span class="idx-term">URL Rewrite</span><span class="idx-loc">Part 4.7</span></div><div class="idx-item"><span class="idx-term">verification stamp</span><span class="idx-loc">cover.</span></div></div>
-    </article>
-  
-    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+    
+      <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="active">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    </article>
   </main>
 </div>
 

@@ -7,36 +7,51 @@
 <link rel="stylesheet" href="assets/guide.css" />
 </head>
 <body>
-<header class="topbar">
-  <button id="menu-btn" class="menu-btn" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
-  <span class="topbar-title">Couriva System Guide</span>
-  <span class="topbar-sub">System Dictionary</span>
+<header class="mobile-bar">
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false">&#9776; Chapters</button>
+  <span class="mobile-title">Couriva System Guide</span>
+  <a class="menu-btn" href="testing.html">E2E (51)</a>
 </header>
-<div id="drawer-backdrop" class="drawer-backdrop"></div>
-<div class="layout">
-  <aside id="sidebar" class="sidebar" aria-label="Guide chapters">
-    <div class="sidebar-brand">
-      <div class="brand-badge">C</div>
-      <div><strong>Couriva</strong><div class="brand-sub">Defense System Guide</div></div>
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Book Navigation">
+    <div class="sidebar-head">
+      <div class="sidebar-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="sidebar-title">Couriva System Guide</div>
+        <div class="sidebar-sub">Edition 1.1 · Multi-Page</div>
+      </div>
     </div>
-    <input id="toc-search" class="toc-search" type="search" placeholder="Filter chapters..." aria-label="Filter chapters" />
-    <nav id="toc-nav" class="toc-nav"><ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">· Parts 1–2</span></a></li>
-<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">· Parts 3–4</span></a></li>
-<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">· Parts 5–6</span></a></li>
-<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">· Parts 7–8</span></a></li>
-<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">· Part 9</span></a></li>
-<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">· Part 10 + App.</span></a></li>
-<li><a href="dictionary.html" class="active">System Dictionary <span style="opacity:.65;font-size:.8em">· Terminology</span></a></li></ul></nav>
+    <div class="sidebar-search">
+      <label class="sr-only" for="toc-search">Filter chapters</label>
+      <input type="search" id="toc-search" placeholder="Filter chapters..." autocomplete="off" />
+    </div>
+    <nav class="toc-scroll" id="toc-nav" aria-label="Table of Contents">
+      <ul><li><a href="index.html" class="">Overview & Flows <span style="opacity:.65;font-size:.8em">&middot; Parts 1–2</span></a></li>
+<li><a href="architecture.html" class="">Server & LAN <span style="opacity:.65;font-size:.8em">&middot; Parts 3–4</span></a></li>
+<li><a href="identity-db.html" class="">Identity & DB <span style="opacity:.65;font-size:.8em">&middot; Parts 5–6</span></a></li>
+<li><a href="walkthrough.html" class="">Demo & Admin <span style="opacity:.65;font-size:.8em">&middot; Parts 7–8</span></a></li>
+<li><a href="testing.html" class="">Testing & E2E <span style="opacity:.65;font-size:.8em">&middot; Part 9</span></a></li>
+<li><a href="troubleshooting.html" class="">Runbooks & Index <span style="opacity:.65;font-size:.8em">&middot; Part 10 + App.</span></a></li>
+<li><a href="dictionary.html" class="active">System Dictionary <span style="opacity:.65;font-size:.8em">&middot; Terminology</span></a></li></ul>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-btn" href="dictionary.html">Dictionary</a>
+      <button type="button" class="side-btn" id="print-btn">Print / PDF</button>
+    </div>
   </aside>
-  <main class="content">
-    <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+
+  <main class="book-main">
+    <article class="book-page">
+      <nav class="page-nav-pills" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="active">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
-    
+      
 <h2 class="chapter-h2"><span class="chapter-eyebrow">REFERENCE</span>System Terminology &amp; Architecture Dictionary</h2>
 <p>Plain-English definitions of every protocol, security control, database concept, and server component deployed in Couriva WebMail.</p>
 <input id="dict-search" class="dict-search" type="search" placeholder="Search terms (e.g. ACID, LDAPS, CSP, objectGUID)..." aria-label="Search dictionary terms" />
@@ -69,13 +84,14 @@
 <article class="dict-card"><div class="dict-cat">Testing &amp; Quality</div><h3>WCAG AA &amp; axe-core</h3><p>Web Content Accessibility Guidelines (Level AA) audited automatically by axe-core for color contrast (&gt;=4.5:1), ARIA labels, heading hierarchy, and &lt;main&gt; landmarks.</p></article>
 </div>
 
-    <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
+      <nav class="page-nav-pills" style="margin-top:32px" aria-label="Chapter pages"><a href="index.html" class="">Overview & Flows <small style="opacity:.75">(Parts 1–2)</small></a>
 <a href="architecture.html" class="">Server & LAN <small style="opacity:.75">(Parts 3–4)</small></a>
 <a href="identity-db.html" class="">Identity & DB <small style="opacity:.75">(Parts 5–6)</small></a>
 <a href="walkthrough.html" class="">Demo & Admin <small style="opacity:.75">(Parts 7–8)</small></a>
 <a href="testing.html" class="">Testing & E2E <small style="opacity:.75">(Part 9)</small></a>
 <a href="troubleshooting.html" class="">Runbooks & Index <small style="opacity:.75">(Part 10 + App.)</small></a>
 <a href="dictionary.html" class="active">System Dictionary <small style="opacity:.75">(Terminology)</small></a></nav>
+    </article>
   </main>
 </div>
 

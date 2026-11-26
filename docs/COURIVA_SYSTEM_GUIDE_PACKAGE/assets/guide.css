@@ -223,18 +223,18 @@ a.fig-ref:hover { background: #dbeafe; text-decoration: none; }
 
 
 /* Multi-page navigation & Dictionary styles */
-.page-nav-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.page-nav-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
 .page-nav-pills a {
   display: inline-block; padding: 6px 12px; border-radius: 6px;
-  font-size: 0.85rem; font-weight: 600; text-decoration: none;
+  font-size: 0.84rem; font-weight: 600; text-decoration: none;
   background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;
 }
 .page-nav-pills a.active, .page-nav-pills a:hover {
   background: #1d4ed8; color: #ffffff; border-color: #1d4ed8;
 }
 .dict-search { width: 100%; max-width: 480px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; margin-bottom: 18px; }
-.dict-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
+.dict-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
 .dict-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }
 .dict-card .dict-cat { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #1d4ed8; margin-bottom: 4px; }
-.dict-card h3 { margin: 0 0 6px; font-size: 1.05rem; color: #0f172a; }
-.dict-card p { margin: 0; font-size: 0.9rem; color: #334155; line-height: 1.48; }
+.dict-card h3 { margin: 0 0 6px; font-size: 1.02rem; color: #0f172a; }
+.dict-card p { margin: 0; font-size: 0.88rem; color: #334155; line-height: 1.48; }

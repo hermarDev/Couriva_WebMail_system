@@ -192,4 +192,20 @@
       });
     });
   }
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lb-img');
+  const lbCap = document.getElementById('lb-cap');
+  if (lb && lbImg) {
+    document.addEventListener('click', (e) => {
+      const fig = e.target.closest('.inline-fig, .fig-card');
+      if (!fig) return;
+      const img = fig.querySelector('img');
+      if (img && img.src) {
+        lbImg.src = img.src;
+        if (lbCap) lbCap.textContent = fig.querySelector('figcaption')?.textContent || '';
+        lb.classList.add('open');
+        lb.setAttribute('aria-hidden', 'false');
+      }
+    }, true);
+  }
 })();
