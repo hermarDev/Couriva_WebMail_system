@@ -342,7 +342,13 @@
     if (e.key === 'ArrowRight') show(idx + 1);
   });
 
-  show(0);
+  var startIdx = 0;
+  var m = /[?&]slide=(\d+)/.exec(window.location.search);
+  if (m) {
+    var sn = parseInt(m[1], 10);
+    if (sn >= 1 && sn <= slides.length) startIdx = sn - 1;
+  }
+  show(startIdx);
 })();
 </script>
 <script src="assets/guide.js"></script>
