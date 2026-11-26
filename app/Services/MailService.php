@@ -22,6 +22,7 @@ require_once dirname(__DIR__) . '/Models/User.php';
 require_once __DIR__ . '/AttachmentService.php';
 require_once __DIR__ . '/SmtpTransport.php';
 require_once __DIR__ . '/OrganizationService.php';
+require_once __DIR__ . '/StorageQuotaService.php';
 
 class MailService
 {
@@ -29,6 +30,7 @@ class MailService
     protected Email $emailModel;
     protected User $userModel;
     protected AttachmentService $attachmentService;
+    protected StorageQuotaService $storageQuota;
     public array $config;
 
     public function __construct(PDO $pdo, ?array $mailConfig = null)
@@ -36,8 +38,47 @@ class MailService
         $this->pdo = $pdo;
         $this->emailModel = new Email($pdo);
         $this->userModel = new User($pdo);
-        $this->attachmentService = new AttachmentService($pdo, $mailConfig);
         $this->config = $mailConfig ?? (require dirname(dirname(__DIR__)) . '/config/mail.php');
+        $this->attachmentService = new AttachmentService($pdo, $this->config);
+        $this->storageQuota = new StorageQuotaService(
+            $pdo,
+            null,
+            $this->config['attachments']['storage_path'] ?? null
+        );
+    }
+
+    /** Storage helpers shared with the compose page and scheduled worker. */
+    public function estimateAttachmentGrowth(array $emailIds, int $copyCount, int $newUploadBytes = 0): int
+    {
+        return $this->storageQuota->estimateTransferBytes($emailIds, $copyCount, $newUploadBytes);
+    }
+
+    public function assertAttachmentQuota(int $userId, int $additionalBytes): void
+    {
+        $this->storageQuota->assertCanAttach($userId, $additionalBytes);
+    }
+
+    public function storageQuotaBytes(): int
+    {
+        return $this->storageQuota->quotaBytes();
+    }
+
+    /** Sum sizes from a standard $_FILES['attachments'] structure. */
+    protected function uploadedBytes(array $files): int
+    {
+        $total = 0;
+        if (isset($files['name']) && is_array($files['name'])) {
+            foreach ($files['error'] ?? [] as $index => $error) {
+                if ($error === UPLOAD_ERR_OK) {
+                    $total += (int)($files['size'][$index] ?? 0);
+                }
+            }
+        } elseif (isset($files['name']) && is_string($files['name'])) {
+            if (($files['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                $total += (int)($files['size'] ?? 0);
+            }
+        }
+        return $total;
     }
 
     /**
@@ -424,6 +465,14 @@ class MailService
             }
         }
 
+        // Enforce quota before any draft/attachment write. Only block when
+        // new bytes are actually being added, so editing a draft without new
+        // attachments keeps working for users already near their limit.
+        $newBytes = $this->uploadedBytes($files);
+        if ($newBytes > 0) {
+            $this->storageQuota->assertCanAttach($userId, $newBytes);
+        }
+
         $this->pdo->beginTransaction();
 
         try {
@@ -671,7 +720,18 @@ class MailService
 
         $placeholders = implode(',', array_fill(0, count($validIds), '?'));
 
+        $filepaths = [];
         if ($permanent) {
+            $pathStmt = $this->pdo->prepare("
+                SELECT DISTINCT att.filepath
+                FROM attachments att
+                JOIN emails e ON att.email_id = e.id
+                WHERE att.email_id IN ({$placeholders})
+                  AND (e.recipient_id = ? OR (e.sender_id = ? AND e.recipient_id IS NULL))
+            ");
+            $pathStmt->execute(array_merge($validIds, [$userId, $userId]));
+            $filepaths = $pathStmt->fetchAll(PDO::FETCH_COLUMN);
+
             $sql = "
                 DELETE FROM emails 
                 WHERE id IN ({$placeholders}) 
@@ -691,8 +751,14 @@ class MailService
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        $deleted = $stmt->rowCount();
 
-        return $stmt->rowCount();
+        if ($permanent && $deleted > 0) {
+            // Cascade removed the metadata rows; drop files nobody references.
+            $this->storageQuota->cleanupOrphanedFiles($filepaths);
+        }
+
+        return $deleted;
     }
 
     /**

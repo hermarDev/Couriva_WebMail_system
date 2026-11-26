@@ -14,12 +14,14 @@ require_once dirname(__DIR__) . '/app/Models/Attachment.php';
 require_once dirname(__DIR__) . '/app/Services/AttachmentService.php';
 require_once dirname(__DIR__) . '/app/Services/SmtpTransport.php';
 require_once dirname(__DIR__) . '/app/Services/MailService.php';
+require_once dirname(__DIR__) . '/app/Services/StorageQuotaService.php';
 
 require_auth();
 
 $userId = (int)$_SESSION['user_id'];
 $activeFolder = 'trash';
 $pageTitle = 'Trash';
+$storageQuota = new \App\Services\StorageQuotaService($pdo);
 
 // Handle POST actions (Move to trash, restore, empty trash, permanent delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -28,16 +30,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $emailId = (int)($_POST['email_id'] ?? 0);
 
         if ($action === 'empty_trash') {
+            $pathStmt = $pdo->prepare("
+                SELECT DISTINCT att.filepath
+                FROM attachments att
+                JOIN emails e ON att.email_id = e.id
+                WHERE (e.recipient_id = ? OR (e.sender_id = ? AND e.recipient_id IS NULL))
+                  AND (e.folder = 'trash' OR e.deleted_at IS NOT NULL)
+            ");
+            $pathStmt->execute([$userId, $userId]);
+            $filepaths = $pathStmt->fetchAll(PDO::FETCH_COLUMN);
+
             $stmt = $pdo->prepare("DELETE FROM emails WHERE (recipient_id = ? OR (sender_id = ? AND recipient_id IS NULL)) AND (folder = 'trash' OR deleted_at IS NOT NULL)");
             $stmt->execute([$userId, $userId]);
+            $storageQuota->cleanupOrphanedFiles($filepaths);
             set_flash('success', 'Trash has been emptied.');
         } elseif ($action === 'restore' && $emailId > 0) {
             $stmt = $pdo->prepare("UPDATE emails SET folder = 'inbox', deleted_at = NULL WHERE id = ? AND (recipient_id = ? OR (sender_id = ? AND recipient_id IS NULL))");
             $stmt->execute([$emailId, $userId, $userId]);
             set_flash('success', 'Email restored to Inbox.');
         } elseif ($action === 'permanent_delete' && $emailId > 0) {
+            $pathStmt = $pdo->prepare("
+                SELECT DISTINCT att.filepath
+                FROM attachments att
+                JOIN emails e ON att.email_id = e.id
+                WHERE att.email_id = ?
+                  AND (e.recipient_id = ? OR (e.sender_id = ? AND e.recipient_id IS NULL))
+            ");
+            $pathStmt->execute([$emailId, $userId, $userId]);
+            $filepaths = $pathStmt->fetchAll(PDO::FETCH_COLUMN);
+
             $stmt = $pdo->prepare("DELETE FROM emails WHERE id = ? AND (recipient_id = ? OR (sender_id = ? AND recipient_id IS NULL))");
             $stmt->execute([$emailId, $userId, $userId]);
+            $storageQuota->cleanupOrphanedFiles($filepaths);
             set_flash('success', 'Email permanently deleted.');
         } elseif ($emailId > 0) {
             // Default soft delete / move to trash

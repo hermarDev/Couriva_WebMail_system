@@ -203,6 +203,13 @@ class ScheduledMailService
             $attachments = $attachmentStmt->fetchAll();
 
             $mailService = new MailService($this->pdo);
+
+            // Scheduled delivery attaches files outside the compose page, so
+            // it must enforce the same per-user quota before sending.
+            $recipientCount = array_sum(array_map('count', $recipients));
+            $growth = $mailService->estimateAttachmentGrowth([$draftId], 1 + $recipientCount);
+            $mailService->assertAttachmentQuota($userId, $growth);
+
             $sendResult = $mailService->sendEmail(
                 $userId,
                 $recipients,
@@ -312,9 +319,10 @@ class ScheduledMailService
         } catch (Throwable $e) {
             error_log('Scheduled dispatch failed: ' . $e->getMessage());
 
-            $attempts = (int)($schedule['attempts'] ?? 0) + 1;
+            $isQuotaFailure = str_contains($e->getMessage(), 'Storage limit');
+            $attempts = $isQuotaFailure ? 3 : (int)($schedule['attempts'] ?? 0) + 1;
             $nowTs = date('Y-m-d H:i:s');
-            if ($attempts < 3) {
+            if (!$isQuotaFailure && $attempts < 3) {
                 $nextRun = date('Y-m-d H:i:s', time() + 300);
                 $retry = $this->pdo->prepare("
                     UPDATE scheduled_emails
@@ -324,12 +332,15 @@ class ScheduledMailService
                 ");
                 $retry->execute([$attempts, $nextRun, 'Delivery attempt failed. Couriva will retry automatically.', $nowTs, $scheduleId]);
             } else {
+                $reason = $isQuotaFailure
+                    ? $e->getMessage()
+                    : 'Delivery failed after multiple attempts.';
                 $fail = $this->pdo->prepare("
                     UPDATE scheduled_emails
                     SET status = 'failed', attempts = ?, last_error = ?, updated_at = ?
                     WHERE id = ?
                 ");
-                $fail->execute([$attempts, 'Delivery failed after multiple attempts.', $nowTs, $scheduleId]);
+                $fail->execute([$attempts, $reason, $nowTs, $scheduleId]);
             }
 
             create_notification(

@@ -228,7 +228,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($attachmentValidationError !== null) {
                 $error = $attachmentValidationError;
             } else {
+                // Enforce the per-user storage quota before any email or
+                // attachment row is written. Count new uploads plus the
+                // copies created for forwards and carried-over drafts.
+                $newUploadBytes = 0;
+                foreach ($validatedUploads as $file) {
+                    $newUploadBytes += (int)($file['size'] ?? 0);
+                }
+                $sourceIds = [];
+                if ($forwardEmailId > 0) {
+                    $sourceIds[] = $forwardEmailId;
+                }
+                if ($postedDraftId > 0) {
+                    $sourceIds[] = $postedDraftId;
+                }
+                $copyCount = 1 + count($effectiveRecipients['to'])
+                    + count($effectiveRecipients['cc'])
+                    + count($effectiveRecipients['bcc']);
+
                 try {
+                    $mailService->assertAttachmentQuota(
+                        $userId,
+                        $mailService->estimateAttachmentGrowth($sourceIds, $copyCount, $newUploadBytes)
+                    );
                     $sendResult = $mailService->sendEmail(
                         $userId,
                         $effectiveRecipients,
@@ -237,8 +259,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $parentEmailId
                     );
                 } catch (Throwable $e) {
-                    error_log('Email send failed: ' . $e->getMessage());
-                    $sendResult = ['success' => false, 'error' => 'Unable to send the message. Please try again later.'];
+                    if (str_contains($e->getMessage(), 'Storage limit')) {
+                        $sendResult = ['success' => false, 'error' => $e->getMessage()];
+                    } else {
+                        error_log('Email send failed: ' . $e->getMessage());
+                        $sendResult = ['success' => false, 'error' => 'Unable to send the message. Please try again later.'];
+                    }
                 }
 
                 if ($sendResult['success']) {
@@ -313,7 +339,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit;
                     }
                 } else {
-                    $error = 'Failed to deliver message: ' . ($sendResult['error'] ?? 'Unknown error');
+                    $deliveryError = (string)($sendResult['error'] ?? 'Unknown error');
+                    $error = str_starts_with($deliveryError, 'Storage limit')
+                        ? $deliveryError
+                        : 'Failed to deliver message: ' . $deliveryError;
                 }
             }
         }

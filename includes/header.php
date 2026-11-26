@@ -11,6 +11,7 @@ if (!defined('WEBMAIL_INIT')) {
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/auth.php';
 require_once dirname(__DIR__) . '/app/Services/OrganizationService.php';
+require_once dirname(__DIR__) . '/app/Services/StorageQuotaService.php';
 
 // Authenticated user information
 $userId = $_SESSION['user_id'] ?? 0;
@@ -39,6 +40,7 @@ $snoozedCount = 0;
 $scheduledCount = 0;
 $archiveCount = 0;
 $unreadNotifications = 0;
+$openSpamReportsCount = 0;
 $organizationLabels = [];
 $userFolders = [];
 
@@ -77,25 +79,26 @@ if ($userId > 0 && empty($_SESSION['must_change_password'])) {
 
         $unreadNotifications = unread_notification_count($userId);
 
+        if ($isAdmin) {
+            $openSpamReportsCount = (int)$pdo->query("SELECT COUNT(*) FROM spam_reports WHERE status = 'open'")->fetchColumn();
+        }
+
         $organization = new \App\Services\OrganizationService($pdo);
         $organizationLabels = $organization->getLabels($userId);
         $userFolders = $organization->getFolders($userId);
 
-        // Storage calculation
-        $storageStmt = $pdo->prepare("
-            SELECT COALESCE(SUM(att.filesize), 0)
-            FROM attachments att
-            JOIN emails e ON att.email_id = e.id
-            WHERE (e.sender_id = ? OR e.recipient_id = ?)
-        ");
-        $storageStmt->execute([$userId, $userId]);
-        $userStorageBytes = (int)$storageStmt->fetchColumn();
+        // Storage calculation (shared with the quota gate in MailService)
+        $storageQuota = new \App\Services\StorageQuotaService($pdo);
+        $userStorageBytes = $storageQuota->usage((int)$userId);
+        $storageQuotaBytes = $storageQuota->quotaBytes();
     } catch (Throwable $t) {
         // Fallback silently if DB issue
     }
 }
 
-$storageQuotaBytes = 500 * 1024 * 1024; // 500 MB default quota
+if (!isset($storageQuotaBytes)) {
+    $storageQuotaBytes = \App\Services\StorageQuotaService::DEFAULT_QUOTA_BYTES;
+}
 $storagePercent = min(100, (int)round(($userStorageBytes / $storageQuotaBytes) * 100));
 $currentTheme = is_authenticated() ? ($_SESSION['user_theme'] ?? 'light') : '';
 $resolvedTheme = $currentTheme === 'dark' ? 'dark' : 'light';
@@ -282,6 +285,13 @@ $bodyClass = $bodyClass ?? '';
                             <a href="<?= app_base_url('admin/logs.php') ?>" class="app-launcher-tile text-decoration-none">
                                 <div class="app-tile-icon"><i class="bi bi-file-earmark-text-fill"></i></div>
                                 <span class="app-tile-name">Logs</span>
+                            </a>
+                            <a href="<?= app_base_url('admin/spam-reports.php') ?>" class="app-launcher-tile text-decoration-none position-relative">
+                                <div class="app-tile-icon"><i class="bi bi-shield-exclamation"></i></div>
+                                <span class="app-tile-name">Spam Reports</span>
+                                <?php if ($openSpamReportsCount > 0): ?>
+                                    <span class="badge rounded-pill bg-danger position-absolute top-0 end-0 m-1" style="font-size: 0.65rem;"><?= $openSpamReportsCount ?></span>
+                                <?php endif; ?>
                             </a>
                         <?php endif; ?>
                     </div>

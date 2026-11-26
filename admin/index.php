@@ -17,6 +17,7 @@ $activeUsers = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE status = 'acti
 $disabledUsers = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE status = 'disabled'")->fetchColumn();
 $totalEmails = (int)$pdo->query("SELECT COUNT(*) FROM emails")->fetchColumn();
 $totalAttachmentBytes = (int)$pdo->query("SELECT COALESCE(SUM(filesize), 0) FROM attachments")->fetchColumn();
+$openSpamReports = (int)$pdo->query("SELECT COUNT(*) FROM spam_reports WHERE status = 'open'")->fetchColumn();
 
 // Fetch recent system activity
 $logsStmt = $pdo->query("
@@ -48,6 +49,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <a href="<?= app_base_url('admin/logs.php') ?>" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
             <i class="bi bi-journal-text"></i>
             <span>System Logs</span>
+        </a>
+        <a href="<?= app_base_url('admin/spam-reports.php') ?>" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-shield-exclamation"></i>
+            <span>Spam Reports</span>
+            <?php if ($openSpamReports > 0): ?>
+                <span class="badge bg-danger text-white rounded-pill ms-1"><?= $openSpamReports ?></span>
+            <?php endif; ?>
         </a>
     </div>
 </div>

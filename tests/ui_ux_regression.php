@@ -30,6 +30,7 @@ $checks = [
     'unsupported remember me is removed' => !str_contains($login, 'name="remember_me"'),
     'password has an accessible icon toggle' => str_contains($login, 'password-toggle') && str_contains($js, 'password-toggle'),
     'navigation provides a skip link' => str_contains($header, 'href="#main-content"') && str_contains($header, 'id="main-content"'),
+    'admin navigation includes Spam Reports link' => str_contains($header, 'admin/spam-reports.php') && str_contains($header, 'bi-shield-exclamation') && str_contains(file_get_contents($root . '/admin/index.php'), 'admin/spam-reports.php') && str_contains(file_get_contents($root . '/admin/index.php'), 'bi-shield-exclamation'),
 ];
 $failed = 0;
 foreach ($checks as $name => $passed) {
